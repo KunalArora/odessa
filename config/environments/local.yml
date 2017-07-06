@@ -1,0 +1,3 @@
+BOC_API_CALL_TIMEOUT: 180
+BOC_BASE_URL: 'https://dev-connections.mysora.net'
+DEFAULT_BOC_SERVICE_ID: 2

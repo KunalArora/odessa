@@ -1,0 +1,22 @@
+service: odessa
+
+provider:
+  name: aws
+  runtime: python3.6
+  environment: ${file(./config/environments/${opt:stage, self:provider.stage}.yml)}
+  stage: local
+
+functions:
+  get_device_settings:
+    handler: functions/device_settings/handler.get
+    events:
+      - http:
+          path: devices/setting/get
+          method: post
+
+  set_device_settings:
+    handler: functions/device_settings/handler.set
+    events:
+      - http:
+          path: devices/setting/set
+          method: post
