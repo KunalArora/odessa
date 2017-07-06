@@ -3,8 +3,22 @@ service: odessa
 provider:
   name: aws
   runtime: python3.6
-  environment: ${file(./config/environments/${opt:stage, self:provider.stage}.yml)}
-  stage: local
+  stage: ${opt:stage, self:custom.defaultStage}
+  profile: ${opt:profile, self:custom.defaultProfile}
+  region: ${opt:region, self:custom.defaultRegion}
+  environment: ${file(config/environments/${self:provider.stage}.yml)}
+
+package:
+  exclude:
+    - .env/**
+    - .git/**
+    - node_modules/**
+    - tests/**
+
+custom:
+  defaultStage: local
+  defaultProfile: default
+  defaultRegion: eu-central-1
 
 functions:
   get_device_settings:
