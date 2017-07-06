@@ -84,3 +84,6 @@ target/
 env/
 venv/
 ENV/
+
+# serverless
+.serverless/
