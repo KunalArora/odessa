@@ -1,0 +1,15 @@
+{
+  "device_id": [
+      "ffffffff-ffff-ffff-ffff-ffffff0wrong",
+      "ffffffff-ffff-ffff-ffff-ffffff000000",
+      "ffffffff-ffff-ffff-ffff-ffffff000001",
+      "ffffffff-ffff-ffff-ffff-ffffff000002",
+      "ffffffff-ffff-ffff-ffff-ffffff000003",
+      "ffffffff-ffff-ffff-ffff-ffffff000004",
+      "ffffffff-ffff-ffff-ffff-ffffff000005",
+      "ffffffff-ffff-ffff-ffff-ffffff000006",
+      "ffffffff-ffff-ffff-ffff-ffffff000007",
+      "ffffffff-ffff-ffff-ffff-ffffff000008",
+      "ffffffff-ffff-ffff-ffff-ffffff000009"
+  ]
+}

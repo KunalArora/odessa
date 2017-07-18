@@ -1,5 +1,8 @@
 service: odessa
 
+plugins:
+ - serverless-dynamodb-local
+
 provider:
   name: aws
   runtime: python3.6
@@ -7,7 +10,43 @@ provider:
   profile: ${opt:profile, self:custom.defaultProfile}
   region: ${opt:region, self:custom.defaultRegion}
   environment: ${file(config/environments/${self:provider.stage}.yml)}
-
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+        - dynamodb:BatchWriteItem
+        - lambda:InvokeFunction
+      Resource:
+        - 'Fn::Join':
+          - ':'
+          -
+            - 'arn:aws:dynamodb'
+            - Ref: 'AWS::Region'
+            - Ref: 'AWS::AccountId'
+            - 'table/*'
+    - Effect: Allow
+      Action:
+        - dynamodb:DescribeStream
+        - dynamodb:GetRecords
+        - dynamodb:GetShardIterator
+        - dynamodb:ListStreams
+      Resource:
+        - 'Fn::Join':
+          - ':'
+          -
+            - 'arn:aws:dynamodb'
+            - Ref: 'AWS::Region'
+            - Ref: 'AWS::AccountId'
+            - 'table/device_subscriptions'
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+      Resource: "*"
 package:
   exclude:
     - .env/**
@@ -19,6 +58,23 @@ custom:
   defaultStage: local
   defaultProfile: default
   defaultRegion: eu-central-1
+  dynamodb:
+    start:
+      port: 8000
+      inMemory: true
+      migrate: true
+      seed: true
+    migrate:
+      dir: ./db/migrations
+    seed:
+      domain:
+        sources:
+          - table: service_oids
+            sources: [./db/seeds/service_oids.json]
+      test:
+        sources:
+          - table: device_subscriptions
+            sources: [./tests/fixtures/device_subscriptions.json]
 
 functions:
   get_device_settings:
@@ -34,3 +90,79 @@ functions:
       - http:
           path: devices/setting/set
           method: post
+
+  subscription_info:
+    handler: functions/subscriptions/handler.subscription_info
+    events:
+      - http:
+          path: devices/subscription/log/get
+          method: post
+
+  subscribe:
+    handler: functions/subscriptions/handler.subscribe
+    events:
+      - http:
+          path: devices/subscription/log/subscribe
+          method: post
+
+  unsubscribe:
+    handler: functions/subscriptions/handler.unsubscribe
+    events:
+      - http:
+          path: devices/subscription/log/unsubscribe
+          method: post
+
+  subscription_stream_trigger:
+    handler: functions/subscriptions/stream.subscriptions
+    events:
+      - stream:
+          type: dynamodb
+          arn:
+            Fn::GetAtt:
+              - DeviceSubscriptions
+              - StreamArn
+          startingPosition: TRIM_HORIZON
+
+  run_subscribe:
+    name: run_subscribe
+    handler: functions/subscriptions/async.run_subscribe
+
+  run_unsubscribe:
+    name: run_unsubscribe
+    handler: functions/subscriptions/async.run_unsubscribe
+
+resources:
+  Resources:
+    DeviceSubscriptions:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: device_subscriptions
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+          - AttributeName: oid
+            KeyType: RANGE
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: oid
+            AttributeType: S
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 5
+        StreamSpecification:
+          StreamEnabled: true
+          StreamViewType: NEW_IMAGE
+    ServiceOids:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: service_oids
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1

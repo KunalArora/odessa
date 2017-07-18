@@ -1,0 +1,24 @@
+{
+  "Records": [
+    {
+      "eventID":"new_subscription",
+      "eventName":"REMOVE",
+      "eventVersion":"1.1",
+      "eventSourceARN": "dummy",
+      "eventSource":"aws:dynamodb",
+      "awsRegion":"us-east-1",
+      "dynamodb":{
+        "ApproximateCreationDateTime":123,
+        "Keys":{
+          "id":{
+            "S":"ffffffff-ffff-ffff-ffff-ffffff000003#0"
+          },
+          "oid":{
+            "S":"1.3.6.1.2.1.1.6.0"
+          }
+        },
+        "StreamViewType":"NEW_IMAGE"
+      }
+    }
+  ]
+}

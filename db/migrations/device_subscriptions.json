@@ -1,0 +1,33 @@
+{
+  "Table":
+  {
+    "TableName": "device_subscriptions",
+    "KeySchema":
+    [
+      {
+        "AttributeName": "id",
+        "KeyType": "HASH"
+      },
+      {
+        "AttributeName": "oid",
+        "KeyType": "RANGE"
+      }
+    ],
+    "AttributeDefinitions":
+    [
+      {
+        "AttributeName": "id",
+        "AttributeType": "S"
+      },
+      {
+        "AttributeName": "oid",
+        "AttributeType": "S"
+      }
+    ],
+    "ProvisionedThroughput":
+    {
+      "ReadCapacityUnits": 1,
+      "WriteCapacityUnits": 5
+    }
+  }
+}

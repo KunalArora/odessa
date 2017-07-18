@@ -1,0 +1,38 @@
+{
+  "Records": [
+    {
+      "eventID":"new_subscription",
+      "eventName":"INSERT",
+      "eventVersion":"1.1",
+      "eventSourceARN": "dummy",
+      "eventSource":"aws:dynamodb",
+      "awsRegion":"us-east-1",
+      "dynamodb":{
+        "ApproximateCreationDateTime":123,
+        "Keys":{
+          "id":{
+            "S":"ffffffff-ffff-ffff-ffff-ffffff0wrong#0"
+          },
+          "oid":{
+            "S":"1.3.6.1.2.1.1.6.0"
+          }
+        },
+        "NewImage":{
+          "status":{
+            "N":"1202"
+          },
+          "message":{
+            "S":"Subscribe accepted"
+          },
+          "created_at":{
+            "S":"2017-06-02T00:59:59"
+          },
+          "updated_at":{
+            "S":"2017-06-02T00:59:59"
+          }
+        },
+        "StreamViewType":"NEW_IMAGE"
+      }
+    }
+  ]
+}

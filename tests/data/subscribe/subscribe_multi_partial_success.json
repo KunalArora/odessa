@@ -1,0 +1,11 @@
+{
+  "time_period": 30,
+  "log_service_id": "0",
+  "device_id" :[
+    "ffffffff-ffff-ffff-ffff-ffffff0wrong",
+    "ffffffff-ffff-ffff-ffff-ffffff000001",
+    "ffffffff-ffff-ffff-ffff-ffffff000005",
+    "ffffffff-ffff-ffff-ffff-ffffff000006",
+    "ffffffff-ffff-ffff-ffff-ffffff000007"
+  ]
+}
