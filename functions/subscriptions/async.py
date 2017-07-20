@@ -25,7 +25,7 @@ def run_subscribe(event, context):
     try:
         time_period = helper.verify_time_period(event['time_period'])
     except:
-        time_period = helper.DEFAULT_TIME_PERIOD_MINS
+        time_period = helper.DEFAULT_TIME_PERIOD_MINS * 60
     try:
         oid_info = ServiceOid().read(event['log_service_id'])
         if not oid_info:

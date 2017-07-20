@@ -163,10 +163,10 @@ def invoke_async(function_name, payload):
 
 def verify_time_period(time_period):
     if time_period < MINIMUM_TIME_PERIOD_MINS:
-        return MINIMUM_TIME_PERIOD_MINS
+        return MINIMUM_TIME_PERIOD_MINS * 60
     elif time_period > MAXIMUM_TIME_PERIOD_MINS:
-        return MAXIMUM_TIME_PERIOD_MINS
-    return time_period
+        return MAXIMUM_TIME_PERIOD_MINS * 60
+    return time_period * 60
 
 
 def has_acceptable_sub_errors_only(response):

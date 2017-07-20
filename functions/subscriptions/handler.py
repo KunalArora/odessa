@@ -103,7 +103,7 @@ def subscribe(event, context):
     elif conflict_exists:
         response = helper.create_odessa_response(CONFLICT, device_list)
     elif db_error_exists:  # pragma: no cover
-        helper.create_odessa_response(DB_CONNECTION_ERROR, device_list)
+        response = helper.create_odessa_response(DB_CONNECTION_ERROR, device_list)
     else:
         response = helper.create_odessa_response(ERROR, device_list)
 
