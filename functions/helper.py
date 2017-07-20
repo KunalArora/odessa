@@ -122,9 +122,9 @@ def subscription_api_client(boc_service_id):
 def process_get_subscription_response(response, device_info):
     if int(response['success']):
         for notification in response['notifications']:
-            if(int(notification['error_code']) == NOTIFICATION_NO_CACHE):
-                return SUBSCRIBED_OFFLINE
-        return SUBSCRIBED
+            if(int(notification['error_code']) == NO_ERROR):
+                return SUBSCRIBED
+        return SUBSCRIBED_OFFLINE
     elif(int(response['code']) == DEVICE_NOT_RECOGNIZED or
          int(response['code']) == OBJECT_SUBSCRIPTION_NOT_FOUND):
         return NOT_SUBSCRIBED

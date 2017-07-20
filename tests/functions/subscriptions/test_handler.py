@@ -539,7 +539,7 @@ class SubscriptionInfoTestCase(unittest.TestCase):
                   'status': '0',
                   'user_id': '184878',
                   'timestamp': '0'},
-                 {'error_code': '200',
+                 {'error_code': '404',
                   'object_id': '1.3.6.1.2.1.1.4.0',
                   'status': '0',
                   'user_id': '184878',
