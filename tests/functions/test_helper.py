@@ -156,6 +156,25 @@ def create_table(self):
                 ProvisionedThroughput=schema['ProvisionedThroughput']
                 )
 
+def seed_ddb_device_settings(self):
+    create_table(self)
+    table = self.dynamodb.Table('service_oids')
+    with open(
+            f'{path}/../fixtures/subscriptions/service_oids.json'
+            ) as json_file:
+        service_oids = json.load(json_file)
+    with table.batch_writer() as batch:
+        for service_oid in service_oids:
+            id = service_oid["id"]
+            oids = service_oid["oids"]
+            boc_service_id = service_oid["boc_service_id"]
+            batch.put_item(
+                    Item={
+                        'id': id,
+                        'oids': oids,
+                        'boc_service_id': boc_service_id
+                    }
+            )
 
 def seed_ddb_subscriptions(self):
     create_table(self)

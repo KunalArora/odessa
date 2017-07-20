@@ -1,7 +1,6 @@
 IS_LOCAL: 'true'
 BOC_API_CALL_TIMEOUT: '180'
 BOC_BASE_URL: 'https://dev-connections.mysora.net'
-DEFAULT_BOC_SERVICE_ID: '2'
 DYNAMO_ENDPOINT_URL: http://localhost:8000
 REDIS_ENDPOINT_URL: localhost
 PROXY: ""
