@@ -10,7 +10,6 @@ from constants.device_response_codes import *
 from constants.oids import *
 from boc.subscription import Subscription
 from pymib.oid import OID
-from models.device_log import DeviceLog
 
 RUN_SUBSCRIBE_ASYNC = 'run_subscribe'
 RUN_UNSUBSCRIBE_ASYNC = 'run_unsubscribe'
@@ -39,7 +38,7 @@ class NotificationError(Exception):
         self.errArgu = errArgu
 
 
-class EventError(Exception):
+class EventParameterError(Exception):
     def __init__(self, errArgu):
         Exception.__init__(self)
         self.errArgu = errArgu
@@ -188,46 +187,6 @@ def has_acceptable_unsub_errors_only(response):
             return False
     return True
 
-def parse(device_log, verified_data):
-#    Parse the data using MIB Parser to retrieve
-#    feature list and their corresponding values
-#    verified_data_format: {'Items':[{'value':'', 'id':'', 'timestamp':''}]}
-    logger = logging.getLogger('device_logs')
-    logger.setLevel(logging.INFO)
-    parse_res = []
-    for data in verified_data['Items']:
-        device_id = (data['id'].split('#')[0])
-        object_id = (data['id'].split('#')[1])
-        try:
-            charset_value = ''
-            oid = OID(object_id)
-            if oid.type in ['charset', 'counter']:
-                continue
-            if oid.is_needed_charset():
-                value = device_log.get_charset(device_id)
-                charset_oid = OID(CHARSET_OID)
-                charset_value = charset_oid.parse(value)
-            result = oid.parse(data['value'], charset_value)
-            for k, v  in result.items():
-                v = filter_res(k, v)
-                parse_res.append(
-                    create_feature_format(
-                        SUCCESS, k, v, data['timestamp']
-                ))
-        except Exception as e:
-            logger.error(e)
-            logger.warning(
-                "MIB parse exception for device_id {%s}, oid {%s},value {%s}"
-                % (device_id, object_id, data['value']))
-            res = create_feature_format(
-                INTERNAL_SERVER_ERROR,
-                object_id,
-                data['value'], '',
-                message='Parser Error'
-            )
-            parse_res.append(res)
-    return(parse_res)
-
 def filter_res(feature, value):
     filter_list = (["TonerInk_LifeBlack",
                 "TonerInk_LifeCyan",
@@ -236,6 +195,7 @@ def filter_res(feature, value):
     if feature in filter_list:
         value = str(int(value)//100)
     return value
+
 
 def create_feature_format(code, feature, value, timestamp, **options):
     feature_format = {}

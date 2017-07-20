@@ -74,8 +74,8 @@ custom:
     start:
       port: 8000
       inMemory: true
-      migrate: false
-      seed: false
+      migrate: true
+      seed: true
     migrate:
       dir: ./db/migrations
     seed:

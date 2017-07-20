@@ -7,7 +7,7 @@ class DeviceNetworkStatus(Base):
         super().__init__()
 
     def get_latest_status(self, device_id):
-#        Retrieve latest network status from either ElastiCache or DynamoDb.
+        #   Retrieve latest network status from either ElastiCache or DynamoDb.
         table = self.dynamodb.Table('device_network_statuses')
         if device_id:
             if(self.elasticache):
@@ -22,7 +22,7 @@ class DeviceNetworkStatus(Base):
             return (db_res)
 
     def is_exists_cache(self, notify_data):
-#        Verify if the notified data is already stored in ElastiCache or not.
+        #   Verify if the notified data is already stored in ElastiCache or not.
         response = []
         response.extend(notify_data)
         if(self.elasticache):
@@ -37,7 +37,7 @@ class DeviceNetworkStatus(Base):
         return response
 
     def is_exists_db(self, notify_data):
-#        Verify if the notified data is already stored in Dynamodb or not.
+        #   Verify if the notified data is already stored in Dynamodb or not.
         table = self.dynamodb.Table('device_network_statuses')
         response = []
         response.extend(notify_data)
@@ -53,7 +53,7 @@ class DeviceNetworkStatus(Base):
         return response
 
     def put_status(self, notify_data):
-#        Save the network status in the DynamoDb database for a particular device.
+        #   Save the network status in the DynamoDb database for a particular device.
         table = self.dynamodb.Table('device_network_statuses')
         with table.batch_writer(overwrite_by_pkeys=['id', 'timestamp']) as batch:
             for data in notify_data:
@@ -67,8 +67,8 @@ class DeviceNetworkStatus(Base):
                 )
 
     def update_status(self, notified_event):
-#        Update the latest network status (Online or Offline) for
-#        the particular device in ElastiCache.
+        #   Update the latest network status (Online or Offline) for
+        #   the particular device in ElastiCache.
         if(self.elasticache):
             for data in notified_event['Records']:
                 device_id = (data['dynamodb']['Keys']['id']['S'])

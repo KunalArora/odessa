@@ -8,11 +8,6 @@ from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key
 
 path = os.path.dirname(__file__)
-#ec = redis.StrictRedis(host='localhost', port=6379, db=0)
-#dynamodb = boto3.resource("dynamodb", endpoint_url="http://localhost:8000")
-
-
-
 
 def set_env_var(self):
     with open(f'{path}/../../config/environments/local.yml', 'r') as file:

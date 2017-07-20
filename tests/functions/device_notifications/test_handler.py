@@ -1,7 +1,8 @@
 import boto3
 import unittest
+import logging
 from functions.device_notifications import handler
-from functions.helper import *
+from functions import helper
 from tests.functions import test_helper
 
 def run_logs_func(**keyword_args):
@@ -48,7 +49,7 @@ class TestDeviceNotificationsHandler(unittest.TestCase):
             context=[]
         )
         self.assertEqual(None, res)
-        self.assertRaises(DeviceIdParameterError)
+        self.assertRaises(helper.DeviceIdParameterError)
 
     def test_save_notify_logs_db_device_empty(self):
         res = run_logs_func(
@@ -61,7 +62,7 @@ class TestDeviceNotificationsHandler(unittest.TestCase):
             context=[]
         )
         self.assertEqual(None, res)
-        self.assertRaises(DeviceIdParameterError)
+        self.assertRaises(helper.DeviceIdParameterError)
 
     def test_save_notify_logs_db_notification_null(self):
         res = run_logs_func(
@@ -71,7 +72,7 @@ class TestDeviceNotificationsHandler(unittest.TestCase):
             context=[]
         )
         self.assertEqual(None, res)
-        self.assertRaises(NotificationError)
+        self.assertRaises(helper.NotificationError)
 
     def test_save_notify_logs_db_notification_empty(self):
         res = run_logs_func(
@@ -82,7 +83,7 @@ class TestDeviceNotificationsHandler(unittest.TestCase):
             context=[]
         )
         self.assertEqual(None, res)
-        self.assertRaises(NotificationError)
+        self.assertRaises(helper.NotificationError)
 
     def test_save_notify_logs_db_success(self):
         before = self.dynamodb.Table('device_logs').scan()
@@ -128,7 +129,7 @@ class TestDeviceNotificationsHandler(unittest.TestCase):
             context=[]
         )
         self.assertEqual(None, res)
-        self.assertRaises(DeviceIdParameterError)
+        self.assertRaises(helper.DeviceIdParameterError)
 
     def test_save_notify_status_db_device_empty(self):
         res = run_status_func(
@@ -139,7 +140,7 @@ class TestDeviceNotificationsHandler(unittest.TestCase):
             context=[]
         )
         self.assertEqual(None, res)
-        self.assertRaises(DeviceIdParameterError)
+        self.assertRaises(helper.DeviceIdParameterError)
 
     def test_save_notify_status_db_event_null(self):
         res = run_status_func(
@@ -151,7 +152,7 @@ class TestDeviceNotificationsHandler(unittest.TestCase):
             context=[]
         )
         self.assertEqual(None, res)
-        self.assertRaises(EventError)
+        self.assertRaises(helper.EventParameterError)
 
     def test_save_notify_status_db_event_empty(self):
         res = run_status_func(
@@ -163,7 +164,7 @@ class TestDeviceNotificationsHandler(unittest.TestCase):
             context=[]
         )
         self.assertEqual(None, res)
-        self.assertRaises(EventError)
+        self.assertRaises(helper.EventParameterError)
 
     def test_save_notify_status_db_message_null(self):
         res = run_status_func(
@@ -173,7 +174,7 @@ class TestDeviceNotificationsHandler(unittest.TestCase):
             context=[]
         )
         self.assertEqual(None, res)
-        self.assertRaises(NotificationError)
+        self.assertRaises(helper.NotificationError)
 
     def test_save_notify_status_db_success_single_device(self):
         before = self.dynamodb.Table('device_network_statuses').scan()

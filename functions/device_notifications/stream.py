@@ -1,6 +1,6 @@
+import logging
 from models.device_log import DeviceLog
 from models.device_network_status import DeviceNetworkStatus
-from functions.helper import *
 from redis import RedisError
 
 logger = logging.getLogger('device_notifications_stream')

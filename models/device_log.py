@@ -1,14 +1,17 @@
+import logging
 from boto3.dynamodb.conditions import Key
 from models.base import Base
 from constants.oids import CHARSET_OID
-
+from functions import helper
+from constants.odessa_response_codes import *
+from pymib.oid import OID
 
 class DeviceLog(Base):
     def __init__(self):
         super().__init__()
 
     def get_latest_logs(self, subscribed_data):
-#        Retrieve latest logs from either ElastiCache or DynamoDb.
+        #   Retrieve latest logs from either ElastiCache or DynamoDb.
         table = self.dynamodb.Table('device_logs')
         db_res = []
         if(self.elasticache):
@@ -36,7 +39,7 @@ class DeviceLog(Base):
         return ({'Items': db_res})
 
     def is_exists_cache(self, notify_data):
-#        Verify if the notified data is already stored in ElastiCache or not.
+        #   Verify if the notified data is already stored in ElastiCache or not.
         response = []
         response.extend(notify_data['notification'])
         if(self.elasticache):
@@ -50,7 +53,7 @@ class DeviceLog(Base):
         return notify_data
 
     def is_exists_db(self, notify_data):
-#        Verify if the notified data is already stored in Dynamodb or not.
+        #   Verify if the notified data is already stored in Dynamodb or not.
         table = self.dynamodb.Table('device_logs')
         response = []
         for data in notify_data['notification']:
@@ -71,7 +74,7 @@ class DeviceLog(Base):
         return notify_data
 
     def put_logs(self, notify_data):
-#        Save the logs in the DynamoDb database for a particular device.
+        #   Save the logs in the DynamoDb database for a particular device.
         table = self.dynamodb.Table('device_logs')
         with table.batch_writer(overwrite_by_pkeys=['id', 'timestamp']) as batch:
             for data in notify_data['notification']:
@@ -85,7 +88,7 @@ class DeviceLog(Base):
                 )
 
     def update_logs(self, notified_event):
-#        Update the latest logs for the particular device in ElastiCache.
+        #   Update the latest logs for the particular device in ElastiCache.
         if(self.elasticache):
             for data in notified_event['Records']:
                 log_id = data['dynamodb']['Keys']['id']['S']
@@ -111,3 +114,47 @@ class DeviceLog(Base):
         )
         if res['Items']:
             return(res['Items'][0]['value'])
+
+    def parse_data(self, verified_data):
+        #   Parse the data using MIB Parser to retrieve
+        #   feature list and their corresponding values
+        #   verified_data_format: {'Items':[{'value':'', 'id':'', 'timestamp':''}]}
+        logger = logging.getLogger('device_logs')
+        logger.setLevel(logging.INFO)
+        parse_res = []
+        for data in verified_data['Items']:
+            device_id = (data['id'].split('#')[0])
+            object_id = (data['id'].split('#')[1])
+            try:
+                charset_value = ''
+                oid = OID(object_id)
+                if oid.type in ['charset', 'counter']:
+                    continue
+                if oid.is_needed_charset():
+                    value = self.get_charset(device_id)
+                    charset_oid = OID(CHARSET_OID)
+                    charset_value = charset_oid.parse(value)
+                try:
+                    result = oid.parse(data['value'], charset_value)
+                except Exception as e:
+                    logger.error(e)
+                    logger.warning(
+                        "MIB parse exception for device_id {%s}, oid {%s},value {%s}"
+                        % (device_id, object_id, data['value']))
+                    res = helper.create_feature_format(
+                        INTERNAL_SERVER_ERROR,
+                        object_id,
+                        data['value'], '',
+                        message='Parser Error'
+                    )
+                    parse_res.append(res)
+                if result:
+                    for k, v  in result.items():
+                        v = helper.filter_res(k, v)
+                        parse_res.append(
+                            helper.create_feature_format(
+                                SUCCESS, k, v, data['timestamp']
+                        ))
+            except Exception as e:
+                logger.error(e)
+        return(parse_res)
