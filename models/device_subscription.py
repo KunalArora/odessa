@@ -7,6 +7,7 @@ from models.service_oid import ServiceOid
 from constants.device_response_codes import *
 from constants.odessa_response_codes import *
 from constants.boc_response_codes import NO_SUCH_OID
+from constants.boc_response_codes import OBJECT_SUBSCRIPTION_NOT_FOUND
 
 SUBSCRIBE_CODE_OFFSET = 1000
 UNSUBSCRIBE_CODE_OFFSET = 2000
@@ -26,7 +27,7 @@ class DeviceSubscription(Base):
     def read_for_unsubscribe(self, device_id, log_service_id):
         self.read(device_id, log_service_id, TO_UNSUBSCRIBE)
 
-    def read(self, device_id, log_service_id='?', read_type=None):
+    def read(self, device_id, log_service_id, read_type=None):
         subscription_list = []
         if (self.elasticache):
             device_keys = self.elasticache.keys(
@@ -46,15 +47,10 @@ class DeviceSubscription(Base):
 
         if len(subscription_list) == 0:
             table = self.dynamodb.Table('device_subscriptions')
-            if read_type:
-                ddb_res = table.query(
-                    KeyConditionExpression=Key('id').eq(
-                        f'{device_id}#{log_service_id}')
-                )['Items']
-            else:
-                ddb_res = table.scan(
-                    FilterExpression=Key('id').begins_with(device_id)
-                )['Items']
+            ddb_res = table.query(
+                KeyConditionExpression=Key('id').eq(
+                    f'{device_id}#{log_service_id}')
+            )['Items']
 
             for sub in ddb_res:
                 subscription_list.append({
@@ -250,6 +246,7 @@ class DeviceSubscription(Base):
                         }
                 )
 
+    # Processed when an online device is subscribed
     def delete_unsupported_oids(self, boc_response):
         updated_res = []
         if('subscribe' in boc_response and not
@@ -264,6 +261,23 @@ class DeviceSubscription(Base):
                     else:
                         updated_res.append(subscription)
             boc_response['subscribe'] = updated_res
+        return boc_response
+
+    # Processed when an offline device is subscribed and becomes online
+    def delete_offline_unsupported_oids(self, boc_response):
+        updated_res = []
+        if('notifications' in boc_response and not
+           len(boc_response['notifications']) == 0):
+            table = self.dynamodb.Table('device_subscriptions')
+            with table.batch_writer() as batch:
+                for subscription in boc_response['notifications']:
+                    if int(subscription['error_code']) == OBJECT_SUBSCRIPTION_NOT_FOUND:
+                        batch.delete_item(Key={
+                            'id': f'{self.device_id}#{self.log_service_id}',
+                            'oid': subscription['object_id']})
+                    else:
+                        updated_res.append(subscription)
+            boc_response['notifications'] = updated_res
         return boc_response
 
     def delete_from_ec(self, keys):

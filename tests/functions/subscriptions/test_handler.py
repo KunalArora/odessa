@@ -42,7 +42,7 @@ class SubscribeTestCase(unittest.TestCase):
         output = handler.subscribe(
             {'body': json.dumps(
                 {"time_period": 30,
-                 "device_id": "ffffffff-ffff-ffff-ffff-ffffff000000",
+                 "device_id": ["ffffffff-ffff-ffff-ffff-ffffff000000"],
                  "log_service_id": "2"})},
             'dummy')
         self.assertEqual(json.loads(output['body'])["code"], 400)
@@ -217,12 +217,12 @@ class UnsubscribeTestCase(unittest.TestCase):
         output = handler.unsubscribe(
             {'body': json.dumps({"device_id": []})}, 'dummy')
         self.assertEqual(json.loads(output['body'])["code"], 400)
-        output = handler.subscribe(
+        output = handler.unsubscribe(
             {'body': json.dumps({"device_id": 'fff'})}, 'dummy')
         self.assertEqual(json.loads(output['body'])["code"], 400)
         output = handler.unsubscribe(
             {'body': json.dumps(
-                {"device_id": "ffffffff-ffff-ffff-ffff-ffffff000000",
+                {"device_id": ["ffffffff-ffff-ffff-ffff-ffffff000000"],
                  "log_service_id": "2"})},
             'dummy')
         self.assertEqual(json.loads(output['body'])["code"], 400)
@@ -373,8 +373,13 @@ class SubscriptionInfoTestCase(unittest.TestCase):
         output = handler.subscription_info(
             {'body': json.dumps({"device_id": []})}, 'dummy')
         self.assertEqual(json.loads(output['body'])["code"], 400)
-        output = handler.subscribe(
+        output = handler.subscription_info(
             {'body': json.dumps({"device_id": 'fff'})}, 'dummy')
+        self.assertEqual(json.loads(output['body'])["code"], 400)
+        output = handler.subscription_info(
+            {'body': json.dumps(
+                {"device_id": ['ffffffff-ffff-ffff-ffff-ffffff000000'],
+                 "log_service_id": "2"})}, 'dummy')
         self.assertEqual(json.loads(output['body'])["code"], 400)
 
     @patch('boc.base.Base.post_content')
@@ -428,11 +433,29 @@ class SubscriptionInfoTestCase(unittest.TestCase):
         self.assertEqual(output["message"], "Success")
 
     @patch('boc.base.Base.post_content')
-    def test_get_unsubscribed_device(self, mock):
+    def test_get_boc_unsubscribed_device(self, mock):
         mock.return_value = {
             'success': False,
             'message': 'Unrecognised device_id',
             'code': 505}
+        with open(
+                f'{self.path}/../../data/subscription_info/boc_unsubscribed_device.json'
+                ) as data_file:
+            input = json.dumps(json.load(data_file))
+        output = handler.subscription_info({'body': input}, 'dummy')
+        output = json.loads(output['body'])
+        mock.assert_called()
+        self.assertEqual(len(output["devices"]), 1)
+        self.assertEqual(output["devices"][0]["error_code"], 200)
+        self.assertEqual(output["code"], 200)
+        self.assertEqual(output["message"], "Success")
+
+    @patch('boc.base.Base.post_content')
+    def test_get_odessa_unsubscribed_device(self, mock):
+        mock.return_value = {
+            'success': False,
+            'message': 'Object subscription not found',
+            'code': 524}
         with open(
                 f'{self.path}/../../data/subscription_info/boc_unsubscribed_device.json'
                 ) as data_file:
@@ -503,6 +526,66 @@ class SubscriptionInfoTestCase(unittest.TestCase):
         self.assertEqual(output["devices"][0]["error_code"], 1201)
         self.assertEqual(output["code"], 200)
         self.assertEqual(output["message"], "Success")
+
+    @patch('boc.base.Base.post_content')
+    def test_get_offline_turned_online_device(self, mock):
+        mock.return_value = {
+            'success': True,
+            'message': 'Success.',
+            'code': 200,
+            'notifications':
+                [{'error_code': '200',
+                  'object_id': '1.3.6.1.2.1.1.6.0',
+                  'status': '0',
+                  'user_id': '184878',
+                  'timestamp': '0'},
+                 {'error_code': '200',
+                  'object_id': '1.3.6.1.2.1.1.4.0',
+                  'status': '0',
+                  'user_id': '184878',
+                  'timestamp': '0'},
+                 {'error_code': '524',
+                  'object_id': '1.3.6.1.2.1.2.2.1.6.1',
+                  'status': '0',
+                  'user_id': '184878',
+                  'timestamp': '0'},
+                 {'error_code': '200',
+                  'object_id': '1.3.6.1.2.1.25.3.2.1.3.1',
+                  'status': '0',
+                  'user_id': '184878',
+                  'timestamp': '0'}
+                 ]}
+        with open(
+                f'{self.path}/../../data/subscription_info/offline_turned_online_device.json'
+                ) as data_file:
+            input = json.dumps(json.load(data_file))
+
+        before = test_helper.get_device(
+            self, 'ffffffff-ffff-ffff-ffff-ffffff000014#0')
+        self.assertEqual(len(before['Items']), 4)
+        for subscription in before['Items']:
+            self.assertEqual(int(subscription['status']), 1201)
+
+        output = handler.subscription_info({'body': input}, 'dummy')
+        output = json.loads(output['body'])
+        mock.assert_called_with(
+            'https://dev-connections.mysora.net/svc_api/devices/notify_result',
+            {'service_id': '2',
+             'device_id': 'ffffffff-ffff-ffff-ffff-ffffff000014',
+             'object_id[0]': '1.3.6.1.2.1.1.4.0',
+             'object_id[1]': '1.3.6.1.2.1.1.6.0',
+             'object_id[2]': '1.3.6.1.2.1.2.2.1.6.1',
+             'object_id[3]': '1.3.6.1.2.1.25.3.2.1.3.1'},
+            300)
+        self.assertEqual(len(output["devices"]), 1)
+        self.assertEqual(output["devices"][0]["error_code"], 1200)
+        self.assertEqual(output["code"], 200)
+        self.assertEqual(output["message"], "Success")
+        after = test_helper.get_device(
+            self, 'ffffffff-ffff-ffff-ffff-ffffff000014#0')
+        self.assertEqual(len(after['Items']), 3)
+        for subscription in after['Items']:
+            self.assertEqual(int(subscription['status']), 1200)
 
 
 def main():

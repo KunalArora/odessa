@@ -39,7 +39,7 @@ def subscribe(event, context):
     if not ServiceOid().read(log_service_id):
         logger.warning(
             f'BadRequest on handler:subscribe (log_service_id "{log_service_id}" does not exist.)')
-        return
+        return helper.create_odessa_response(BAD_REQUEST)
 
     for device_id in data['device_id']:
         try:
@@ -124,7 +124,7 @@ def unsubscribe(event, context):
     if ('device_id' not in data or not isinstance(data['device_id'], list)
             or not len(data['device_id']) > 0):
         logger.warning('BadRequest on handler:unsubscribe')
-        return(helper.create_odessa_response(BAD_REQUEST))
+        return helper.create_odessa_response(BAD_REQUEST)
 
     if 'log_service_id' in data:
         log_service_id = data['log_service_id']
@@ -134,7 +134,7 @@ def unsubscribe(event, context):
     if not ServiceOid().read(log_service_id):
         logger.warning(
             f'BadRequest on handler:unsubscribe (log_service_id "{log_service_id}" does not exist.)')
-        return
+        return helper.create_odessa_response(BAD_REQUEST)
 
     for device_id in data['device_id']:
         try:
@@ -217,12 +217,22 @@ def subscription_info(event, context):
     if ('device_id' not in data or not isinstance(data['device_id'], list)
             or not len(data['device_id']) > 0):
         logger.warning('BadRequest on handler:subscription_info')
-        return(helper.create_odessa_response(BAD_REQUEST))
+        return helper.create_odessa_response(BAD_REQUEST)
+
+    if 'log_service_id' in data:
+        log_service_id = data['log_service_id']
+    else:
+        log_service_id = '0'
+
+    if not ServiceOid().read(log_service_id):
+        logger.warning(
+            f'BadRequest on handler:subscription_info (log_service_id "{log_service_id}" does not exist.)')
+        return helper.create_odessa_response(BAD_REQUEST)
 
     for device_id in data['device_id']:
         try:
             device_info = DeviceSubscription()
-            device_info.read(device_id)
+            device_info.read(device_id, log_service_id)
         except (ClientError, ConnectionError,
                 RedisError) as e:  # pragma: no cover
             logger.error(e)
@@ -244,19 +254,17 @@ def subscription_info(event, context):
 
                 boc_response = subscription_client.get_notify_result(
                     device_id, oid_dict)
-                boc_response = helper.process_get_subscription_response(
+                error_code = helper.process_get_subscription_response(
                     boc_response, device_info)
-                if boc_response == NOT_SUBSCRIBED:
-                    error_code = NOT_SUBSCRIBED
+                if error_code == NOT_SUBSCRIBED:
                     message = device_error_message(error_code)
                     device_info.delete()
-                elif boc_response == SUBSCRIBED:
-                    error_code = SUBSCRIBED
+                elif error_code == SUBSCRIBED:
                     message = device_error_message(error_code)
                     if device_info.get_status() == SUBSCRIBED_OFFLINE:
-                        device_info.update(SUBSCRIBED)
-                elif boc_response == SUBSCRIBED_OFFLINE:
-                    error_code = SUBSCRIBED_OFFLINE
+                        device_info.delete_offline_unsupported_oids(boc_response)
+                        device_info.update(error_code)
+                elif error_code == SUBSCRIBED_OFFLINE:
                     message = device_error_message(error_code)
                 else:
                     error_code = boc_response['code']
@@ -283,5 +291,5 @@ def subscription_info(event, context):
                 'message': device_info.get_message()})
 
     response = helper.create_odessa_response(SUCCESS, device_list)
-    logger.info(f'handler:unsubscribe, response: {json.dumps(response)}')
+    logger.info(f'handler:subscription_info, response: {json.dumps(response)}')
     return response
