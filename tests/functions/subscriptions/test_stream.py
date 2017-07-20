@@ -18,6 +18,7 @@ class StreamTestCase(unittest.TestCase):
 
     def tearDown(self):
         test_helper.clear_db(self)
+        test_helper.clear_cache(self)
         test_helper.create_table(self)
 
     def test_insert_subscription(self):

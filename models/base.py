@@ -1,5 +1,6 @@
 import boto3
 import redis
+import datetime
 from os import environ
 
 
@@ -26,3 +27,8 @@ class Base(object):
         if isinstance(data, tuple):
             return map(self.convert, data)
         return data  # pragma: no cover
+
+    def time_convert(self, data):
+        return(datetime.datetime.fromtimestamp(
+            int(data)
+        ).strftime("%Y-%m-%dT%H:%M:%S"))

@@ -43,6 +43,12 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+boc/
+pymib/
+db/local/*
+seed_cache.py
+dump.rdb
+
 
 # PyInstaller
 #  Usually these files are written by a python script from a template

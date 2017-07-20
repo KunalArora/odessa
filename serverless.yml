@@ -43,6 +43,20 @@ provider:
             - Ref: 'AWS::Region'
             - Ref: 'AWS::AccountId'
             - 'table/device_subscriptions'
+        - 'Fn::Join':
+          - ':'
+          -
+            - 'arn:aws:dynamodb'
+            - Ref: 'AWS::Region'
+            - Ref: 'AWS::AccountId'
+            - 'table/device_logs'
+        - 'Fn::Join':
+          - ':'
+          -
+            - 'arn:aws:dynamodb'
+            - Ref: 'AWS::Region'
+            - Ref: 'AWS::AccountId'
+            - 'table/device_network_statuses'
     - Effect: Allow
       Action:
         - lambda:InvokeFunction
@@ -62,8 +76,8 @@ custom:
     start:
       port: 8000
       inMemory: true
-      migrate: true
-      seed: true
+      migrate: false
+      seed: false
     migrate:
       dir: ./db/migrations
     seed:
@@ -74,7 +88,11 @@ custom:
       test:
         sources:
           - table: device_subscriptions
-            sources: [./tests/fixtures/device_subscriptions.json]
+            sources: [./tests/fixtures/logs_and_notifications/device_subscriptions.json]
+          - table: device_network_statuses
+            sources: [./tests/fixtures/logs_and_notifications/device_network_statuses.json]
+          - table: device_logs
+            sources: [./tests/fixtures/logs_and_notifications/device_logs.json]
 
 functions:
   get_device_settings:
@@ -131,6 +149,45 @@ functions:
     name: run_unsubscribe
     handler: functions/subscriptions/async.run_unsubscribe
 
+  get_latest_logs:
+    handler: functions/device_logs/handler.get_latest_logs
+    events:
+      - http:
+          path: devices/log/get
+          method: post
+
+  save_notify_logs:
+    handler: functions/device_notifications/handler.save_notify_logs_db
+    events:
+      - http:
+          path: devices/log/notify/post
+          method: post
+
+  save_notify_logs_stream_trigger:
+    handler: functions/device_notifications/stream.save_notify_logs_cache
+    events:
+      - stream:
+          type: dynamodb
+          arn:
+            Fn::GetAtt:
+              - DeviceLogs
+              - StreamArn
+          startingPosition: TRIM_HORIZON
+
+  save_notify_status:
+    handler: functions/device_notifications/handler.save_notify_status_db
+
+  save_notify_status_stream_trigger:
+    handler: functions/device_notifications/stream.save_notify_status_cache
+    events:
+      - stream:
+          type: dynamodb
+          arn:
+            Fn::GetAtt:
+              - DeviceNetworkStatuses
+              - StreamArn
+          startingPosition: TRIM_HORIZON
+
 resources:
   Resources:
     DeviceSubscriptions:
@@ -166,3 +223,43 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
+    DeviceNetworkStatuses:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        TableName: device_network_statuses
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: timestamp
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+          - AttributeName: timestamp
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        StreamSpecification:
+          StreamEnabled: true
+          StreamViewType: NEW_IMAGE
+    DeviceLogs:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        TableName: device_logs
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: timestamp
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+          - AttributeName: timestamp
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        StreamSpecification:
+          StreamEnabled: true
+          StreamViewType: 'NEW_IMAGE'

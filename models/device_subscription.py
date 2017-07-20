@@ -1,4 +1,5 @@
 from boto3.dynamodb.conditions import Key
+from boto3.dynamodb.conditions import Attr
 import datetime
 import re
 from models.base import Base
@@ -337,6 +338,28 @@ class DeviceSubscription(Base):
         self.message = device['message']
         self.created_at = device['created_at']
         self.updated_at = device['updated_at']
+
+    def verify_updated_date(self, log_data, service_id):
+        table = self.dynamodb.Table('device_subscriptions')
+        for data in log_data['Items']:
+            device_id = (data['id'].split('#')[0])
+            oid = (data['id'].split('#')[1])
+            sub_date = table.query(
+                KeyConditionExpression=Key('id').eq(
+                    device_id + '#' + service_id) & Key('oid').eq(oid),
+                FilterExpression=Attr('updated_at').lte(data['timestamp'])
+            )
+            if not sub_date['Items']:
+                log_data['Items'].remove(data)
+        return log_data
+
+    def get_device_status(self, device_id, service_id):
+        table = self.dynamodb.Table('device_subscriptions')
+        status = table.query(
+            KeyConditionExpression=Key('id').eq(device_id + '#' + service_id),
+            FilterExpression=Attr('message').eq('Subscribed')
+        )
+        return status
 
 
 def device_error_message(error_code):

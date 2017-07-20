@@ -17,6 +17,7 @@ class SubscribeTestCase(unittest.TestCase):
 
     def tearDown(self):
         test_helper.clear_db(self)
+        test_helper.clear_cache(self)
         test_helper.create_table(self)
 
     def test_bad_request(self):
@@ -205,6 +206,7 @@ class UnsubscribeTestCase(unittest.TestCase):
 
     def tearDown(self):
         test_helper.clear_db(self)
+        test_helper.clear_cache(self)
         test_helper.create_table(self)
 
     def test_bad_request(self):
@@ -360,6 +362,7 @@ class SubscriptionInfoTestCase(unittest.TestCase):
 
     def tearDown(self):
         test_helper.clear_db(self)
+        test_helper.clear_cache(self)
         test_helper.create_table(self)
 
     def test_bad_request(self):

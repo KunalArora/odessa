@@ -1,0 +1,33 @@
+{
+   "Table":
+   {
+     "TableName": "device_network_statuses",
+     "KeySchema":
+     [
+       {
+         "AttributeName": "id",
+         "KeyType": "HASH"
+       },
+       {
+         "AttributeName": "timestamp",
+         "KeyType": "RANGE"
+       }
+     ],
+     "AttributeDefinitions":
+     [
+       {
+         "AttributeName": "id",
+         "AttributeType": "S"
+       },
+       {
+         "AttributeName": "timestamp",
+         "AttributeType": "S"
+       }
+     ],
+     "ProvisionedThroughput":
+     {
+       "ReadCapacityUnits": 1,
+       "WriteCapacityUnits": 1
+     }
+   }
+}
