@@ -50,7 +50,7 @@ def run_subscribe(event, context):
         subscription_api = helper.subscription_api_client(
             oid_info['boc_service_id'])
         boc_response = subscription_api.subscribe(
-            event['device_id'], oid_map)
+            event['device_id'], oid_map, oid_info['callback_url'], 'true')
 
         if(boc_response['code'] == NO_ERROR or
                 boc_response['code'] == ALREADY_SUBSCRIBED_ON_SUBSCRIBE):

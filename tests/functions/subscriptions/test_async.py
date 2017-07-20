@@ -76,7 +76,20 @@ class AsyncSubscribeTestCase(unittest.TestCase):
         async.run_subscribe({
             "device_id": "ffffffff-ffff-ffff-ffff-ffffff000011",
             "log_service_id": "0", "time_period": 1}, 'dummy')
-        mock.assert_called()
+        mock.assert_called_with(
+            'https://dev-connections.mysora.net/svc_api/devices/subscribe',
+            {'service_id': '2',
+             'device_id': 'ffffffff-ffff-ffff-ffff-ffffff000011',
+             'subscription_info[0][object_id]': '1.3.6.1.2.1.25.3.2.1.3.1',
+             'subscription_info[0][time_period]': 30,
+             'subscription_info[1][object_id]': '1.3.6.1.2.1.2.2.1.6.1',
+             'subscription_info[1][time_period]': 30,
+             'subscription_info[2][object_id]': '1.3.6.1.2.1.1.6.0',
+             'subscription_info[2][time_period]': 30,
+             'subscription_info[3][object_id]': '1.3.6.1.2.1.1.4.0',
+             'subscription_info[3][time_period]': 30,
+             'callback': 'http://dummy.com',
+             'is_fwd': 'true'}, 300)
         after = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000011#0')
         self.assertEqual(len(after['Items']), 4)

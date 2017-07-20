@@ -2,6 +2,7 @@
   {
     "id": "0",
     "boc_service_id": "2",
+    "callback_url": "http://dummy.com",
     "oids":
     [
       "1.3.6.1.4.1.2435.2.4.3.2435.5.36.12.0",

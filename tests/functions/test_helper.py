@@ -193,11 +193,13 @@ def seed_ddb_subscriptions(self):
             id = service_oid["id"]
             oids = service_oid["oids"]
             boc_service_id = service_oid["boc_service_id"]
+            callback_url = service_oid["callback_url"]
             batch.put_item(
                     Item={
                         'id': id,
                         'oids': oids,
-                        'boc_service_id': boc_service_id
+                        'boc_service_id': boc_service_id,
+                        'callback_url': callback_url
                     }
             )
 
