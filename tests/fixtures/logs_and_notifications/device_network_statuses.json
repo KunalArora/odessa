@@ -30,11 +30,6 @@
     "status" : "online"
   },
   {
-    "id" : "ffffffff-ffff-ffff-ffff-ffffffff0002",
-    "timestamp" : "2017-01-12T12:45:07",
-    "status" : "online"
-  },
-  {
     "id" : "ffffffff-ffff-ffff-ffff-ffffffff0005",
     "timestamp" : "2017-01-12T12:45:08",
     "status" : "online"

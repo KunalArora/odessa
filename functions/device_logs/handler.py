@@ -73,15 +73,17 @@ def get_latest_logs(event, context):
                 #   latest or not by checking with DeviceSubscription table data
                 verified_res = device_subscription.verify_updated_date(
                     log_res, service_id)
-                network_res = network_res[0] if type(
-                    network_res) is list else network_res
+                if network_res:
+                    network_res = network_res[0] if type(
+                        network_res) is list else network_res
 
                 parsed_res = device_log.parse_data(verified_res)
-                parsed_res.append(
-                    helper.create_feature_format(SUCCESS, 'Online_Offline',
-                                                 network_res['status'],
-                                                 network_res['timestamp'])
-                )
+                if network_res:
+                    parsed_res.append(
+                        helper.create_feature_format(SUCCESS, 'Online_Offline',
+                                                    network_res['status'],
+                                                    network_res['timestamp'])
+                        )
                 features = helper.create_features_layer(parsed_res)
                 devices.append(
                     helper.create_devices_layer(features, device_id))

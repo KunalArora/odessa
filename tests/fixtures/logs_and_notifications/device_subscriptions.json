@@ -78,5 +78,13 @@
     "message": "Device not found",
     "created_at": "2017-06-01T00:00:16",
     "updated_at": "2017-06-01T00:00:17"
+  },
+  {
+    "id": "ffffffff-ffff-ffff-ffff-ffffffff0002#0",
+    "oid": "1.3.6.1.4.1.2435.2.3.9.4.2.1.5.5.8.0",
+    "status": "1505",
+    "message": "Subscribed",
+    "created_at": "2016-06-01T00:00:08",
+    "updated_at": "2016-06-01T00:00:09"
   }
 ]

@@ -184,3 +184,16 @@ class TestDeviceLogs(unittest.TestCase):
             if data['message'] == 'Parser Error':
                 self.assertEqual(500, data['error_code'])
                 self.assertTrue(data['feature'])
+
+    def test_with_network_status_missing(self):
+        res = run_func(
+            event = { "body" : "{\"device_id\": [\"ffffffff-ffff-ffff-ffff-ffffffff0002\"], \"log_service_id\": \"0\"}"
+            },
+            context = []
+        )
+        res_json = json.loads(res['body'])
+        self.assertEqual(1, len(res_json['devices']))
+        self.assertEqual("ffffffff-ffff-ffff-ffff-ffffffff0002", res_json['devices'][0]['device_id'])
+        self.assertTrue(res_json['devices'][0]['data'])
+        for data in res_json['devices'][0]['data']:
+            self.assertNotEqual('Online_Offline', data['feature'])
