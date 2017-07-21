@@ -69,7 +69,8 @@ package:
 custom:
   defaultStage: local
   defaultProfile: default
-  defaultRegion: eu-central-1
+  defaultRegion: local
+  httpPath: ${file(config/http_path.js):httpPath.${self:provider.region}}
   dynamodb:
     start:
       port: 8000
@@ -97,35 +98,35 @@ functions:
     handler: functions/device_settings/handler.get
     events:
       - http:
-          path: devices/setting/get
+          path: ${self:custom.httpPath}/devices/setting/get
           method: post
 
   set_device_settings:
     handler: functions/device_settings/handler.set
     events:
       - http:
-          path: devices/setting/set
+          path: ${self:custom.httpPath}/devices/setting/set
           method: post
 
   subscription_info:
     handler: functions/subscriptions/handler.subscription_info
     events:
       - http:
-          path: devices/subscription/log/get
+          path: ${self:custom.httpPath}/devices/subscription/log/get
           method: post
 
   subscribe:
     handler: functions/subscriptions/handler.subscribe
     events:
       - http:
-          path: devices/subscription/log/subscribe
+          path: ${self:custom.httpPath}/devices/subscription/log/subscribe
           method: post
 
   unsubscribe:
     handler: functions/subscriptions/handler.unsubscribe
     events:
       - http:
-          path: devices/subscription/log/unsubscribe
+          path: ${self:custom.httpPath}/devices/subscription/log/unsubscribe
           method: post
 
   subscription_stream_trigger:
@@ -151,14 +152,14 @@ functions:
     handler: functions/device_logs/handler.get_latest_logs
     events:
       - http:
-          path: devices/log/get
+          path: ${self:custom.httpPath}/devices/log/get
           method: post
 
   save_notify_logs:
     handler: functions/device_notifications/handler.save_notify_logs_db
     events:
       - http:
-          path: devices/log/notify/post
+          path: ${self:custom.httpPath}/devices/log/notify/post
           method: post
 
   save_notify_logs_stream_trigger:
