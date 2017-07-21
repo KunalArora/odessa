@@ -129,16 +129,16 @@ functions:
           path: ${self:custom.httpPath}/devices/subscription/log/unsubscribe
           method: post
 
-  subscription_stream_trigger:
-    handler: functions/subscriptions/stream.subscriptions
-    events:
-      - stream:
-          type: dynamodb
-          arn:
-            Fn::GetAtt:
-              - DeviceSubscriptions
-              - StreamArn
-          startingPosition: TRIM_HORIZON
+  #subscription_stream_trigger:
+  #  handler: functions/subscriptions/stream.subscriptions
+  #  events:
+  #    - stream:
+  #        type: dynamodb
+  #        arn:
+  #          Fn::GetAtt:
+  #            - DeviceSubscriptions
+  #            - StreamArn
+  #        startingPosition: TRIM_HORIZON
 
   run_subscribe:
     name: run_subscribe
@@ -162,30 +162,30 @@ functions:
           path: ${self:custom.httpPath}/devices/log/notify/post
           method: post
 
-  save_notify_logs_stream_trigger:
-    handler: functions/device_notifications/stream.save_notify_logs_cache
-    events:
-      - stream:
-          type: dynamodb
-          arn:
-            Fn::GetAtt:
-              - DeviceLogs
-              - StreamArn
-          startingPosition: TRIM_HORIZON
+  #save_notify_logs_stream_trigger:
+  #  handler: functions/device_notifications/stream.save_notify_logs_cache
+  #  events:
+  #    - stream:
+  #        type: dynamodb
+  #        arn:
+  #          Fn::GetAtt:
+  #            - DeviceLogs
+  #            - StreamArn
+  #        startingPosition: TRIM_HORIZON
 
   save_notify_status:
     handler: functions/device_notifications/handler.save_notify_status_db
 
-  save_notify_status_stream_trigger:
-    handler: functions/device_notifications/stream.save_notify_status_cache
-    events:
-      - stream:
-          type: dynamodb
-          arn:
-            Fn::GetAtt:
-              - DeviceNetworkStatuses
-              - StreamArn
-          startingPosition: TRIM_HORIZON
+  #save_notify_status_stream_trigger:
+  #  handler: functions/device_notifications/stream.save_notify_status_cache
+  #  events:
+  #    - stream:
+  #        type: dynamodb
+  #        arn:
+  #          Fn::GetAtt:
+  #            - DeviceNetworkStatuses
+  #            - StreamArn
+  #        startingPosition: TRIM_HORIZON
 
 resources:
   Resources:
@@ -206,9 +206,6 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 5
-        StreamSpecification:
-          StreamEnabled: true
-          StreamViewType: NEW_IMAGE
     ServiceOids:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -239,9 +236,6 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
-        StreamSpecification:
-          StreamEnabled: true
-          StreamViewType: NEW_IMAGE
     DeviceLogs:
       Type: 'AWS::DynamoDB::Table'
       Properties:
@@ -259,6 +253,3 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
-        StreamSpecification:
-          StreamEnabled: true
-          StreamViewType: 'NEW_IMAGE'
