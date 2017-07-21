@@ -63,7 +63,7 @@ def get_latest_logs(event, context):
             #   'Device Not Found' error is returned as response.
             if not status_res['Items'] and not network_res:
                 devices.append(
-                    helper.create_devices_layer(None, device_id, code=DEVICE_NOT_FOUND
+                    helper.create_devices_layer([], device_id, code=DEVICE_NOT_FOUND
                                                 ))
             else:
                 #   Retrieve latest logs from either ElastiCache or Dynamodb
