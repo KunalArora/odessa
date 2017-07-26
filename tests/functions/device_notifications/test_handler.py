@@ -213,7 +213,7 @@ class TestDeviceNotificationsHandler(unittest.TestCase):
             event={"Records": [{"Sns": {"Timestamp": "2016-06-30T11:30:"
             "23.345Z","Message": "[{\"device_id\":"
             "\"ffffffff-ffff-ffff-ffff-ffffffff0001\",\"service_name\":\"BAS\","
-            "\"event\":\"online_hook\",\"timestamp\":\"1484192706\"}]"}}]
+            "\"event\":\"online_hook\",\"timestamp\":\"1484225106\"}]"}}]
             },
             context=[]
         )

@@ -29,6 +29,4 @@ class Base(object):
         return data  # pragma: no cover
 
     def time_convert(self, data):
-        return(datetime.datetime.fromtimestamp(
-            int(data)
-        ).strftime("%Y-%m-%dT%H:%M:%S"))
+        return datetime.datetime.utcfromtimestamp(int(data)).isoformat()

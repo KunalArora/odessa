@@ -2,8 +2,8 @@ import json
 import logging
 from os import environ
 import boto3
-import datetime
-from pytz import timezone
+from datetime import datetime
+from datetime import timezone
 from constants.odessa_response_codes import *
 from constants.boc_response_codes import *
 from constants.device_response_codes import *
@@ -202,8 +202,7 @@ def create_feature_format(code, feature, value, timestamp, **options):
     feature_format['error_code'] = code
     feature_format['feature'] = feature
     feature_format['status'] = value if value!= " " else ''
-    feature_format['timestamp'] = convert_iso(
-        timestamp, timezone('UTC')) if timestamp != '' else ''
+    feature_format['timestamp'] = convert_iso(timestamp) if timestamp != '' else ''
     if options.get('message'):
         feature_format['message'] = options.get('message')
     else:
@@ -292,6 +291,6 @@ def odessa_error_code(data):
     else:
         return PARTIAL_SUCCESS
 
-def convert_iso(time, tz_info):
-    time_dt = datetime.datetime.strptime(time, '%Y-%m-%dT%H:%M:%S')
-    return time_dt.astimezone(tz_info).isoformat()
+def convert_iso(time):
+    time_dt = datetime.strptime(time, '%Y-%m-%dT%H:%M:%S')
+    return time_dt.replace(tzinfo=timezone.utc).isoformat()
