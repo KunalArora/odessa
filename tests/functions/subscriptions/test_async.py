@@ -81,13 +81,13 @@ class AsyncSubscribeTestCase(unittest.TestCase):
             {'service_id': '2',
              'device_id': 'ffffffff-ffff-ffff-ffff-ffffff000011',
              'subscription_info[0][object_id]': '1.3.6.1.2.1.25.3.2.1.3.1',
-             'subscription_info[0][time_period]': 30,
+             'subscription_info[0][time_period]': 1800,
              'subscription_info[1][object_id]': '1.3.6.1.2.1.2.2.1.6.1',
-             'subscription_info[1][time_period]': 30,
+             'subscription_info[1][time_period]': 1800,
              'subscription_info[2][object_id]': '1.3.6.1.2.1.1.6.0',
-             'subscription_info[2][time_period]': 30,
+             'subscription_info[2][time_period]': 1800,
              'subscription_info[3][object_id]': '1.3.6.1.2.1.1.4.0',
-             'subscription_info[3][time_period]': 30,
+             'subscription_info[3][time_period]': 1800,
              'callback': 'http://dummy.com',
              'is_fwd': 'true'}, 300)
         after = test_helper.get_device(
@@ -164,7 +164,9 @@ class AsyncSubscribeTestCase(unittest.TestCase):
              'subscription_info[2][object_id]': '1.3.6.1.2.1.1.6.0',
              'subscription_info[2][time_period]': 18000,
              'subscription_info[3][object_id]': '1.3.6.1.2.1.1.4.0',
-             'subscription_info[3][time_period]': 18000}, 300)
+             'subscription_info[3][time_period]': 18000,
+             'callback': 'http://dummy.com',
+             'is_fwd': 'true'}, 300)
         after = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000011#0')
         self.assertEqual(len(after['Items']), 4)
@@ -213,7 +215,9 @@ class AsyncSubscribeTestCase(unittest.TestCase):
              'subscription_info[2][object_id]': '1.3.6.1.2.1.1.6.0',
              'subscription_info[2][time_period]': 3600,
              'subscription_info[3][object_id]': '1.3.6.1.2.1.1.4.0',
-             'subscription_info[3][time_period]': 3600}, 300)
+             'subscription_info[3][time_period]': 3600,
+             'callback': 'http://dummy.com',
+             'is_fwd': 'true'}, 300)
         after = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000011#0')
         self.assertEqual(len(after['Items']), 3)
@@ -300,7 +304,9 @@ class AsyncSubscribeTestCase(unittest.TestCase):
              'subscription_info[2][object_id]': '1.3.6.1.2.1.1.6.0',
              'subscription_info[2][time_period]': 2700,
              'subscription_info[3][object_id]': '1.3.6.1.2.1.1.4.0',
-             'subscription_info[3][time_period]': 2700}, 300)
+             'subscription_info[3][time_period]': 2700,
+             'callback': 'http://dummy.com',
+             'is_fwd': 'true'}, 300)
         after = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000011#0')
         self.assertEqual(len(after['Items']), 4)
