@@ -37,10 +37,6 @@ class SubscribeTestCase(unittest.TestCase):
                                    'dummy')
         self.assertEqual(json.loads(output['body'])["code"], 400)
         output = handler.subscribe(
-            {'body': json.dumps({"time_period": 30, "device_id": 'fff'})},
-            'dummy')
-        self.assertEqual(json.loads(output['body'])["code"], 400)
-        output = handler.subscribe(
             {'body': json.dumps(
                 {"time_period": 30,
                  "device_id": ["ffffffff-ffff-ffff-ffff-ffffff000000"],
@@ -62,6 +58,17 @@ class SubscribeTestCase(unittest.TestCase):
         self.assertEqual(output["devices"][0]["message"], "Subscribe accepted")
         self.assertEqual(output["code"], 200)
         self.assertEqual(output["message"], "Success")
+        output = handler.subscribe(
+            {'body': json.dumps(
+                {"time_period": 30,
+                 "device_id": 'ffffffff-ffff-ffff-ffff-fffff1string'})},
+            'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output["code"], 200)
+        self.assertEqual(len(output["devices"]), 1)
+        self.assertEqual(output["devices"][0]["error_code"], 1202)
+        self.assertEqual(output["devices"][0]["device_id"],
+                         "ffffffff-ffff-ffff-ffff-fffff1string")
 
     def test_subscribed_and_offline_device(self):
         with open(
@@ -220,9 +227,6 @@ class UnsubscribeTestCase(unittest.TestCase):
             {'body': json.dumps({"device_id": []})}, 'dummy')
         self.assertEqual(json.loads(output['body'])["code"], 400)
         output = handler.unsubscribe(
-            {'body': json.dumps({"device_id": 'fff'})}, 'dummy')
-        self.assertEqual(json.loads(output['body'])["code"], 400)
-        output = handler.unsubscribe(
             {'body': json.dumps(
                 {"device_id": ["ffffffff-ffff-ffff-ffff-ffffff000000"],
                  "log_service_id": "2"})},
@@ -243,6 +247,17 @@ class UnsubscribeTestCase(unittest.TestCase):
         self.assertEqual(output["devices"][0]["message"], "Not Subscribed")
         self.assertEqual(output["code"], 200)
         self.assertEqual(output["message"], "Success")
+        output = handler.unsubscribe(
+            {'body': json.dumps(
+                {"device_id": 'ffffffff-ffff-ffff-ffff-fffff1string'})},
+            'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(len(output["devices"]), 1)
+        self.assertEqual(output["code"], 200)
+        self.assertEqual(output["devices"][0]["device_id"],
+                         "ffffffff-ffff-ffff-ffff-fffff1string")
+        self.assertEqual(output["devices"][0]["message"], "Not Subscribed")
+        self.assertEqual(output["code"], 200)
 
     def test_unsubscribe_subscription_error_device(self):
         with open(
@@ -377,9 +392,6 @@ class SubscriptionInfoTestCase(unittest.TestCase):
             {'body': json.dumps({"device_id": []})}, 'dummy')
         self.assertEqual(json.loads(output['body'])["code"], 400)
         output = handler.subscription_info(
-            {'body': json.dumps({"device_id": 'fff'})}, 'dummy')
-        self.assertEqual(json.loads(output['body'])["code"], 400)
-        output = handler.subscription_info(
             {'body': json.dumps(
                 {"device_id": ['ffffffff-ffff-ffff-ffff-ffffff000000'],
                  "log_service_id": "2"})}, 'dummy')
@@ -494,6 +506,15 @@ class SubscriptionInfoTestCase(unittest.TestCase):
                 ) as data_file:
             input = json.dumps(json.load(data_file))
         output = handler.subscription_info({'body': input}, 'dummy')
+        output = json.loads(output['body'])
+        mock.assert_called()
+        self.assertEqual(len(output["devices"]), 1)
+        self.assertEqual(output["devices"][0]["error_code"], 999)
+        self.assertEqual(output["code"], 200)
+        self.assertEqual(output["message"], "Success")
+        # params: single device id string
+        output = handler.subscription_info({'body': json.dumps(
+            {"device_id": "ffffffff-ffff-ffff-ffff-ffffff000000"})}, 'dummy')
         output = json.loads(output['body'])
         mock.assert_called()
         self.assertEqual(len(output["devices"]), 1)

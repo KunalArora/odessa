@@ -26,7 +26,9 @@ def subscribe(event, context):
     unsubscribe_error_exists = False
     db_error_exists = False
 
-    if ('device_id' not in data or not isinstance(data['device_id'], list)
+    if ('device_id' not in data
+            or not (isinstance(data['device_id'], list)
+                    or isinstance(data['device_id'], str))
             or not len(data['device_id']) > 0 or 'time_period' not in data):
         logger.warning('BadRequest on handler:subscribe')
         return helper.subscriptions_response(BAD_REQUEST)
@@ -35,6 +37,9 @@ def subscribe(event, context):
         log_service_id = data['log_service_id']
     else:
         log_service_id = '0'
+
+    if isinstance(data['device_id'], str):
+        data['device_id'] = [data['device_id']]
 
     if not ServiceOid().read(log_service_id):
         logger.warning(
@@ -121,7 +126,9 @@ def unsubscribe(event, context):
     error_exists = False
     db_error_exists = False
 
-    if ('device_id' not in data or not isinstance(data['device_id'], list)
+    if ('device_id' not in data
+            or not (isinstance(data['device_id'], list)
+                    or isinstance(data['device_id'], str))
             or not len(data['device_id']) > 0):
         logger.warning('BadRequest on handler:unsubscribe')
         return helper.subscriptions_response(BAD_REQUEST)
@@ -130,6 +137,9 @@ def unsubscribe(event, context):
         log_service_id = data['log_service_id']
     else:
         log_service_id = '0'
+
+    if isinstance(data['device_id'], str):
+        data['device_id'] = [data['device_id']]
 
     if not ServiceOid().read(log_service_id):
         logger.warning(
@@ -214,7 +224,9 @@ def subscription_info(event, context):
     data = json.loads(event['body'])
     device_list = []
 
-    if ('device_id' not in data or not isinstance(data['device_id'], list)
+    if ('device_id' not in data
+            or not (isinstance(data['device_id'], list)
+                    or isinstance(data['device_id'], str))
             or not len(data['device_id']) > 0):
         logger.warning('BadRequest on handler:subscription_info')
         return helper.subscriptions_response(BAD_REQUEST)
@@ -223,6 +235,9 @@ def subscription_info(event, context):
         log_service_id = data['log_service_id']
     else:
         log_service_id = '0'
+
+    if isinstance(data['device_id'], str):
+        data['device_id'] = [data['device_id']]
 
     if not ServiceOid().read(log_service_id):
         logger.warning(
