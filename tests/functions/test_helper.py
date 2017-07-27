@@ -308,6 +308,41 @@ def clear_cache(self):
     if environ['REDIS_ENDPOINT_URL']:
         self.elasticache.flushall()
 
+def delete_db_data(self):
+    table = self.dynamodb.Table('device_network_statuses')
+    with open(
+            f'{path}/../fixtures/logs_and_notifications/device_network_statuses.json'
+            ) as json_file:
+        device_network_statuses = json.load(json_file)
+    with table.batch_writer() as batch:
+        for device_status in device_network_statuses:
+            id = device_status['id']
+            timestamp = device_status['timestamp']
+            if id == 'ffffffff-ffff-ffff-ffff-ffffffff0001':
+                batch.delete_item(
+                    Key={
+                        'id': id,
+                        'timestamp': timestamp
+                    }
+                )
+
+    table = self.dynamodb.Table('device_logs')
+    with open(
+            f'{path}/../fixtures/logs_and_notifications/device_logs.json'
+            ) as json_file:
+        device_logs = json.load(json_file)
+    with table.batch_writer() as batch:
+        for log in device_logs:
+            id = log["id"]
+            timestamp = log["timestamp"]
+            if (id.split('#')[0]) == 'ffffffff-ffff-ffff-ffff-ffffffff0001':
+                batch.delete_item(
+                        Key={
+                            'id': id,
+                            'timestamp': timestamp
+                        }
+                )
+
 
 def get_device(self, device_key):
     table = self.dynamodb.Table('device_subscriptions')

@@ -68,6 +68,10 @@ def get_latest_logs(event, context):
             else:
                 #   Retrieve latest logs from either ElastiCache or Dynamodb
                 log_res = device_log.get_latest_logs(status_res)
+                if not log_res['Items'] and not network_res:
+                    logger.warning(
+                        "No records found for device {}".format(device_id)
+                    )
 
                 #   Verify if the above extracted data from DeviceLog table is
                 #   latest or not by checking with DeviceSubscription table data

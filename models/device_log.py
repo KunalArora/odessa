@@ -123,9 +123,10 @@ class DeviceLog(Base):
         logger.setLevel(logging.INFO)
         parse_res = []
         for data in verified_data['Items']:
-            device_id = (data['id'].split('#')[0])
-            object_id = (data['id'].split('#')[1])
+            result = {}
             try:
+                device_id = (data['id'].split('#')[0])
+                object_id = (data['id'].split('#')[1])
                 charset_value = ''
                 oid = OID(object_id)
                 if oid.type in ['charset', 'counter']:

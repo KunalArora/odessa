@@ -198,3 +198,30 @@ class TestDeviceLogs(unittest.TestCase):
         self.assertTrue(res_json['devices'][0]['data'])
         for data in res_json['devices'][0]['data']:
             self.assertNotEqual('Online_Offline', data['feature'])
+
+    def test_records_not_found(self):
+        test_helper.delete_db_data(self)
+        res = run_func(
+            event = { "body" : "{\"device_id\": [\"ffffffff-ffff-ffff-ffff-ffffffff0001\"], \"log_service_id\": \"0\"}"
+            },
+            context = []
+        )
+        res_json = json.loads(res['body'])
+        self.assertEqual(1, len(res_json['devices']))
+        self.assertEqual("ffffffff-ffff-ffff-ffff-ffffffff0001", res_json['devices'][0]['device_id'])
+        self.assertEqual(500, res_json['devices'][0]['error_code'])
+        self.assertFalse(res_json['devices'][0]['data'])
+
+    def test_records_not_found_multiple_devices(self):
+        test_helper.delete_db_data(self)
+        res = run_func(
+            event = { "body" : "{\"device_id\": [\"ffffffff-ffff-ffff-ffff-ffffffff0001\", \"ffffffff-ffff-ffff-ffff-ffffffff0005\"], \"log_service_id\": \"0\"}"
+            },
+            context = []
+        )
+        res_json = json.loads(res['body'])
+        self.assertEqual(2, len(res_json['devices']))
+        for value in res_json['devices']:
+            if value['device_id'] == 'ffffffff-ffff-ffff-ffff-ffffffff0001':
+                self.assertEqual(500, value['error_code'])
+                self.assertFalse(value['data'])
