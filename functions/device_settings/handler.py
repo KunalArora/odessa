@@ -30,7 +30,7 @@ def get(event, context):
         if not oid_info:
             logger.warning(
                 f'BadRequest on handler:get_device_settings (log_service_id "{log_service_id}" does not exist.)')
-            return helper.create_odessa_response(BAD_REQUEST)
+            return helper.device_settings_response(BAD_REQUEST)
 
         boc_service_id = oid_info['boc_service_id']
 
@@ -90,7 +90,7 @@ def set(event, context):
         if not oid_info:
             logger.warning(
                 f'BadRequest on handler:set_device_settings (log_service_id "{log_service_id}" does not exist.)')
-            return helper.create_odessa_response(BAD_REQUEST)
+            return helper.device_settings_response(BAD_REQUEST)
 
         boc_service_id = oid_info['boc_service_id']
 

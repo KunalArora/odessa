@@ -21,10 +21,12 @@ MAXIMUM_TIME_PERIOD_MINS = 300
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+
 class ServiceIdError(Exception):
     def __init__(self, errArgu):
         Exception.__init__(self)
         self.errArgu = errArgu
+
 
 class DeviceIdParameterError(Exception):
     def __init__(self, errArgu):
@@ -63,24 +65,25 @@ def create_response(device_id, boc_response):
     return response
 
 
-def create_odessa_response(error_code, device_list=None):
-    if not device_list:
-        return {
-            'statusCode': 200,
-            'body': json.dumps({
-                'code': error_code,
-                'message': odessa_response_message(error_code)
-            })
-        }
-    else:
-        return {
-            'statusCode': 200,
-            'body': json.dumps({
-                'code': error_code,
-                'message': odessa_response_message(error_code),
-                'devices': device_list
-            })
-        }
+def subscriptions_response(error_code, device_list=[]):
+    return create_odessa_response(error_code, {'devices': device_list})
+
+
+def device_settings_response(error_code, data=[]):
+    return create_odessa_response(error_code, {'data': data})
+
+
+def create_odessa_response(error_code, result):
+    body = {
+        'code': error_code,
+        'message': odessa_response_message(error_code),
+    }
+    body.update(result)
+
+    return {
+        'statusCode': 200,
+        'body': json.dumps(body)
+    }
 
 
 def odessa_response_message(error_code, reason=None):
@@ -187,11 +190,12 @@ def has_acceptable_unsub_errors_only(response):
             return False
     return True
 
+
 def filter_res(feature, value):
     filter_list = (["TonerInk_LifeBlack",
-                "TonerInk_LifeCyan",
-                "TonerInk_LifeMagenta",
-                "TonerInk_LifeYellow"])
+                    "TonerInk_LifeCyan",
+                    "TonerInk_LifeMagenta",
+                    "TonerInk_LifeYellow"])
     if feature in filter_list:
         value = str(int(value)//100)
     return value

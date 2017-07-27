@@ -25,6 +25,7 @@ class SubscribeTestCase(unittest.TestCase):
             {'body': json.dumps({})}, 'dummy')
         self.assertFalse('device_id' in output)
         self.assertEqual(json.loads(output['body'])["code"], 400)
+        self.assertEqual(json.loads(output['body'])["devices"], [])
         output = handler.subscribe(
             {'body': json.dumps({"time_period": 30})}, 'dummy')
         self.assertEqual(json.loads(output['body'])["code"], 400)
@@ -214,6 +215,7 @@ class UnsubscribeTestCase(unittest.TestCase):
             {'body': json.dumps({})}, 'dummy')
         self.assertFalse('device_id' in output)
         self.assertEqual(json.loads(output['body'])["code"], 400)
+        self.assertEqual(json.loads(output['body'])["devices"], [])
         output = handler.unsubscribe(
             {'body': json.dumps({"device_id": []})}, 'dummy')
         self.assertEqual(json.loads(output['body'])["code"], 400)
@@ -370,6 +372,7 @@ class SubscriptionInfoTestCase(unittest.TestCase):
             {'body': json.dumps({})}, 'dummy')
         self.assertFalse('device_id' in output)
         self.assertEqual(json.loads(output['body'])["code"], 400)
+        self.assertEqual(json.loads(output['body'])["devices"], [])
         output = handler.subscription_info(
             {'body': json.dumps({"device_id": []})}, 'dummy')
         self.assertEqual(json.loads(output['body'])["code"], 400)
