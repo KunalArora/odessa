@@ -18,6 +18,17 @@ def get(event, context):
     logger.info(event)
     data = json.loads(event['body'])
     device_id = data['device_id']
+
+    if (not isinstance(device_id, str) and not isinstance(device_id, list) or
+            not device_id):
+        logger.warning('BadRequest on handler:get_device_settings')
+        return helper.create_odessa_response(BAD_REQUEST)
+
+    # In case of device_id being a list, choose the first element of the list
+    # to be the only device_id to be processed
+    if isinstance(device_id, list):
+        device_id = device_id[0]
+
     object_id_list = data['setting']
 
     if 'log_service_id' in data:
@@ -60,7 +71,6 @@ def get(event, context):
         logger.warning(
             'BOC request parameters missing error on GetDeviceSetting '
             'for event: {}'.format(event))
-        logger.error('Error code: {}, Reason: {}'.format(e.code, e.reason))
         return helper.error_response(
             device_id, PARAMS_MISSING_ERROR, helper.odessa_response_message(
                 PARAMS_MISSING_ERROR, e.reason))
@@ -78,6 +88,17 @@ def set(event, context):
     logger.info(event)
     data = json.loads(event['body'])
     device_id = data['device_id']
+
+    if (not isinstance(device_id, str) and not isinstance(device_id, list) or
+            not device_id):
+        logger.warning('BadRequest on handler:set_device_settings')
+        return helper.create_odessa_response(BAD_REQUEST)
+
+    # In case of device_id being a list, choose the first element of the list
+    # to be the only device_id to be processed
+    if isinstance(device_id, list):
+        device_id = device_id[0]
+
     object_id_value_list = data['setting']
 
     if 'log_service_id' in data:
@@ -121,7 +142,6 @@ def set(event, context):
         logger.warning(
             'BOC request parameters missing error on SetDeviceSetting '
             'for event: {}'.format(event))
-        logger.error('Error code: {}, Reason: {}'.format(e.code, e.reason))
         return helper.error_response(
             device_id, PARAMS_MISSING_ERROR, helper.odessa_response_message(
                 PARAMS_MISSING_ERROR, e.reason))
