@@ -67,9 +67,12 @@ def subscribe(event, context):
                 helper.invoke_run_subscribe(
                     device_id, log_service_id, data['time_period'])
                 accept_exists = True
-            elif (device_info.is_subscribing() or
-                  device_info.is_unsubscribing()):
+            elif device_info.is_subscribing():
                 error_code = SUBSCRIBE_EXCLUSIVE_CONTROL_ERROR_WITH_OTHER_SUBS
+                message = device_error_message(error_code)
+                conflict_exists = True
+            elif device_info.is_unsubscribing():
+                error_code = SUBSCRIBE_EXCLUSIVE_CONTROL_ERROR_WITH_OTHER_UNSUBS
                 message = device_error_message(error_code)
                 conflict_exists = True
             elif device_info.is_unsubscribe_error():
@@ -168,9 +171,12 @@ def unsubscribe(event, context):
                 message = device_info.get_message()
                 helper.invoke_run_unsubscribe(device_id, log_service_id)
                 accept_exists = True
-            elif (device_info.is_subscribing() or
-                  device_info.is_unsubscribing()):
+            elif device_info.is_subscribing():
                 error_code = UNSUBSCRIBE_EXCLUSIVE_CONTROL_ERROR_WITH_OTHER_SUBS
+                message = device_error_message(error_code)
+                error_exists = True
+            elif device_info.is_unsubscribing():
+                error_code = UNSUBSCRIBE_EXCLUSIVE_CONTROL_ERROR_WITH_OTHER_UNSUBS
                 message = device_error_message(error_code)
                 error_exists = True
             else:

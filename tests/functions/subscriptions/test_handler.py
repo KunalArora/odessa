@@ -116,12 +116,12 @@ class SubscribeTestCase(unittest.TestCase):
         output = handler.subscribe({'body': input}, 'dummy')
         output = json.loads(output['body'])
         self.assertEqual(len(output["devices"]), 2)
-        self.assertEqual(output["devices"][0]["error_code"], 1602)
+        self.assertEqual(output["devices"][0]["error_code"], 1603)
         self.assertEqual(output["devices"][0]["device_id"],
                          "ffffffff-ffff-ffff-ffff-ffffff000005")
         self.assertEqual(
             output["devices"][0]["message"],
-            "Subscribe exclusive control error (with other subscribing)")
+            "Subscribe exclusive control error (with other unsubscribing)")
         self.assertEqual(output["devices"][1]["error_code"], 1602)
         self.assertEqual(output["devices"][1]["device_id"],
                          "ffffffff-ffff-ffff-ffff-ffffff000007")
@@ -155,10 +155,10 @@ class SubscribeTestCase(unittest.TestCase):
         self.assertEqual(
             output["devices"][1]["message"],
             "Unsubscribe exclusive control error (with other unsubscribing)")
-        self.assertEqual(output["devices"][2]["error_code"], 1602)
+        self.assertEqual(output["devices"][2]["error_code"], 1603)
         self.assertEqual(
             output["devices"][2]["message"],
-            "Subscribe exclusive control error (with other subscribing)")
+            "Subscribe exclusive control error (with other unsubscribing)")
         self.assertEqual(output["devices"][3]["error_code"], 1202)
         self.assertEqual(output["devices"][3]["message"], "Subscribe accepted")
         self.assertEqual(output["devices"][4]["error_code"], 1602)
@@ -307,12 +307,12 @@ class UnsubscribeTestCase(unittest.TestCase):
         output = handler.unsubscribe({'body': input}, 'dummy')
         output = json.loads(output['body'])
         self.assertEqual(len(output["devices"]), 2)
-        self.assertEqual(output["devices"][0]["error_code"], 2602)
+        self.assertEqual(output["devices"][0]["error_code"], 2603)
         self.assertEqual(output["devices"][0]["device_id"],
                          "ffffffff-ffff-ffff-ffff-ffffff000005")
         self.assertEqual(
             output["devices"][0]["message"],
-            "Unsubscribe exclusive control error (with other subscribing)")
+            "Unsubscribe exclusive control error (with other unsubscribing)")
         self.assertEqual(output["devices"][1]["error_code"], 2602)
         self.assertEqual(output["devices"][1]["device_id"],
                          "ffffffff-ffff-ffff-ffff-ffffff000007")
