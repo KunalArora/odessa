@@ -4,7 +4,10 @@ from models.base import Base
 from constants.oids import CHARSET_OID
 from functions import helper
 from constants.odessa_response_codes import *
-from pymib.oid import OID
+from pymib.parse import parse
+
+logger = logging.getLogger('device_logs')
+logger.setLevel(logging.INFO)
 
 class DeviceLog(Base):
     def __init__(self):
@@ -115,47 +118,29 @@ class DeviceLog(Base):
         if res['Items']:
             return(res['Items'][0]['value'])
 
-    def parse_data(self, verified_data):
-        #   Parse the data using MIB Parser to retrieve
-        #   feature list and their corresponding values
-        #   verified_data_format: {'Items':[{'value':'', 'id':'', 'timestamp':''}]}
-        logger = logging.getLogger('device_logs')
-        logger.setLevel(logging.INFO)
-        parse_res = []
-        for data in verified_data['Items']:
-            result = {}
-            try:
-                device_id = (data['id'].split('#')[0])
-                object_id = (data['id'].split('#')[1])
-                charset_value = ''
-                oid = OID(object_id)
-                if oid.type in ['charset', 'counter']:
-                    continue
-                if oid.is_needed_charset():
-                    value = self.get_charset(device_id)
-                    charset_oid = OID(CHARSET_OID)
-                    charset_value = charset_oid.parse(value)
-                try:
-                    result = oid.parse(data['value'], charset_value)
-                except Exception as e:
-                    logger.error(e)
-                    logger.warning(
-                        "MIB parse exception for device_id {%s}, oid {%s},value {%s}"
-                        % (device_id, object_id, data['value']))
+    def parse_log_data(self, data):
+        parse_data = {}
+        response = []
+        for item in data['Items']:
+            object_id = (item['id'].split('#')[1])
+            parse_data[object_id] = item
+        parse_res = parse(parse_data)
+        for key, val in parse_res.items():
+            if 'error' in val:
+                logging.warning(
+                    "Exception generated from parser in models:device_log for "
+                    "id {} having value {} and error {}".format(
+                        val['id'], val['value'], val['error'])
+                )
+                res = helper.create_feature_format(
+                    INTERNAL_SERVER_ERROR, key, val['value'], '', message = val['error']
+                )
+                response.append(res)
+            else:
+                for feat, feat_data in val['value'].items():
                     res = helper.create_feature_format(
-                        INTERNAL_SERVER_ERROR,
-                        object_id,
-                        data['value'], '',
-                        message='Parser Error'
+                        SUCCESS, feat, feat_data, val['timestamp']
                     )
-                    parse_res.append(res)
-                if result:
-                    for k, v  in result.items():
-                        v = helper.filter_res(k, v)
-                        parse_res.append(
-                            helper.create_feature_format(
-                                SUCCESS, k, v, data['timestamp']
-                        ))
-            except Exception as e:
-                logger.error(e)
-        return(parse_res)
+                    response.append(res)
+        return(response)
+

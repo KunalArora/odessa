@@ -205,13 +205,14 @@ def create_feature_format(code, feature, value, timestamp, **options):
     feature_format = {}
     feature_format['error_code'] = code
     feature_format['feature'] = feature
-    feature_format['status'] = value if value!= " " else ''
+    feature_format['status'] = filter_res(feature, value) if value!= " " else ''
     feature_format['timestamp'] = convert_iso(timestamp) if timestamp != '' else ''
     if options.get('message'):
         feature_format['message'] = options.get('message')
     else:
         feature_format['message'] = odessa_response_message(code)
     return(feature_format)
+
 
 
 def create_features_layer(parse_data):
@@ -239,7 +240,7 @@ def create_devices_layer(data, device_id, **options):
     else:
         device['error_code'] = devices_error_code(data)
     device['device_id'] = device_id
-    device['data'] = data
+    device['data'] = data if data else None
     device['message'] = odessa_response_message(device['error_code'])
     return device
 

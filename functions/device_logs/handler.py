@@ -29,8 +29,8 @@ def get_latest_logs(event, context):
         service_id = request['log_service_id'] if 'log_service_id' in request and request['log_service_id'] else '0'
         if not device_ids:
             logger.warning(
-                "Device Id request parameter is either null or not present "
-                "for event {}".format(event))
+                "handler:device_logs Device Id request parameter is either "
+                "null or not present for event {}".format(event))
             raise helper.DeviceIdParameterError(event)
 
         #   Retrieve object Id list from ObjectIdList table
@@ -38,8 +38,8 @@ def get_latest_logs(event, context):
         oid = service_oid.read(service_id)
         if not oid:
             logger.warning(
-                "Request log service Id doesn't exist in the database "
-                "for event {}".format(event))
+                "handler:device_logs Request log service Id doesn't exist "
+                "in the database for event {}".format(event))
             raise helper.ServiceIdError(event)
 
         #   Make sure that multiple instance of same device_id
@@ -57,6 +57,12 @@ def get_latest_logs(event, context):
             network_res = device_network_status.get_latest_status(
                 device_id)
 
+            #   Verify if the above extracted data from DeviceLog table is
+            #   latest or not by checking with DeviceSubscription table data
+            if network_res:
+                network_res = network_res[0] if type(
+                    network_res) is list else network_res
+
             #   If no object_id is Subscribed yet or the device_id
             #   is not found in the DeviceSubscription table and device_id
             #   is not found in the DeviceNetworkStatus table then,
@@ -70,18 +76,10 @@ def get_latest_logs(event, context):
                 log_res = device_log.get_latest_logs(status_res)
                 if not log_res['Items'] and not network_res:
                     logger.warning(
-                        "No records found for device {}".format(device_id)
+                        "handler:device_logs No records found for device {}".format(device_id)
                     )
 
-                #   Verify if the above extracted data from DeviceLog table is
-                #   latest or not by checking with DeviceSubscription table data
-                verified_res = device_subscription.verify_updated_date(
-                    log_res, service_id)
-                if network_res:
-                    network_res = network_res[0] if type(
-                        network_res) is list else network_res
-
-                parsed_res = device_log.parse_data(verified_res)
+                parsed_res = device_log.parse_log_data(log_res)
                 if network_res:
                     parsed_res.append(
                         helper.create_feature_format(SUCCESS, 'Online_Offline',
@@ -97,25 +95,22 @@ def get_latest_logs(event, context):
         }
         return response
     except (helper.DeviceIdParameterError, helper.ServiceIdError) as e:
-        logger.error(e)
         response = {
             "statusCode": 200,
             "body": json.dumps(helper.create_odessa_layer([], code=BAD_REQUEST))
         }
         return response
     except ValueError as e:
-        logger.error(e)
         logger.warning(
-            "JSON format Value error in the request for event {}".format(event))
+            "handler:device_logs JSON format Value error in the request for event {}".format(event))
         response = {
             "statusCode": 200,
             "body": json.dumps(helper.create_odessa_layer([], code=BAD_REQUEST))
         }
         return response
     except TypeError as e:
-        logger.error(e)
         logger.warning(
-            "Format Type error in the request for event {}".format(event))
+            "handler:device_logs Format Type error in the request for event {}".format(event))
         response = {
             "statusCode": 200,
             "body": json.dumps(helper.create_odessa_layer([], code=BAD_REQUEST))
@@ -124,8 +119,8 @@ def get_latest_logs(event, context):
     except ConnectionError as e:
         logger.error(e)
         logger.warning(
-            "Dynamodb Connection Error on GetDeviceLog "
-            "for event {}".format(event))
+            "handler:device_logs Dynamodb Connection Error "
+            "on GetDeviceLog for event {}".format(event))
         response = {
             "statusCode": 200,
             "body": json.dumps(
@@ -135,7 +130,8 @@ def get_latest_logs(event, context):
     except ClientError as e:
         logger.error(e)
         logger.warning(
-            "Dynamodb Client Error on GetDeviceLog for event {}".format(event))
+            "handler:device_logs Dynamodb Client Error on "
+            "GetDeviceLog for event {}".format(event))
         response = {
             "statusCode": 200,
             "body": json.dumps(
@@ -145,7 +141,7 @@ def get_latest_logs(event, context):
     except RedisError as e:
         logger.error(e)
         logger.warning(
-            "Redis Error on GetDeviceLog for event {}".format(event))
+            "handler:device_logs Redis Error on GetDeviceLog for event {}".format(event))
         response = {
             "statusCode": 200,
             "body": json.dumps(

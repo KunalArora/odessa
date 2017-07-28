@@ -225,3 +225,20 @@ class TestDeviceLogs(unittest.TestCase):
             if value['device_id'] == 'ffffffff-ffff-ffff-ffff-ffffffff0001':
                 self.assertEqual(500, value['error_code'])
                 self.assertFalse(value['data'])
+
+    def test_error_while_parsing_data(self):
+        parse_res_error = ['Parse Error', 'MIBException', 'Required MIB not found']
+        res = run_func(
+            event = { "body" : "{\"device_id\": [\"ffffffff-ffff-ffff-ffff-ffffffff0001\"], \"log_service_id\": \"0\"}"
+            },
+            context = []
+        )
+        res_json = json.loads(res['body'])
+        self.assertEqual(1, len(res_json['devices']))
+        self.assertEqual("ffffffff-ffff-ffff-ffff-ffffffff0001", res_json['devices'][0]['device_id'])
+        for value in res_json['devices']:
+            for data in value['data']:
+                if data['error_code'] != 200:
+                    self.assertEqual(500, data['error_code'])
+                    self.assertTrue(data['message'] in parse_res_error)
+

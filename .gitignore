@@ -45,6 +45,8 @@ wheels/
 *.egg
 boc/
 pymib/
+PyYAML-3.12.dist-info/
+yaml/
 db/local/*
 seed_cache.py
 dump.rdb
