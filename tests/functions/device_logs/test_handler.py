@@ -242,3 +242,25 @@ class TestDeviceLogs(unittest.TestCase):
                     self.assertEqual(500, data['error_code'])
                     self.assertTrue(data['message'] in parse_res_error)
 
+    def test_exist_integer_log_service_id_request(self):
+        res = run_func(
+            event = { "body" : "{\"device_id\": [\"ffffffff-ffff-ffff-ffff-ffffffff0001\"], \"log_service_id\": 0}"
+            },
+            context = []
+        )
+        res_json = json.loads(res['body'])
+        self.assertEqual(1, len(res_json['devices']))
+        self.assertEqual("ffffffff-ffff-ffff-ffff-ffffffff0001", res_json['devices'][0]['device_id'])
+        self.assertTrue(res_json['devices'][0]['data'])
+
+    def test_doesnt_exist_integer_log_service_id_request(self):
+        res = run_func(
+            event = { "body" : "{\"device_id\": [\"ffffffff-ffff-ffff-ffff-ffffffff0001\"], \"log_service_id\": 4}"
+            },
+            context = []
+        )
+        self.assertRaises(ServiceIdError)
+        res_json = json.loads(res['body'])
+        self.assertEqual({"code": 400, "devices": [], "message": "Bad Request"}, res_json)
+                    
+

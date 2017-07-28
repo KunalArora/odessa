@@ -26,7 +26,7 @@ def get_latest_logs(event, context):
         if isinstance(event['body'], (str, bytes)):
             request = json.loads(event['body'])
         device_ids = request['device_id'] if 'device_id' in request else ''
-        service_id = request['log_service_id'] if 'log_service_id' in request and request['log_service_id'] else '0'
+        service_id = str(request['log_service_id']) if 'log_service_id' in request and request['log_service_id'] else '0'
         if not device_ids:
             logger.warning(
                 "handler:device_logs Device Id request parameter is either "
