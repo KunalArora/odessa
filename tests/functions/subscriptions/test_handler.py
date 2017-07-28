@@ -30,6 +30,12 @@ class SubscribeTestCase(unittest.TestCase):
             {'body': json.dumps({"time_period": 30})}, 'dummy')
         self.assertEqual(json.loads(output['body'])["code"], 400)
         output = handler.subscribe(
+            {'body': json.dumps(
+                {"time_period": "a",
+                 "device_id": "ffffffff-ffff-ffff-ffff-ffffff000000"})},
+            'dummy')
+        self.assertEqual(json.loads(output['body'])["code"], 400)
+        output = handler.subscribe(
             {'body': json.dumps({"time_period": 30, "device_id": []})},
             'dummy')
         self.assertEqual(json.loads(output['body'])["code"], 400)

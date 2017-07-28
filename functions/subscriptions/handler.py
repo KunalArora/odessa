@@ -29,7 +29,7 @@ def subscribe(event, context):
     if ('device_id' not in data
             or not (isinstance(data['device_id'], list)
                     or isinstance(data['device_id'], str))
-            or not len(data['device_id']) > 0 or 'time_period' not in data):
+            or not len(data['device_id']) > 0):
         logger.warning('BadRequest on handler:subscribe')
         return helper.subscriptions_response(BAD_REQUEST)
 
@@ -37,6 +37,15 @@ def subscribe(event, context):
         log_service_id = str(data['log_service_id'])
     else:
         log_service_id = '0'
+
+    if 'time_period' in data:
+        try:
+            data['time_period'] = int(data['time_period'])
+        except:  # Non-integer strings return bad request
+            logger.warning('BadRequest on handler:subscribe')
+            return helper.subscriptions_response(BAD_REQUEST)
+    else:
+        data['time_period'] = helper.DEFAULT_TIME_PERIOD_MINS
 
     if isinstance(data['device_id'], str):
         data['device_id'] = [data['device_id']]
