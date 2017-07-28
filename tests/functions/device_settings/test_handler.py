@@ -35,7 +35,39 @@ class TestGetDeviceSettings(TestCase):
         self.assertEqual(output['message'],
                          "Bad Request")
 
-    @patch.object(DeviceInfo, 'get', return_value={"success": "true", "message": "Success.", "code": 200})
+        output = handler.get({'body': json.dumps(
+        {
+           "log_service_id": "invalid",
+           "device_id": "ffffffff-ffff-ffff-ffff-ffffffff0001",
+           "setting": [{"object_id": "1.3.6.1.4.1.2435.2.4.3.2435.5.36.33.0"}]
+        })}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 400)
+        self.assertEqual(output['message'],
+                        "Bad Request")
+        self.assertEqual(output['device_id'], '')
+        self.assertEqual(output['data'], [])
+
+
+    @patch.object(DeviceInfo, 'get')
+    def test_device_is_offline_on_get_device_settings(self, mock_get):
+        mock_get.return_value = {
+            "success": "false",
+            "message": "Device is Offline",
+            "code": "510"
+        }
+        output = handler.get({'body': json.dumps(
+        {
+           "device_id": ["ffffffff-ffff-ffff-ffff-ffffffff0001"],
+           "setting": [{"object_id": "1.3.6.1.4.1.2435.2.4.3.2435.5.36.33.0"}]
+        })}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 510)
+        self.assertEqual(output['message'], 'Device is Offline')
+        self.assertEqual(output['device_id'], 'ffffffff-ffff-ffff-ffff-ffffffff0001')
+        self.assertEqual(output['data'], '')
+
+    @patch.object(DeviceInfo, 'get', return_value={"success": "true", "message": "Success.", "code": "200"})
     def test_should_get_device_settings_successfully(self, mock_get):
         response = handler.get(
             {"body": "{\"device_id\": \"da23bd9a-86da-2580-cefa-d05acfff7eb4\", \"setting\": [{\"object_id\": \"1.3.6.1.4.1.2435.2.4.3.2435.5.36.33.0\"}, {\"object_id\": \"1.3.6.1.4.1.2435.2.4.3.2435.10.1.12.1.3.1\"}]}"}, '')
@@ -44,7 +76,7 @@ class TestGetDeviceSettings(TestCase):
 
     @patch.object(DeviceInfo, 'get')
     def test_device_id_list_should_get_device_settings_successfully(self, mock_get):
-        mock_get.return_value={"success": "true", "message": "Success.", "code": 200}
+        mock_get.return_value={"success": "true", "message": "Success.", "code": "200"}
         output = handler.get({'body': json.dumps(
         {
            "device_id": ["ffffffff-ffff-ffff-ffff-ffffffff0001", "ffffffff-ffff-ffff-ffff-ffffffff0002"],
@@ -89,7 +121,7 @@ class TestGetDeviceSettings(TestCase):
 
     @patch.object(DeviceInfo, 'get')
     def test_valid_log_service_id_on_get_settings_success(self, mock_get):
-        mock_get.return_value={"success": "true", "message": "Success.", "code": 200}
+        mock_get.return_value={"success": "true", "message": "Success.", "code": "200"}
         response = handler.get(
             {"body": "{\"log_service_id\": \"0\", \"device_id\": \"da23bd9a-86da-2580-cefa-d05acfff7eb4\", \"setting\": [{\"object_id\": \"1.3.6.1.4.1.2435.2.4.3.2435.5.36.33.0\"}, {\"object_id\": \"1.3.6.1.4.1.2435.2.4.3.2435.10.1.12.1.3.1\"}]}"}, '')
         res_json = json.loads(response['body'])
@@ -119,7 +151,38 @@ class TestSetDeviceSettings(TestCase):
         self.assertEqual(output['message'],
                          "Bad Request")
 
-    @patch.object(DeviceInfo, 'set', return_value={"success": "true", "message": "Success.", "code": 200})
+        output = handler.set({'body': json.dumps(
+        {
+           "log_service_id": "invalid",
+           "device_id": "ffffffff-ffff-ffff-ffff-ffffffff0001",
+           "setting": [{"object_id": "1.3.6.1.4.1.2435.2.4.3.2435.5.36.14.0", "value": "1"}]
+        })}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 400)
+        self.assertEqual(output['message'],
+                        "Bad Request")
+        self.assertEqual(output['device_id'], '')
+        self.assertEqual(output['data'], [])
+
+    @patch.object(DeviceInfo, 'set')
+    def test_device_is_offline_on_set_device_settings(self, mock_set):
+        mock_set.return_value = {
+            "success": "false",
+            "message": "Device is Offline",
+            "code": "510"
+        }
+        output = handler.set({'body': json.dumps(
+        {
+           "device_id": ["ffffffff-ffff-ffff-ffff-ffffffff0001"],
+           "setting": [{"object_id": "1.3.6.1.4.1.2435.2.4.3.2435.5.36.14.0", "value": "1"}]
+        })}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 510)
+        self.assertEqual(output['message'], 'Device is Offline')
+        self.assertEqual(output['device_id'], 'ffffffff-ffff-ffff-ffff-ffffffff0001')
+        self.assertEqual(output['data'], '')
+
+    @patch.object(DeviceInfo, 'set', return_value={"success": "true", "message": "Success.", "code": "200"})
     def test_should_set_device_settings_successfully(self, mock_set):
         response = handler.set(
             {"body": "{\"device_id\": \"da23bd9a-86da-2580-cefa-d05acfff7eb4\", \"setting\": [{\"object_id\": \"1.3.6.1.4.1.2435.2.4.3.2435.5.36.14.0\", \"value\": \"1\"}]}"}, '')
@@ -128,7 +191,7 @@ class TestSetDeviceSettings(TestCase):
 
     @patch.object(DeviceInfo, 'set')
     def test_device_id_list_should_set_device_settings_successfully(self, mock_set):
-        mock_set.return_value={"success": "true", "message": "Success.", "code": 200}
+        mock_set.return_value={"success": "true", "message": "Success.", "code": "200"}
         output = handler.set({'body': json.dumps(
         {
            "device_id": ["ffffffff-ffff-ffff-ffff-ffffffff0001", "ffffffff-ffff-ffff-ffff-ffffffff0002"],
@@ -173,7 +236,7 @@ class TestSetDeviceSettings(TestCase):
 
     @patch.object(DeviceInfo, 'set')
     def test_valid_log_service_id_on_set_settings_success(self, mock_set):
-        mock_set.return_value={"success": "true", "message": "Success.", "code": 200}
+        mock_set.return_value={"success": "true", "message": "Success.", "code": "200"}
         response = handler.set(
             {"body": "{\"log_service_id\": \"0\", \"device_id\": \"da23bd9a-86da-2580-cefa-d05acfff7eb4\", \"setting\": [{\"object_id\": \"1.3.6.1.4.1.2435.2.4.3.2435.5.36.14.0\", \"value\": \"1\"}]}"}, '')
         res_json = json.loads(response['body'])

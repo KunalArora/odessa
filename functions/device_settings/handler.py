@@ -22,7 +22,7 @@ def get(event, context):
     if (not isinstance(device_id, str) and not isinstance(device_id, list) or
             not device_id):
         logger.warning('BadRequest on handler:get_device_settings')
-        return helper.create_odessa_response(BAD_REQUEST)
+        return helper.device_settings_response(BAD_REQUEST)
 
     # In case of device_id being a list, choose the first element of the list
     # to be the only device_id to be processed
@@ -40,8 +40,10 @@ def get(event, context):
         oid_info = ServiceOid().read(log_service_id)
         if not oid_info:
             logger.warning(
-                f'BadRequest on handler:get_device_settings (log_service_id "{log_service_id}" does not exist.)')
-            return helper.device_settings_response(BAD_REQUEST)
+                f'BadRequest on handler:get_device_settings '
+                f'(log_service_id "{log_service_id}" does not exist.)')
+            return helper.device_settings_response(
+                BAD_REQUEST)
 
         boc_service_id = oid_info['boc_service_id']
 
@@ -51,37 +53,43 @@ def get(event, context):
             device_id, object_id_list, int(environ['BOC_API_CALL_TIMEOUT']))
     except error.HTTPError as e:
         logger.warning(
-            'BOC Connection Error on GetDeviceSetting '
-            'for event: {}'.format(event))
-        logger.error('Error code: {}, Reason: {}'.format(e.code, e.reason))
-        return helper.error_response(
-            device_id, BOC_API_CALL_ERROR, helper.odessa_response_message(BOC_API_CALL_ERROR))
+            f'BOC Connection Error on GetDeviceSetting '
+            f'for event: {event}')
+        logger.error(f'Error code: {e.code}, Reason: {e.reason}')
+        return helper.device_settings_response(
+            BOC_API_CALL_ERROR, device_id)
     except error.URLError as e:
-        logger.warning('BOC Connection Error on GetDeviceSetting '
-                       'for event: {}'.format(event))
-        logger.error('Reason: {}'.format(e.reason))
-        return helper.error_response(
-            device_id, BOC_API_CALL_ERROR, helper.odessa_response_message(BOC_API_CALL_ERROR))
+        logger.warning(
+            f'BOC Connection Error on GetDeviceSetting '
+            f'for event: {event}')
+        logger.error(f'Reason: {e.reason}')
+        return helper.device_settings_response(
+            BOC_API_CALL_ERROR, device_id)
     except ValueError:
         logger.warning(
-            'BOC response decode error on GetDeviceSetting '
-            'for event: {}'.format(event))
-        return helper.error_response(device_id, ERROR, helper.odessa_response_message(ERROR))
+            f'BOC response decode error on GetDeviceSetting '
+            f'for event: {event}')
+        return helper.device_settings_response(ERROR, device_id)
     except ParamsMissingError as e:
         logger.warning(
-            'BOC request parameters missing error on GetDeviceSetting '
-            'for event: {}'.format(event))
-        return helper.error_response(
-            device_id, PARAMS_MISSING_ERROR, helper.odessa_response_message(
-                PARAMS_MISSING_ERROR, e.reason))
+            f'BOC request parameters missing error on GetDeviceSetting '
+            f'for event: {event}')
+        logger.error(f'Error code: {e.code}, Reason: {e.reason}')
+        return helper.device_settings_response(
+            PARAMS_MISSING_ERROR, device_id, e.reason)
     except socket.timeout as e:
         logger.warning(
-            'BOC API call socket timeout error on GetDeviceSetting '
-            'for event: {}'.format(event))
-        return helper.error_response(
-            device_id, BOC_API_CALL_ERROR, helper.odessa_response_message(BOC_API_CALL_ERROR))
+            f'BOC API call socket timeout error on GetDeviceSetting '
+            f'for event: {event}')
+        return helper.device_settings_response(
+            BOC_API_CALL_ERROR, device_id)
 
-    return helper.create_response(device_id, boc_response)
+    if 'get' in boc_response:
+        data_get = boc_response['get']
+    else:
+        data_get = ''
+    return helper.device_settings_response(
+        int(boc_response['code']), device_id, boc_response['message'], data_get)
 
 
 def set(event, context):
@@ -92,7 +100,7 @@ def set(event, context):
     if (not isinstance(device_id, str) and not isinstance(device_id, list) or
             not device_id):
         logger.warning('BadRequest on handler:set_device_settings')
-        return helper.create_odessa_response(BAD_REQUEST)
+        return helper.device_settings_response(BAD_REQUEST)
 
     # In case of device_id being a list, choose the first element of the list
     # to be the only device_id to be processed
@@ -110,8 +118,10 @@ def set(event, context):
         oid_info = ServiceOid().read(log_service_id)
         if not oid_info:
             logger.warning(
-                f'BadRequest on handler:set_device_settings (log_service_id "{log_service_id}" does not exist.)')
-            return helper.device_settings_response(BAD_REQUEST)
+                f'BadRequest on handler:set_device_settings '
+                f'(log_service_id "{log_service_id}" does not exist.)')
+            return helper.device_settings_response(
+                BAD_REQUEST)
 
         boc_service_id = oid_info['boc_service_id']
 
@@ -122,34 +132,41 @@ def set(event, context):
                 environ['BOC_API_CALL_TIMEOUT']))
     except error.HTTPError as e:
         logger.warning(
-            'BOC Connection Error on SetDeviceSetting for '
-            'event: {}'.format(event))
-        logger.error('Error code: {}, Reason: {}'.format(e.code, e.reason))
-        return helper.error_response(
-            device_id, BOC_API_CALL_ERROR, helper.odessa_response_message(BOC_API_CALL_ERROR))
+            f'BOC Connection Error on SetDeviceSetting for '
+            f'event: {event}')
+        logger.error(f'Error code: {e.code}, Reason: {e.reason}')
+        return helper.device_settings_response(
+            BOC_API_CALL_ERROR, device_id)
     except error.URLError as e:
-        logger.warning('BOC Connection Error on GetDeviceSetting '
-                       'for event: {}'.format(event))
-        logger.error('Reason: {}'.format(e.reason))
-        return helper.error_response(
-            device_id, BOC_API_CALL_ERROR, helper.odessa_response_message(BOC_API_CALL_ERROR))
+        logger.warning(
+            f'BOC Connection Error on GetDeviceSetting '
+            f'for event: {event}')
+        logger.error('Reason: {e.reason}')
+        return helper.device_settings_response(
+            BOC_API_CALL_ERROR, device_id)
     except ValueError:
         logger.warning(
-            'BOC response decode error on SetDeviceSetting '
-            'for event: {}'.format(event))
-        return helper.error_response(device_id, ERROR, helper.odessa_response_message(ERROR))
+            f'BOC response decode error on SetDeviceSetting '
+            f'for event: {event}')
+        return helper.device_settings_response(
+            ERROR, device_id)
     except ParamsMissingError as e:
         logger.warning(
-            'BOC request parameters missing error on SetDeviceSetting '
-            'for event: {}'.format(event))
-        return helper.error_response(
-            device_id, PARAMS_MISSING_ERROR, helper.odessa_response_message(
-                PARAMS_MISSING_ERROR, e.reason))
+            f'BOC request parameters missing error on SetDeviceSetting '
+            f'for event: {event}')
+        logger.error(f'Error code: {e.code}, Reason: {e.reason}')
+        return helper.device_settings_response(
+            PARAMS_MISSING_ERROR, device_id, e.reason)
     except socket.timeout as e:
         logger.warning(
-            'BOC API call socket timeout error on GetDeviceSetting '
-            'for event: {}'.format(event))
-        return helper.error_response(
-            device_id, BOC_API_CALL_ERROR, helper.odessa_response_message(BOC_API_CALL_ERROR))
+            f'BOC API call socket timeout error on GetDeviceSetting '
+            f'for event: {event}')
+        return helper.device_settings_response(
+            BOC_API_CALL_ERROR, device_id)
 
-    return helper.create_response(device_id, boc_response)
+    if 'set' in boc_response:
+        data_set = boc_response['set']
+    else:
+        data_set = ''
+    return helper.device_settings_response(
+        int(boc_response['code']), device_id, boc_response['message'], data_set)

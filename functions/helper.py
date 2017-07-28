@@ -46,38 +46,25 @@ class EventParameterError(Exception):
         self.errArgu = errArgu
 
 
-def create_response(device_id, boc_response):
-    body = {
-        'code': boc_response['code'],
-        'device_id': device_id
-    }
-
-    if 'get' in boc_response:
-        body['data'] = boc_response['get']
-    elif 'set' in boc_response:
-        body['data'] = boc_response['set']
-
-    body['message'] = boc_response['message']
-    response = {
-        "statusCode": 200,
-        "body": json.dumps(body)
-    }
-    return response
-
-
 def subscriptions_response(error_code, device_list=[]):
     return create_odessa_response(error_code, {'devices': device_list})
 
 
-def device_settings_response(error_code, data=[]):
-    return create_odessa_response(error_code, {'data': data})
+def device_settings_response(error_code, device_id='', message=None, data=[]):
+    if data:
+        for item in data:
+            item['error_code'] = int(item['error_code'])
+
+    return create_odessa_response(
+        error_code, {'device_id': device_id, 'data': data}, message)
 
 
-def create_odessa_response(error_code, result):
+def create_odessa_response(error_code, result, message=None):
     body = {
         'code': error_code,
-        'message': odessa_response_message(error_code),
+        'message': message if message else odessa_response_message(error_code)
     }
+
     body.update(result)
 
     return {
@@ -86,7 +73,7 @@ def create_odessa_response(error_code, result):
     }
 
 
-def odessa_response_message(error_code, reason=None):
+def odessa_response_message(error_code):
     error_map = {
         SUCCESS: 'Success',
         PARTIAL_SUCCESS: 'Partial Success',
@@ -98,22 +85,9 @@ def odessa_response_message(error_code, reason=None):
         DB_CONNECTION_ERROR: 'Failed to connect with DB',
         BOC_DB_CONNECTION_ERROR: 'BOC DB Connection Error',
         BOC_API_CALL_ERROR: 'Failed to call BOC API',
-        PARAMS_MISSING_ERROR: reason
+        PARAMS_MISSING_ERROR: 'Parameters missing'
     }
     return error_map[error_code]
-
-
-def error_response(device_id, code, message):
-    body = {
-        'code': code,
-        'device_id': device_id,
-        'message': message
-    }
-    response = {
-        "statusCode": 200,
-        "body": json.dumps(body)
-    }
-    return response
 
 
 def subscription_api_client(boc_service_id):
