@@ -89,62 +89,32 @@ def get_latest_logs(event, context):
                 features = helper.create_features_layer(parsed_res)
                 devices.append(
                     helper.create_devices_layer(features, device_id))
-        response = {
-            "statusCode": 200,
-            "body": json.dumps(helper.create_odessa_layer(devices))
-        }
-        return response
+        error_code = helper.odessa_error_code(devices)
+        return helper.latest_logs_response(error_code, devices)
     except (helper.DeviceIdParameterError, helper.ServiceIdError) as e:
-        response = {
-            "statusCode": 200,
-            "body": json.dumps(helper.create_odessa_layer([], code=BAD_REQUEST))
-        }
-        return response
+        return helper.latest_logs_response(BAD_REQUEST)
     except ValueError as e:
         logger.warning(
             "handler:device_logs JSON format Value error in the request for event {}".format(event))
-        response = {
-            "statusCode": 200,
-            "body": json.dumps(helper.create_odessa_layer([], code=BAD_REQUEST))
-        }
-        return response
+        return helper.latest_logs_response(BAD_REQUEST)
     except TypeError as e:
         logger.warning(
             "handler:device_logs Format Type error in the request for event {}".format(event))
-        response = {
-            "statusCode": 200,
-            "body": json.dumps(helper.create_odessa_layer([], code=BAD_REQUEST))
-        }
-        return response
+        return helper.latest_logs_response(BAD_REQUEST)
     except ConnectionError as e:
         logger.error(e)
         logger.warning(
             "handler:device_logs Dynamodb Connection Error "
             "on GetDeviceLog for event {}".format(event))
-        response = {
-            "statusCode": 200,
-            "body": json.dumps(
-                helper.create_odessa_layer([], code=BOC_DB_CONNECTION_ERROR))
-        }
-        return response
+        return helper.latest_logs_response(BOC_DB_CONNECTION_ERROR)
     except ClientError as e:
         logger.error(e)
         logger.warning(
             "handler:device_logs Dynamodb Client Error on "
             "GetDeviceLog for event {}".format(event))
-        response = {
-            "statusCode": 200,
-            "body": json.dumps(
-                helper.create_odessa_layer([], code=BOC_DB_CONNECTION_ERROR))
-        }
-        return response
+        return helper.latest_logs_response(BOC_DB_CONNECTION_ERROR)
     except RedisError as e:
         logger.error(e)
         logger.warning(
             "handler:device_logs Redis Error on GetDeviceLog for event {}".format(event))
-        response = {
-            "statusCode": 200,
-            "body": json.dumps(
-                helper.create_odessa_layer([], code=BOC_DB_CONNECTION_ERROR))
-        }
-        return response
+        return helper.latest_logs_response(BOC_DB_CONNECTION_ERROR)

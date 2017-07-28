@@ -45,6 +45,8 @@ class EventParameterError(Exception):
         Exception.__init__(self)
         self.errArgu = errArgu
 
+def latest_logs_response(error_code, device_list=[]):
+    return create_odessa_response(error_code, {'devices': device_list})
 
 def subscriptions_response(error_code, device_list=[]):
     return create_odessa_response(error_code, {'devices': device_list})
@@ -217,18 +219,6 @@ def create_devices_layer(data, device_id, **options):
     device['data'] = data if data else None
     device['message'] = odessa_response_message(device['error_code'])
     return device
-
-
-def create_odessa_layer(data, **options):
-#    Odessa layer response is created as a final response.
-    res = {}
-    if options:
-        res['code'] = options.get('code')
-    else:
-        res['code'] = odessa_error_code(data)
-    res['devices'] = data
-    res['message'] = odessa_response_message(res['code'])
-    return res
 
 
 def devices_error_code(data):
