@@ -43,6 +43,13 @@ class SubscribeTestCase(unittest.TestCase):
                  "log_service_id": "2"})},
             'dummy')
         self.assertEqual(json.loads(output['body'])["code"], 400)
+        output = handler.subscribe(
+            {'body': json.dumps(
+                {"time_period": 30,
+                 "device_id": ["ffffffff-ffff-ffff-ffff-ffffff000000"],
+                 "log_service_id": 2})},
+            'dummy')
+        self.assertEqual(json.loads(output['body'])["code"], 400)
 
     def test_subscribe_new_device(self):
         with open(
@@ -232,6 +239,12 @@ class UnsubscribeTestCase(unittest.TestCase):
                  "log_service_id": "2"})},
             'dummy')
         self.assertEqual(json.loads(output['body'])["code"], 400)
+        output = handler.unsubscribe(
+            {'body': json.dumps(
+                {"device_id": ["ffffffff-ffff-ffff-ffff-ffffff000000"],
+                 "log_service_id": 2})},
+            'dummy')
+        self.assertEqual(json.loads(output['body'])["code"], 400)
 
     def test_unsubscribe_unknown_device(self):
         with open(
@@ -395,6 +408,11 @@ class SubscriptionInfoTestCase(unittest.TestCase):
             {'body': json.dumps(
                 {"device_id": ['ffffffff-ffff-ffff-ffff-ffffff000000'],
                  "log_service_id": "2"})}, 'dummy')
+        self.assertEqual(json.loads(output['body'])["code"], 400)
+        output = handler.subscription_info(
+            {'body': json.dumps(
+                {"device_id": ['ffffffff-ffff-ffff-ffff-ffffff000000'],
+                 "log_service_id": 2})}, 'dummy')
         self.assertEqual(json.loads(output['body'])["code"], 400)
 
     @patch('boc.base.Base.post_content')

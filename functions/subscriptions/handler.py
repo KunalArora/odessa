@@ -34,17 +34,22 @@ def subscribe(event, context):
         return helper.subscriptions_response(BAD_REQUEST)
 
     if 'log_service_id' in data:
-        log_service_id = data['log_service_id']
+        log_service_id = str(data['log_service_id'])
     else:
         log_service_id = '0'
 
     if isinstance(data['device_id'], str):
         data['device_id'] = [data['device_id']]
 
-    if not ServiceOid().read(log_service_id):
-        logger.warning(
-            f'BadRequest on handler:subscribe (log_service_id "{log_service_id}" does not exist.)')
-        return helper.subscriptions_response(BAD_REQUEST)
+    try:
+        if not ServiceOid().read(log_service_id):
+            logger.warning(
+                f'BadRequest on handler:subscribe (log_service_id "{log_service_id}" does not exist.)')
+            return helper.subscriptions_response(BAD_REQUEST)
+    except (ClientError, ConnectionError,
+            RedisError) as e:  # pragma: no cover
+        logger.error(e)
+        return helper.subscriptions_response(DB_CONNECTION_ERROR)
 
     for device_id in data['device_id']:
         try:
@@ -137,17 +142,22 @@ def unsubscribe(event, context):
         return helper.subscriptions_response(BAD_REQUEST)
 
     if 'log_service_id' in data:
-        log_service_id = data['log_service_id']
+        log_service_id = str(data['log_service_id'])
     else:
         log_service_id = '0'
 
     if isinstance(data['device_id'], str):
         data['device_id'] = [data['device_id']]
 
-    if not ServiceOid().read(log_service_id):
-        logger.warning(
-            f'BadRequest on handler:unsubscribe (log_service_id "{log_service_id}" does not exist.)')
-        return helper.subscriptions_response(BAD_REQUEST)
+    try:
+        if not ServiceOid().read(log_service_id):
+            logger.warning(
+                f'BadRequest on handler:unsubscribe (log_service_id "{log_service_id}" does not exist.)')
+            return helper.subscriptions_response(BAD_REQUEST)
+    except (ClientError, ConnectionError,
+            RedisError) as e:  # pragma: no cover
+        logger.error(e)
+        return helper.subscriptions_response(DB_CONNECTION_ERROR)
 
     for device_id in data['device_id']:
         try:
@@ -238,17 +248,22 @@ def subscription_info(event, context):
         return helper.subscriptions_response(BAD_REQUEST)
 
     if 'log_service_id' in data:
-        log_service_id = data['log_service_id']
+        log_service_id = str(data['log_service_id'])
     else:
         log_service_id = '0'
 
     if isinstance(data['device_id'], str):
         data['device_id'] = [data['device_id']]
 
-    if not ServiceOid().read(log_service_id):
-        logger.warning(
-            f'BadRequest on handler:subscription_info (log_service_id "{log_service_id}" does not exist.)')
-        return helper.subscriptions_response(BAD_REQUEST)
+    try:
+        if not ServiceOid().read(log_service_id):
+            logger.warning(
+                f'BadRequest on handler:subscription_info (log_service_id "{log_service_id}" does not exist.)')
+            return helper.subscriptions_response(BAD_REQUEST)
+    except (ClientError, ConnectionError,
+            RedisError) as e:  # pragma: no cover
+        logger.error(e)
+        return helper.subscriptions_response(DB_CONNECTION_ERROR)
 
     for device_id in data['device_id']:
         try:
