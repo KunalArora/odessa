@@ -92,9 +92,13 @@ def subscribe(event, context):
             elif device_info.is_unsubscribe_error():
                 error_code = device_info.get_status()
                 message = device_info.get_message()
-            else:
-                error_code = UNKNOWN
+            else:  # re-subscribe unexpected error_codes
+                error_code = SUBSCRIBE_ACCEPTED
+                device_info.update(error_code)
                 message = device_info.get_message()
+                helper.invoke_run_subscribe(
+                    device_id, log_service_id, data['time_period'])
+                accept_exists = True
             device_list.append({
                 'error_code': error_code, 'device_id': device_id,
                 'message': message})
@@ -198,10 +202,12 @@ def unsubscribe(event, context):
                 error_code = UNSUBSCRIBE_EXCLUSIVE_CONTROL_ERROR_WITH_OTHER_UNSUBS
                 message = device_error_message(error_code)
                 error_exists = True
-            else:
-                error_code = UNKNOWN
-                message = device_error_message(error_code)
-                error_exists = True
+            else:  # Unsubscribe unexpected error_codes
+                error_code = UNSUBSCRIBE_ACCEPTED
+                device_info.update(error_code)
+                message = device_info.get_message()
+                helper.invoke_run_unsubscribe(device_id, log_service_id)
+                accept_exists = True
             device_list.append({
                 'error_code': error_code, 'device_id': device_id,
                 'message': message})

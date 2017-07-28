@@ -593,7 +593,9 @@ class AsyncUnsubscribeTestCase(unittest.TestCase):
         mock.assert_called()
         after = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000012#0')
-        self.assertEqual(len(after['Items']), 0)
+        self.assertEqual(len(after['Items']), 4)
+        for subscription in after['Items']:
+            self.assertEqual(int(subscription['status']), 2210)
 
 
 def main():

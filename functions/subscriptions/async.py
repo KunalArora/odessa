@@ -117,7 +117,6 @@ def run_unsubscribe(event, context):
             event['device_id'], oid_map)
 
         if(boc_response['code'] == NO_ERROR or
-           boc_response['code'] == SUCCESS_BUT_DEVICE_OFFLINE or
             boc_response['code'] == NOT_SUBSCRIBED_FROM_SERVICE_ON_UNSUBSCRIBE
                 or boc_response['code'] == DEVICE_NOT_RECOGNIZED):
             device_info.delete()

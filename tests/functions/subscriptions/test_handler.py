@@ -200,9 +200,9 @@ class SubscribeTestCase(unittest.TestCase):
         output = handler.subscribe({'body': input}, 'dummy')
         output = json.loads(output['body'])
         self.assertEqual(len(output["devices"]), 1)
-        self.assertEqual(output["code"], 560)
-        self.assertEqual(output["message"], "Error")
-        self.assertEqual(output["devices"][0]["error_code"], 9999)
+        self.assertEqual(output["code"], 200)
+        self.assertEqual(output["message"], "Success")
+        self.assertEqual(output["devices"][0]["error_code"], 1202)
 
     @patch('functions.helper.invoke_async')
     def test_subscribe_async_payload(self, mock):
@@ -349,9 +349,9 @@ class UnsubscribeTestCase(unittest.TestCase):
         output = handler.unsubscribe({'body': input}, 'dummy')
         output = json.loads(output['body'])
         self.assertEqual(len(output["devices"]), 1)
-        self.assertEqual(output["code"], 409)
-        self.assertEqual(output["message"], "Requests conflict")
-        self.assertEqual(output["devices"][0]["error_code"], 9999)
+        self.assertEqual(output["code"], 200)
+        self.assertEqual(output["message"], "Success")
+        self.assertEqual(output["devices"][0]["error_code"], 2202)
 
     def test_unsubscribe_multi_success(self):
         with open(
