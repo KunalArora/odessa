@@ -83,6 +83,21 @@ class SubscribeTestCase(unittest.TestCase):
         self.assertEqual(output["devices"][0]["device_id"],
                          "ffffffff-ffff-ffff-ffff-fffff1string")
 
+    def test_subscribe_duplicate_request(self):
+        with open(
+                f'{self.path}/../../data/subscribe/subscribe_duplicate_ids.json'
+                ) as data_file:
+            input = json.dumps(json.load(data_file))
+        output = handler.subscribe({'body': input}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(len(output["devices"]), 1)
+        self.assertEqual(output["devices"][0]["error_code"], 1202)
+        self.assertEqual(output["devices"][0]["device_id"],
+                         "ffffffff-ffff-ffff-ffff-ffffff000dup")
+        self.assertEqual(output["devices"][0]["message"], "Subscribe accepted")
+        self.assertEqual(output["code"], 200)
+        self.assertEqual(output["message"], "Success")
+
     def test_subscribed_and_offline_device(self):
         with open(
                 f'{self.path}/../../data/subscribe/subscribe_subscribed_and_offline_device.json'

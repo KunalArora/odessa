@@ -3,6 +3,7 @@ import json
 import logging
 from botocore.exceptions import ClientError
 from botocore.exceptions import ConnectionError
+from collections import OrderedDict
 from redis import RedisError
 from functions import helper
 from models.device_subscription import DeviceSubscription
@@ -49,6 +50,9 @@ def subscribe(event, context):
 
     if isinstance(data['device_id'], str):
         data['device_id'] = [data['device_id']]
+
+    # Remove duplicates while keeping order
+    data['device_id'] = list(OrderedDict.fromkeys(data['device_id']))
 
     try:
         if not ServiceOid().read(log_service_id):
@@ -162,6 +166,9 @@ def unsubscribe(event, context):
     if isinstance(data['device_id'], str):
         data['device_id'] = [data['device_id']]
 
+    # Remove duplicates while keeping order
+    data['device_id'] = list(OrderedDict.fromkeys(data['device_id']))
+
     try:
         if not ServiceOid().read(log_service_id):
             logger.warning(
@@ -269,6 +276,9 @@ def subscription_info(event, context):
 
     if isinstance(data['device_id'], str):
         data['device_id'] = [data['device_id']]
+
+    # Remove duplicates while keeping order
+    data['device_id'] = list(OrderedDict.fromkeys(data['device_id']))
 
     try:
         if not ServiceOid().read(log_service_id):
