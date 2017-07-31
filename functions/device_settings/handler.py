@@ -1,6 +1,7 @@
 from boc.device_info import DeviceInfo
 from boc.exceptions import ParamsMissingError
 from constants.odessa_response_codes import *
+from constants.boc_response_codes import SERVER_ERROR
 from functions import helper
 import json
 import logging
@@ -16,11 +17,22 @@ logger.setLevel(logging.INFO)
 
 def get(event, context):
     logger.info(event)
-    data = json.loads(event['body'])
-    device_id = data['device_id']
 
-    if (not isinstance(device_id, str) and not isinstance(device_id, list) or
-            not device_id):
+    if (not isinstance(event['body'], (str, bytes)) or not event['body']):
+        logger.warning('BadRequest on handler:get_device_settings')
+        return helper.device_settings_response(BAD_REQUEST)
+
+    data = json.loads(event['body'])
+
+    if ('device_id' not in data or 'setting' not in data):
+        logger.warning('BadRequest on handler:get_device_settings')
+        return helper.device_settings_response(BAD_REQUEST)
+
+    device_id = data['device_id']
+    object_id_list = data['setting']
+
+    if ((not isinstance(device_id, str) and not isinstance(device_id, list)) or
+            not device_id or not object_id_list):
         logger.warning('BadRequest on handler:get_device_settings')
         return helper.device_settings_response(BAD_REQUEST)
 
@@ -28,8 +40,6 @@ def get(event, context):
     # to be the only device_id to be processed
     if isinstance(device_id, list):
         device_id = device_id[0]
-
-    object_id_list = data['setting']
 
     if 'log_service_id' in data:
         log_service_id = str(data['log_service_id'])
@@ -75,8 +85,7 @@ def get(event, context):
             f'BOC request parameters missing error on GetDeviceSetting '
             f'for event: {event}')
         logger.error(f'Error code: {e.code}, Reason: {e.reason}')
-        return helper.device_settings_response(
-            PARAMS_MISSING_ERROR, device_id, e.reason)
+        return helper.device_settings_response(BAD_REQUEST)
     except socket.timeout as e:
         logger.warning(
             f'BOC API call socket timeout error on GetDeviceSetting '
@@ -84,21 +93,30 @@ def get(event, context):
         return helper.device_settings_response(
             BOC_API_CALL_ERROR, device_id)
 
-    if 'get' in boc_response:
-        data_get = boc_response['get']
-    else:
-        data_get = ''
+    data_get = boc_response['get'] if 'get' in boc_response else []
+
     return helper.device_settings_response(
         int(boc_response['code']), device_id, boc_response['message'], data_get)
 
 
 def set(event, context):
     logger.info(event)
+
+    if (not isinstance(event['body'], (str, bytes)) or not event['body']):
+        logger.warning('BadRequest on handler:set_device_settings')
+        return helper.device_settings_response(BAD_REQUEST)
+
     data = json.loads(event['body'])
+
+    if ('device_id' not in data or 'setting' not in data):
+        logger.warning('BadRequest on handler:set_device_settings')
+        return helper.device_settings_response(BAD_REQUEST)
+
     device_id = data['device_id']
+    object_id_value_list = data['setting']
 
     if (not isinstance(device_id, str) and not isinstance(device_id, list) or
-            not device_id):
+            not device_id or not object_id_value_list):
         logger.warning('BadRequest on handler:set_device_settings')
         return helper.device_settings_response(BAD_REQUEST)
 
@@ -106,8 +124,6 @@ def set(event, context):
     # to be the only device_id to be processed
     if isinstance(device_id, list):
         device_id = device_id[0]
-
-    object_id_value_list = data['setting']
 
     if 'log_service_id' in data:
         log_service_id = str(data['log_service_id'])
@@ -155,8 +171,7 @@ def set(event, context):
             f'BOC request parameters missing error on SetDeviceSetting '
             f'for event: {event}')
         logger.error(f'Error code: {e.code}, Reason: {e.reason}')
-        return helper.device_settings_response(
-            PARAMS_MISSING_ERROR, device_id, e.reason)
+        return helper.device_settings_response(BAD_REQUEST)
     except socket.timeout as e:
         logger.warning(
             f'BOC API call socket timeout error on GetDeviceSetting '
@@ -164,9 +179,15 @@ def set(event, context):
         return helper.device_settings_response(
             BOC_API_CALL_ERROR, device_id)
 
-    if 'set' in boc_response:
-        data_set = boc_response['set']
-    else:
-        data_set = ''
+    if int(boc_response['code']) == SERVER_ERROR:
+        print("hello")
+        logger.warning(
+            f'Server Error due to incorrect parameters for '
+            f'event: {event}')
+        return helper.device_settings_response(
+            BOC_API_CALL_ERROR, device_id)
+
+    data_set = boc_response['set'] if 'set' in boc_response else []
+
     return helper.device_settings_response(
         int(boc_response['code']), device_id, boc_response['message'], data_set)

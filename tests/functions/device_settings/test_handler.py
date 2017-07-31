@@ -23,11 +23,55 @@ class TestGetDeviceSettings(TestCase):
         test_helper.create_table(self)
 
     def test_bad_request(self):
-        output = handler.get({'body': json.dumps({"device_id": ""})}, 'dummy')
+        output = handler.get({'body': json.dumps({})}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 400)
+
+        output = handler.get({'body': json.dumps(
+        {
+            "device_id": "ffffffff-ffff-ffff-ffff-ffffffff0001"
+        })}, 'dummy')
         output = json.loads(output['body'])
         self.assertEqual(output['code'], 400)
         self.assertEqual(output['message'],
-                         "Bad Request")
+                        "Bad Request")
+        self.assertEqual(output['device_id'], '')
+        self.assertEqual(output['data'], [])
+
+        output = handler.get({'body': json.dumps(
+        {
+           "setting": [{"object_id": "1.3.6.1.4.1.2435.2.4.3.2435.5.36.33.0"}]
+        })}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 400)
+        self.assertEqual(output['message'],
+                        "Bad Request")
+        self.assertEqual(output['device_id'], '')
+        self.assertEqual(output['data'], [])
+
+        output = handler.get({'body': json.dumps(
+        {
+            "device_id": "ffffffff-ffff-ffff-ffff-ffffffff0001",
+            "setting": []
+        })}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 400)
+        self.assertEqual(output['message'],
+                        "Bad Request")
+        self.assertEqual(output['device_id'], '')
+        self.assertEqual(output['data'], [])
+
+        output = handler.get({'body': json.dumps(
+        {
+            "device_id": "",
+            "setting": [{"object_id": "1.3.6.1.4.1.2435.2.4.3.2435.5.36.33.0"}]
+        })}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 400)
+        self.assertEqual(output['message'],
+                        "Bad Request")
+        self.assertEqual(output['device_id'], '')
+        self.assertEqual(output['data'], [])
 
         output = handler.get({'body': json.dumps({"device_id": []})}, 'dummy')
         output = json.loads(output['body'])
@@ -74,7 +118,7 @@ class TestGetDeviceSettings(TestCase):
         self.assertEqual(output['code'], 510)
         self.assertEqual(output['message'], 'Device is Offline')
         self.assertEqual(output['device_id'], 'ffffffff-ffff-ffff-ffff-ffffffff0001')
-        self.assertEqual(output['data'], '')
+        self.assertEqual(output['data'], [])
 
     @patch.object(DeviceInfo, 'get', return_value={"success": "true", "message": "Success.", "code": "200"})
     def test_should_get_device_settings_successfully(self, mock_get):
@@ -101,7 +145,7 @@ class TestGetDeviceSettings(TestCase):
             {"body": "{\"device_id\": \"da23bd9a-86da-2580-cefa-d05acfff7eb4\", \"setting\": [{\"object_id\": \"\"}, {\"object_id\": \"1.3.6.1.4.1.2435.2.4.3.2435.10.1.12.1.3.1\"}]}"}, '')
         self.assertEqual(503, mock_get.side_effect.code)
         res_json = json.loads(response['body'])
-        self.assertEqual(503, res_json['code'])
+        self.assertEqual(400, res_json['code'])
 
     @patch.object(Base, 'post_content')
     def test_boc_connection_error_on_get_settings(self, mock_post_content):
@@ -158,11 +202,55 @@ class TestSetDeviceSettings(TestCase):
         test_helper.create_table(self)
 
     def test_bad_request(self):
-        output = handler.set({'body': json.dumps({"device_id": ""})}, 'dummy')
+        output = handler.set({'body': json.dumps({})}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 400)
+
+        output = handler.set({'body': json.dumps(
+        {
+            "device_id": "ffffffff-ffff-ffff-ffff-ffffffff0001"
+        })}, 'dummy')
         output = json.loads(output['body'])
         self.assertEqual(output['code'], 400)
         self.assertEqual(output['message'],
-                         "Bad Request")
+                        "Bad Request")
+        self.assertEqual(output['device_id'], '')
+        self.assertEqual(output['data'], [])
+
+        output = handler.set({'body': json.dumps(
+        {
+           "setting": [{"object_id": "1.3.6.1.4.1.2435.2.4.3.2435.5.36.14.0", "value": "1"}]
+        })}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 400)
+        self.assertEqual(output['message'],
+                        "Bad Request")
+        self.assertEqual(output['device_id'], '')
+        self.assertEqual(output['data'], [])
+
+        output = handler.set({'body': json.dumps(
+        {
+            "device_id": "ffffffff-ffff-ffff-ffff-ffffffff0001",
+            "setting": []
+        })}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 400)
+        self.assertEqual(output['message'],
+                        "Bad Request")
+        self.assertEqual(output['device_id'], '')
+        self.assertEqual(output['data'], [])
+
+        output = handler.set({'body': json.dumps(
+        {
+            "device_id": "",
+            "setting": [{"object_id": "1.3.6.1.4.1.2435.2.4.3.2435.5.36.14.0", "value": "1"}]
+        })}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 400)
+        self.assertEqual(output['message'],
+                        "Bad Request")
+        self.assertEqual(output['device_id'], '')
+        self.assertEqual(output['data'], [])
 
         output = handler.set({'body': json.dumps({"device_id": []})}, 'dummy')
         output = json.loads(output['body'])
@@ -208,7 +296,7 @@ class TestSetDeviceSettings(TestCase):
         self.assertEqual(output['code'], 510)
         self.assertEqual(output['message'], 'Device is Offline')
         self.assertEqual(output['device_id'], 'ffffffff-ffff-ffff-ffff-ffffffff0001')
-        self.assertEqual(output['data'], '')
+        self.assertEqual(output['data'], [])
 
     @patch.object(DeviceInfo, 'set', return_value={"success": "true", "message": "Success.", "code": "200"})
     def test_should_set_device_settings_successfully(self, mock_set):
@@ -235,7 +323,7 @@ class TestSetDeviceSettings(TestCase):
             {"body": "{\"device_id\": \"da23bd9a-86da-2580-cefa-d05acfff7eb4\", \"setting\": [{\"object_id\": \"\", \"value\": \"1\"}]}"}, '')
         self.assertEqual(503, mock_set.side_effect.code)
         res_json = json.loads(response['body'])
-        self.assertEqual(503, res_json['code'])
+        self.assertEqual(400, res_json['code'])
 
     @patch.object(Base, 'post_content')
     def test_boc_connection_error_on_set_settings(self, mock_post_content):
@@ -278,3 +366,19 @@ class TestSetDeviceSettings(TestCase):
         })}, 'dummy')
         output = json.loads(output['body'])
         self.assertEqual(output['code'], 200)
+
+    @patch.object(DeviceInfo, 'set')
+    def test_missing_value_parameter_on_set_settings(self, mock_set):
+        mock_set.return_value={"success": "false", "message": "Server Error", "code": "599"}
+        output = handler.set({'body': json.dumps(
+        {
+           "device_id": ["ffffffff-ffff-ffff-ffff-ffffffff0001"],
+           "setting": [{"object_id": "1.3.6.1.4.1.2435.2.4.3.2435.5.36.14.0"}]
+        })}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 563)
+        self.assertEqual(output['message'],
+                        "Failed to call BOC API")
+        self.assertEqual(
+            output['device_id'], 'ffffffff-ffff-ffff-ffff-ffffffff0001')
+        self.assertEqual(output['data'], [])

@@ -86,8 +86,7 @@ def odessa_response_message(error_code):
         ERROR: 'Error',
         DB_CONNECTION_ERROR: 'Failed to connect with DB',
         BOC_DB_CONNECTION_ERROR: 'BOC DB Connection Error',
-        BOC_API_CALL_ERROR: 'Failed to call BOC API',
-        PARAMS_MISSING_ERROR: 'Parameters missing'
+        BOC_API_CALL_ERROR: 'Failed to call BOC API'
     }
     return error_map[error_code]
 
