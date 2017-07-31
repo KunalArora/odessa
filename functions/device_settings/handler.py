@@ -32,7 +32,7 @@ def get(event, context):
     object_id_list = data['setting']
 
     if 'log_service_id' in data:
-        log_service_id = data['log_service_id']
+        log_service_id = str(data['log_service_id'])
     else:
         log_service_id = '0'
 
@@ -110,7 +110,7 @@ def set(event, context):
     object_id_value_list = data['setting']
 
     if 'log_service_id' in data:
-        log_service_id = data['log_service_id']
+        log_service_id = str(data['log_service_id'])
     else:
         log_service_id = '0'
 

@@ -48,6 +48,15 @@ class TestGetDeviceSettings(TestCase):
         self.assertEqual(output['device_id'], '')
         self.assertEqual(output['data'], [])
 
+        output = handler.get({'body': json.dumps(
+        {
+           "log_service_id": 100,
+           "device_id": "ffffffff-ffff-ffff-ffff-ffffffff0001",
+           "setting": [{"object_id": "1.3.6.1.4.1.2435.2.4.3.2435.5.36.33.0"}]
+        })}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 400)
+
 
     @patch.object(DeviceInfo, 'get')
     def test_device_is_offline_on_get_device_settings(self, mock_get):
@@ -127,6 +136,16 @@ class TestGetDeviceSettings(TestCase):
         res_json = json.loads(response['body'])
         self.assertEqual(res_json['code'], 200)
 
+        output = handler.get({'body': json.dumps(
+        {
+           "log_service_id": 0,
+           "device_id": "ffffffff-ffff-ffff-ffff-ffffffff0001",
+           "setting": [{"object_id": "1.3.6.1.4.1.2435.2.4.3.2435.5.36.33.0"}]
+        })}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 200)
+
+
 class TestSetDeviceSettings(TestCase):
     def setUp(self):
         test_helper.set_env_var(self)
@@ -163,6 +182,15 @@ class TestSetDeviceSettings(TestCase):
                         "Bad Request")
         self.assertEqual(output['device_id'], '')
         self.assertEqual(output['data'], [])
+
+        output = handler.set({'body': json.dumps(
+        {
+           "log_service_id": 100,
+           "device_id": "ffffffff-ffff-ffff-ffff-ffffffff0001",
+           "setting": [{"object_id": "1.3.6.1.4.1.2435.2.4.3.2435.5.36.14.0", "value": "1"}]
+        })}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 400)
 
     @patch.object(DeviceInfo, 'set')
     def test_device_is_offline_on_set_device_settings(self, mock_set):
@@ -241,3 +269,12 @@ class TestSetDeviceSettings(TestCase):
             {"body": "{\"log_service_id\": \"0\", \"device_id\": \"da23bd9a-86da-2580-cefa-d05acfff7eb4\", \"setting\": [{\"object_id\": \"1.3.6.1.4.1.2435.2.4.3.2435.5.36.14.0\", \"value\": \"1\"}]}"}, '')
         res_json = json.loads(response['body'])
         self.assertEqual(200, res_json['code'])
+
+        output = handler.set({'body': json.dumps(
+        {
+           "log_service_id": 0,
+           "device_id": "ffffffff-ffff-ffff-ffff-ffffffff0001",
+           "setting": [{"object_id": "1.3.6.1.4.1.2435.2.4.3.2435.5.36.14.0", "value": "1"}]
+        })}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 200)
