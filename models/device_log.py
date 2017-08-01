@@ -5,6 +5,7 @@ from constants.oids import CHARSET_OID
 from functions import helper
 from constants.odessa_response_codes import *
 from pymib.parse import parse
+import concurrent.futures
 
 logger = logging.getLogger('device_logs')
 logger.setLevel(logging.INFO)
@@ -12,6 +13,14 @@ logger.setLevel(logging.INFO)
 class DeviceLog(Base):
     def __init__(self):
         super().__init__()
+
+    def get_log(self, data, device_id):
+        table = self.dynamodb.Table('device_logs')
+        key = device_id + '#' + data['oid']
+        return table.query(
+            Limit=1,
+            ScanIndexForward=False,
+            KeyConditionExpression=Key('id').eq(key))
 
     def get_latest_logs(self, subscribed_data):
         #   Retrieve latest logs from either ElastiCache or DynamoDb.
@@ -30,15 +39,11 @@ class DeviceLog(Base):
                         redis_res.append(super().convert(res))
                 if len(redis_res) == len(subscribed_data):
                     return ({'Items': redis_res})
-            for data in subscribed_data[0]['oids']:
-                res = table.query(
-                    Limit=1,
-                    ScanIndexForward=False,
-                    KeyConditionExpression=Key('id').eq(
-                        device_id + '#' + data['oid'])
-                )
-                if res['Items']:
-                    db_res.append(res['Items'][0])
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                future_to_log = {executor.submit(self.get_log, data, device_id): data for data in subscribed_data[0]['oids']}
+                for future in concurrent.futures.as_completed(future_to_log):
+                    if 'Items' in future.result() and future.result()['Items']:
+                        db_res.append(future.result()['Items'][0])
         return ({'Items': db_res})
 
     def is_exists_cache(self, notify_data):
