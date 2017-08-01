@@ -625,9 +625,8 @@ class SubscriptionInfoTestCase(unittest.TestCase):
 
         before = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000014#0')
-        self.assertEqual(len(before['Items']), 4)
-        for subscription in before['Items']:
-            self.assertEqual(int(subscription['status']), 1201)
+        self.assertEqual(len(before['Items'][0]['oids']), 4)
+        self.assertEqual(int(before['Items'][0]['status']), 1201)
 
         output = handler.subscription_info({'body': input}, 'dummy')
         output = json.loads(output['body'])
@@ -635,8 +634,8 @@ class SubscriptionInfoTestCase(unittest.TestCase):
             'https://dev-connections.mysora.net/svc_api/devices/notify_result',
             {'service_id': '2',
              'device_id': 'ffffffff-ffff-ffff-ffff-ffffff000014',
-             'object_id[0]': '1.3.6.1.2.1.1.4.0',
-             'object_id[1]': '1.3.6.1.2.1.1.6.0',
+             'object_id[0]': '1.3.6.1.2.1.1.6.0',
+             'object_id[1]': '1.3.6.1.2.1.1.4.0',
              'object_id[2]': '1.3.6.1.2.1.2.2.1.6.1',
              'object_id[3]': '1.3.6.1.2.1.25.3.2.1.3.1'},
             300)
@@ -646,9 +645,8 @@ class SubscriptionInfoTestCase(unittest.TestCase):
         self.assertEqual(output["message"], "Success")
         after = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000014#0')
-        self.assertEqual(len(after['Items']), 3)
-        for subscription in after['Items']:
-            self.assertEqual(int(subscription['status']), 1200)
+        self.assertEqual(len(after['Items'][0]["oids"]), 3)
+        self.assertEqual(int(after['Items'][0]['status']), 1200)
 
 
 def main():

@@ -67,7 +67,7 @@ def subscribe(event, context):
     for device_id in data['device_id']:
         try:
             device_info = DeviceSubscription()
-            device_info.read_for_subscribe(device_id, log_service_id)
+            device_info.read(device_id, log_service_id)
             if not device_info.is_existing():
                 error_code = SUBSCRIBE_ACCEPTED
                 device_info.insert(device_id, log_service_id, error_code)
@@ -182,7 +182,7 @@ def unsubscribe(event, context):
     for device_id in data['device_id']:
         try:
             device_info = DeviceSubscription()
-            device_info.read_for_unsubscribe(device_id, log_service_id)
+            device_info.read(device_id, log_service_id)
             if not device_info.is_existing():
                 error_code = NOT_SUBSCRIBED
                 message = device_error_message(error_code)
@@ -311,7 +311,10 @@ def subscription_info(event, context):
                     device_info.get_log_service_id())
                 subscription_client = helper.subscription_api_client(
                     oid_info['boc_service_id'])
-                oid_dict = device_info.get_subscribed_oids()
+                oids = device_info.get_subscribed_oids()
+                oid_dict = []
+                for oid in oids:
+                    oid_dict.append({'object_id': oid})
 
                 boc_response = subscription_client.get_notify_result(
                     device_id, oid_dict)

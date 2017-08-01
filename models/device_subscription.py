@@ -21,157 +21,43 @@ class DeviceSubscription(Base):
     def __init__(self):
         super().__init__()
 
-    def read_for_subscribe(self, device_id, log_service_id):
-        self.read(device_id, log_service_id, TO_SUBSCRIBE)
-
-    def read_for_unsubscribe(self, device_id, log_service_id):
-        self.read(device_id, log_service_id, TO_UNSUBSCRIBE)
-
-    def read(self, device_id, log_service_id, read_type=None):
-        subscription_list = []
+    def read(self, device_id, log_service_id):
+        subscription = {}
         if (self.elasticache):
-            device_keys = self.elasticache.keys(
-                f'device_subscriptions:{device_id}#{log_service_id}:*')
-            for ec_id in device_keys:
-                ec_id = self.convert(ec_id)
+            ec_id = self.elasticache.keys(
+                f'device_subscriptions:{device_id}#{log_service_id}')
+            if len(ec_id) == 1:
+                ec_id = self.convert(ec_id[0])
                 sub = self.convert(self.elasticache.hgetall(ec_id))
-                subscription_list.append({
+                subscription = {
                     'id': device_id,
-                    'log_service_id': re.match(
-                        r'device_subscriptions\:(\w*-?)+#(\d+)\:',
-                        ec_id).group(2),
+                    'log_service_id': log_service_id,
                     'status': sub['status'],
                     'message': sub['message'],
                     'created_at': sub['created_at'],
-                    'updated_at': sub['updated_at']})
+                    'updated_at': sub['updated_at']}
 
-        if len(subscription_list) == 0:
+        if not subscription:
             table = self.dynamodb.Table('device_subscriptions')
-            ddb_res = table.query(
-                KeyConditionExpression=Key('id').eq(
-                    f'{device_id}#{log_service_id}')
-            )['Items']
+            ddb_res = table.get_item(Key={
+                    'id': f'{device_id}#{log_service_id}'
+                })
 
-            for sub in ddb_res:
-                subscription_list.append({
-                    'id': device_id,
-                    'log_service_id': re.match(r'(\w*-?)+#(\d+)',
-                                               sub['id']).group(2),
-                    'status': sub['status'],
-                    'message': sub['message'],
-                    'created_at': sub['created_at'],
-                    'updated_at': sub['updated_at']})
-
-            if len(subscription_list) == 0:
+            if 'Item' in ddb_res:
+                    subscription = {
+                        'id': device_id,
+                        'log_service_id': log_service_id,
+                        'status': ddb_res['Item']['status'],
+                        'message': ddb_res['Item']['message'],
+                        'created_at': ddb_res['Item']['created_at'],
+                        'updated_at': ddb_res['Item']['updated_at']}
+            else:
                 return None
 
         self.device_id = device_id
-
-        if read_type == TO_SUBSCRIBE:
-            self.get_subscribe_record(subscription_list)
-        elif read_type == TO_UNSUBSCRIBE:
-            self.get_unsubscribe_record(subscription_list)
-        else:
-            self.get_subscription_info(subscription_list)
-
-    def get_subscribe_record(self, subscription_list):
-        subscribed_list = []
-        offline_list = []
-        subscribing_list = []
-        unsubscribing_list = []
-        subscribe_error_list = []
-        unsubscribe_error_list = []
-        other_error_list = []
-
-        for sub in subscription_list:
-            self.status = int(sub['status'])
-            if self.is_subscribed():
-                subscribed_list.append(sub)
-            elif self.is_offline():
-                offline_list.append(sub)
-            elif self.is_subscribing():
-                subscribing_list.append(sub)
-            elif self.is_unsubscribing():
-                unsubscribing_list.append(sub)
-            elif self.is_subscribe_error():
-                subscribe_error_list.append(sub)
-            elif self.is_unsubscribe_error():
-                unsubscribe_error_list.append(sub)
-            else:
-                other_error_list.append(sub)
-
-        if other_error_list:
-            self.get_latest_record(other_error_list)
-        elif subscribing_list or unsubscribing_list:
-            self.get_latest_record(subscribing_list + unsubscribing_list)
-        elif subscribe_error_list:
-            self.get_latest_record(subscribe_error_list)
-        elif unsubscribe_error_list:
-            self.get_latest_record(unsubscribe_error_list)
-        elif offline_list:
-            self.get_latest_record(offline_list)
-        else:
-            self.get_latest_record(subscribed_list)
-
-    def get_unsubscribe_record(self, subscription_list):
-        subscribed_list = []
-        offline_list = []
-        subscribing_list = []
-        unsubscribing_list = []
-        subscribe_error_list = []
-        unsubscribe_error_list = []
-        other_error_list = []
-
-        for sub in subscription_list:
-            self.status = int(sub['status'])
-            if self.is_subscribed():
-                subscribed_list.append(sub)
-            elif self.is_offline():
-                offline_list.append(sub)
-            elif self.is_subscribing():
-                subscribing_list.append(sub)
-            elif self.is_unsubscribing():
-                unsubscribing_list.append(sub)
-            elif self.is_subscribe_error():
-                subscribe_error_list.append(sub)
-            elif self.is_unsubscribe_error():
-                unsubscribe_error_list.append(sub)
-            else:
-                other_error_list.append(sub)
-
-        if other_error_list:
-            self.get_latest_record(other_error_list)
-        elif subscribing_list or unsubscribing_list:
-            self.get_latest_record(subscribing_list + unsubscribing_list)
-        elif unsubscribe_error_list:
-            self.get_latest_record(unsubscribe_error_list)
-        elif subscribe_error_list:
-            self.get_latest_record(subscribe_error_list)
-        elif offline_list:
-            self.get_latest_record(offline_list)
-        else:
-            self.get_latest_record(subscribed_list)
-
-    def get_subscription_info(self, subscription_list):
-        subscribed_list = []
-        offline_list = []
-        others_list = []
-
-        for sub in subscription_list:
-            self.status = int(sub['status'])
-            if self.is_subscribed():
-                subscribed_list.append(sub)
-            elif self.is_offline():
-                offline_list.append(sub)
-            else:
-                others_list.append(sub)
-
-        if others_list:
-            self.get_latest_record(others_list)
-        elif offline_list:
-            self.get_latest_record(offline_list)
-        else:
-            self.get_latest_record(subscribed_list)
+        self.log_service_id = log_service_id
+        self.status = int(subscription['status'])
+        self.message = subscription['message']
 
     def insert(self, device_id, log_service_id, error_code):
         self.device_id = device_id
@@ -179,20 +65,18 @@ class DeviceSubscription(Base):
         self.status = error_code
         self.message = device_error_message(error_code)
         self.created_at = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
-        self.updated_at = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+        self.updated_at = self.created_at
+
         oid_list = ServiceOid().read(log_service_id)['oids']
-        table = self.dynamodb.Table('device_subscriptions')
-        with table.batch_writer() as batch:
-            for oid in oid_list:
-                batch.put_item(
-                        Item={
-                            'id': f'{self.device_id}#{self.log_service_id}',
-                            'oid': oid,
-                            'status': self.status,
-                            'message': self.message,
-                            'created_at': self.created_at,
-                            'updated_at': self.updated_at
-                            })
+        if len(oid_list) > 0:
+            table = self.dynamodb.Table('device_subscriptions')
+            table.put_item(Item={
+                'id': f'{self.device_id}#{self.log_service_id}',
+                'status': self.status,
+                'message': self.message,
+                'created_at': self.created_at,
+                'updated_at': self.updated_at
+            })
 
     def write_to_ec(self, keys, image):
         ec_id = self.format_key(keys)
@@ -200,30 +84,23 @@ class DeviceSubscription(Base):
         self.elasticache.hmset(f'device_subscriptions:{ec_id}', ec_value)
 
     def update(self, error_code, message=None):
-        oid_list = self.get_subscribed_oids()
-
         table = self.dynamodb.Table('device_subscriptions')
         self.status = error_code
         if message:
             self.message = message
         else:
             self.message = device_error_message(self.status)
-        for oid in oid_list:
-            table.update_item(
-                Key={
-                    'id': f'{self.device_id}#{self.log_service_id}',
-                    'oid': oid['object_id']
-                },
-                ExpressionAttributeNames={
-                    '#s': 'status'
-                },
-                UpdateExpression="set #s = :s, message = :m, updated_at = :u",
-                ExpressionAttributeValues={
-                    ':s': self.status,
-                    ':m': self.message,
-                    ':u': datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
-                    }
-            )
+
+        table.update_item(
+            Key={'id': f'{self.device_id}#{self.log_service_id}'},
+            ExpressionAttributeNames={'#s': 'status'},
+            UpdateExpression="set #s = :s, message = :m, updated_at = :u",
+            ExpressionAttributeValues={
+                ':s': self.status,
+                ':m': self.message,
+                ':u': datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+                }
+        )
 
     def update_as_subscribe_error(self, error, message):
         self.update(error + SUBSCRIBE_CODE_OFFSET, message)
@@ -235,48 +112,68 @@ class DeviceSubscription(Base):
         self.write_to_ec(keys, image)
 
     def delete(self):
-        oid_list = ServiceOid().read(self.log_service_id)['oids']
         table = self.dynamodb.Table('device_subscriptions')
-        with table.batch_writer() as batch:
-            for oid in oid_list:
-                batch.delete_item(
-                        Key={
-                            'id': f'{self.device_id}#{self.log_service_id}',
-                            'oid': oid
-                        }
-                )
+        table.delete_item(
+            Key={'id': f'{self.device_id}#{self.log_service_id}'}
+        )
 
     # Processed when an online device is subscribed
     def delete_unsupported_oids(self, boc_response):
         updated_res = []
+        oids = []
+
         if('subscribe' in boc_response and not
            len(boc_response['subscribe']) == 0):
             table = self.dynamodb.Table('device_subscriptions')
-            with table.batch_writer() as batch:
-                for subscription in boc_response['subscribe']:
-                    if int(subscription['error_code']) == NO_SUCH_OID:
-                        batch.delete_item(Key={
-                            'id': f'{self.device_id}#{self.log_service_id}',
-                            'oid': subscription['object_id']})
-                    else:
-                        updated_res.append(subscription)
+            for subscription in boc_response['subscribe']:
+                if int(subscription['error_code']) != NO_SUCH_OID:
+                    updated_res.append(subscription)
+                    oids.append({
+                        'oid': subscription['object_id'],
+                        'error_code': subscription['error_code'],
+                        'messsage': subscription['message']
+                    })
+
+            table.update_item(
+                Key={'id': f'{self.device_id}#{self.log_service_id}'},
+                ExpressionAttributeNames={'#s': 'status'},
+                UpdateExpression="set oids = :o, #s = :s, message = :m, updated_at = :u",
+                ExpressionAttributeValues={
+                    ':o': oids,
+                    ':s': SUBSCRIBED,
+                    ':m': device_error_message(SUBSCRIBED),
+                    ':u': datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+                    })
+
             boc_response['subscribe'] = updated_res
         return boc_response
 
     # Processed when an offline device is subscribed and becomes online
     def delete_offline_unsupported_oids(self, boc_response):
         updated_res = []
+        oids = []
+
         if('notifications' in boc_response and not
            len(boc_response['notifications']) == 0):
             table = self.dynamodb.Table('device_subscriptions')
-            with table.batch_writer() as batch:
-                for subscription in boc_response['notifications']:
-                    if int(subscription['error_code']) == OBJECT_SUBSCRIPTION_NOT_FOUND:
-                        batch.delete_item(Key={
-                            'id': f'{self.device_id}#{self.log_service_id}',
-                            'oid': subscription['object_id']})
-                    else:
-                        updated_res.append(subscription)
+            for subscription in boc_response['notifications']:
+                if int(subscription['error_code']) != OBJECT_SUBSCRIPTION_NOT_FOUND:
+                    updated_res.append(subscription)
+                    oids.append({
+                        'oid': subscription['object_id'],
+                        'error_code': subscription['error_code']
+                    })
+            table.update_item(
+                Key={'id': f'{self.device_id}#{self.log_service_id}'},
+                ExpressionAttributeNames={'#s': 'status'},
+                UpdateExpression="set oids = :o, #s = :s, message = :m, updated_at = :u",
+                ExpressionAttributeValues={
+                    ':o': oids,
+                    ':s': SUBSCRIBED,
+                    ':m': device_error_message(SUBSCRIBED),
+                    ':u': datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+                    })
+
             boc_response['notifications'] = updated_res
         return boc_response
 
@@ -295,16 +192,18 @@ class DeviceSubscription(Base):
 
     def get_subscribed_oids(self):
         table = self.dynamodb.Table('device_subscriptions')
-        ddb_res = table.query(
-            KeyConditionExpression=Key('id').eq(
-                f'{self.device_id}#{self.log_service_id}')
-        )['Items']
+        ddb_res = table.get_item(Key={
+            'id': f'{self.device_id}#{self.log_service_id}'
+        })
 
-        oid_list = []
-        for subscription in ddb_res:
-            oid_list.append({'object_id': subscription['oid']})
+        if 'Item' in ddb_res and 'oids' in ddb_res['Item']:
+            oid_list = []
+            for subscription in ddb_res['Item']['oids']:
+                oid_list.append(subscription['oid'])
 
-        return oid_list
+            return oid_list
+        else:  # subscribed but device_offline
+            return ServiceOid().read(self.log_service_id)['oids']
 
     def is_existing(self):
         return hasattr(self, 'device_id')
@@ -333,26 +232,23 @@ class DeviceSubscription(Base):
                 (self.status - UNSUBSCRIBE_CODE_OFFSET) > ERROR_OFFSET)
 
     def format_key(self, key):
-        return f'{key["id"]["S"]}:{key["oid"]["S"]}'
+        return key["id"]["S"]
 
     def format_value(self, value):
+        oids = []
+        for oid in value['oids']:
+            oids.append({
+                'oid': oid['oid']['S'],
+                'status': int(oid['status']['N']),
+                'message': oid['message']['S']
+            })
         return {
+            'oids': oids,
             'status': int(value['status']['N']),
             'message': value['message']['S'],
             'created_at': value['created_at']['S'],
             'updated_at': value['updated_at']['S']
         }
-
-    def get_latest_record(self, subscription_list):
-        device = max(subscription_list, key=lambda x:
-                     datetime.datetime.strptime(x['updated_at'],
-                                                "%Y-%m-%dT%H:%M:%S"))
-        self.log_service_id = device['log_service_id']
-        self.status = int(device['status'])
-        self.message = device['message']
-        self.created_at = device['created_at']
-        self.updated_at = device['updated_at']
-
 
     def get_device_status(self, device_id, service_id):
         table = self.dynamodb.Table('device_subscriptions')

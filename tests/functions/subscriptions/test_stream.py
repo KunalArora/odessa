@@ -27,12 +27,12 @@ class StreamTestCase(unittest.TestCase):
                 ) as data_file:
             input = json.load(data_file)
         before = self.elasticache.hgetall(
-            'device_subscriptions:ffffffff-ffff-ffff-ffff-ffffff0wrong#0:1.3.6.1.2.1.1.6.0')
+            'device_subscriptions:ffffffff-ffff-ffff-ffff-ffffff0wrong#0')
         self.assertEqual(len(before), 0)
         stream.subscriptions(input, 'dummy')
         after = self.elasticache.hgetall(
-            'device_subscriptions:ffffffff-ffff-ffff-ffff-ffffff0wrong#0:1.3.6.1.2.1.1.6.0')
-        self.assertEqual(len(after), 4)
+            'device_subscriptions:ffffffff-ffff-ffff-ffff-ffffff0wrong#0')
+        self.assertEqual(len(after), 5)
         values = test_helper.convert(after)
         self.assertEqual(int(values['status']), 1202)
         self.assertEqual(values['message'], 'Subscribe accepted')
@@ -45,8 +45,8 @@ class StreamTestCase(unittest.TestCase):
                 ) as data_file:
             input = json.load(data_file)
         before = self.elasticache.hgetall(
-            'device_subscriptions:ffffffff-ffff-ffff-ffff-ffffff000002#0:1.3.6.1.2.1.1.6.0')
-        self.assertEqual(len(before), 4)
+            'device_subscriptions:ffffffff-ffff-ffff-ffff-ffffff000002#0')
+        self.assertEqual(len(before), 5)
         values = test_helper.convert(before)
         self.assertEqual(int(values['status']), 1201)
         self.assertEqual(values['message'], 'Subscribed (Device Offline)')
@@ -54,8 +54,8 @@ class StreamTestCase(unittest.TestCase):
         self.assertEqual(values['updated_at'], '2017-06-01T00:00:07')
         stream.subscriptions(input, 'dummy')
         after = self.elasticache.hgetall(
-            'device_subscriptions:ffffffff-ffff-ffff-ffff-ffffff000002#0:1.3.6.1.2.1.1.6.0')
-        self.assertEqual(len(after), 4)
+            'device_subscriptions:ffffffff-ffff-ffff-ffff-ffffff000002#0')
+        self.assertEqual(len(after), 5)
         values = test_helper.convert(after)
         self.assertEqual(int(values['status']), 1202)
         self.assertEqual(values['message'], 'Subscribe accepted')
@@ -68,11 +68,11 @@ class StreamTestCase(unittest.TestCase):
                 ) as data_file:
             input = json.load(data_file)
         before = self.elasticache.hgetall(
-            'device_subscriptions:ffffffff-ffff-ffff-ffff-ffffff000003#0:1.3.6.1.2.1.1.6.0')
-        self.assertEqual(len(before), 4)
+            'device_subscriptions:ffffffff-ffff-ffff-ffff-ffffff000003#0')
+        self.assertEqual(len(before), 5)
         stream.subscriptions(input, 'dummy')
         after = self.elasticache.hgetall(
-            'device_subscriptions:ffffffff-ffff-ffff-ffff-ffffff000003#0:1.3.6.1.2.1.1.6.0')
+            'device_subscriptions:ffffffff-ffff-ffff-ffff-ffffff000003#0')
         self.assertEqual(len(after), 0)
 
 

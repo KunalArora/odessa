@@ -39,7 +39,7 @@ def run_subscribe(event, context):
             oid_map.append({'object_id': oid, 'time_period': time_period})
 
         device_info = DeviceSubscription()
-        device_info.read_for_subscribe(
+        device_info.read(
             event['device_id'], event['log_service_id'])
 
         if not device_info.is_existing():
@@ -54,7 +54,7 @@ def run_subscribe(event, context):
 
         if(boc_response['code'] == NO_ERROR or
                 boc_response['code'] == ALREADY_SUBSCRIBED_ON_SUBSCRIBE):
-            device_info.update(SUBSCRIBED)
+            boc_response = device_info.delete_unsupported_oids(boc_response)
         elif boc_response['code'] == SUCCESS_BUT_DEVICE_OFFLINE:
             device_info.update(SUBSCRIBED_OFFLINE)
         elif boc_response['code'] == DEVICE_NOT_RECOGNIZED:
@@ -62,13 +62,11 @@ def run_subscribe(event, context):
         elif(boc_response['code'] == PARTIAL_SUCCESS or
                 boc_response['code'] == INTERNAL_ERROR):
             boc_response = device_info.delete_unsupported_oids(boc_response)
-            if('subscribe' in boc_response and not
+            if not ('subscribe' in boc_response and not
                len(boc_response['subscribe']) == 0 and
                helper.has_acceptable_sub_errors_only(boc_response)):
-                device_info.update(SUBSCRIBED)
-            else:
-                device_info.update_as_subscribe_error(
-                    boc_response['code'], boc_response['message'])
+                    device_info.update_as_subscribe_error(
+                        boc_response['code'], boc_response['message'])
         else:
             device_info.update_as_subscribe_error(
                 boc_response['code'], boc_response['message'])
@@ -103,7 +101,7 @@ def run_unsubscribe(event, context):
             oid_map.append({'object_id': oid})
 
         device_info = DeviceSubscription()
-        device_info.read_for_unsubscribe(
+        device_info.read(
             event['device_id'], event['log_service_id'])
 
         if not device_info.is_existing():

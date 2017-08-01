@@ -9,6 +9,7 @@ from boto3.dynamodb.conditions import Key
 
 path = os.path.dirname(__file__)
 
+
 def set_env_var(self):
     with open(f'{path}/../../config/environments/local.yml', 'r') as file:
         env_vars = yaml.load(file)
@@ -27,9 +28,12 @@ def seed_ec_subscriptions(self):
             device_subscriptions = json.load(data_file)
 
         for device in device_subscriptions:
+            if 'oids' in device:
+                oids = device["oids"]
             self.elasticache.hmset(
-                f'device_subscriptions:{device["id"]}:{device["oid"]}',
-                {"status": device["status"],
+                f'device_subscriptions:{device["id"]}',
+                {"oids": oids,
+                 "status": device["status"],
                  "message": device["message"],
                  "created_at": device["created_at"],
                  "updated_at": device["updated_at"]
@@ -151,6 +155,7 @@ def create_table(self):
                 ProvisionedThroughput=schema['ProvisionedThroughput']
                 )
 
+
 def seed_ddb_device_settings(self):
     create_table(self)
     table = self.dynamodb.Table('service_oids')
@@ -171,6 +176,7 @@ def seed_ddb_device_settings(self):
                     }
             )
 
+
 def seed_ddb_subscriptions(self):
     create_table(self)
     table = self.dynamodb.Table('device_subscriptions')
@@ -181,7 +187,8 @@ def seed_ddb_subscriptions(self):
     with table.batch_writer() as batch:
         for subscription in device_subscriptions:
             id = subscription["id"]
-            oid = subscription["oid"]
+            if 'oids' in subscription:
+                oids = subscription["oids"]
             status = int(subscription["status"])
             message = subscription["message"]
             created_at = subscription["created_at"]
@@ -189,7 +196,7 @@ def seed_ddb_subscriptions(self):
             batch.put_item(
                     Item={
                         'id': id,
-                        'oid': oid,
+                        'oids': oids,
                         'status': status,
                         'message': message,
                         'created_at': created_at,
@@ -216,6 +223,7 @@ def seed_ddb_subscriptions(self):
                         'callback_url': callback_url
                     }
             )
+
 
 def seed_ddb_device_logs(self):
     create_table(self)
@@ -295,6 +303,7 @@ def seed_ddb_device_logs(self):
                     }
             )
 
+
 def seed_ddb_device_notifications(self):
     seed_ddb_device_logs(self)
 
@@ -305,9 +314,11 @@ def clear_db(self):
     self.dynamodb.Table('device_network_statuses').delete()
     self.dynamodb.Table('service_oids').delete()
 
+
 def clear_cache(self):
     if environ['REDIS_ENDPOINT_URL']:
         self.elasticache.flushall()
+
 
 def delete_db_data(self):
     table = self.dynamodb.Table('device_network_statuses')

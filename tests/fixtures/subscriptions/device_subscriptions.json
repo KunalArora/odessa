@@ -1,7 +1,12 @@
 [
   {
     "id": "ffffffff-ffff-ffff-ffff-ffffff000000#0",
-    "oid": "1.3.6.1.2.1.1.6.0",
+    "oids": [
+      {
+        "oid": "1.3.6.1.2.1.1.6.0",
+        "error_code": 200
+      }
+    ],
     "status": 1200,
     "message": "Subscribed",
     "created_at": "2017-06-01T00:00:00",
@@ -9,23 +14,29 @@
   },
   {
     "id": "ffffffff-ffff-ffff-ffff-ffffff000001#0",
-    "oid": "1.3.6.1.4.3",
+    "oids": [
+      {
+        "oid": "1.3.6.1.4.3",
+        "error_code": 200
+      },
+      {
+        "oid": "1.3.6.1.4.2",
+        "error_code": 200
+      }
+    ],
     "status": 2603,
     "message": "Unsubscribe exclusive control error (with other unsubscribing)",
     "created_at": "2017-06-01T00:00:04",
     "updated_at": "2017-06-01T00:00:05"
   },
   {
-    "id": "ffffffff-ffff-ffff-ffff-ffffff000001#0",
-    "oid": "1.3.6.1.4.2",
-    "status": 1200,
-    "message": "Subscribed",
-    "created_at": "2017-06-01T00:00:04",
-    "updated_at": "2017-06-01T00:01:05"
-  },
-  {
     "id": "ffffffff-ffff-ffff-ffff-ffffff000002#0",
-    "oid": "1.3.6.1.2.1.1.6.0",
+    "oids": [
+      {
+        "oid": "1.3.6.1.2.1.1.6.0",
+        "error_code": 404
+        }
+      ],
     "status": 1201,
     "message": "Subscribed (Device Offline)",
     "created_at": "2017-06-01T00:00:06",
@@ -33,7 +44,12 @@
   },
   {
     "id": "ffffffff-ffff-ffff-ffff-ffffff000003#0",
-    "oid": "1.3.6.1.2.1.1.6.0",
+    "oids": [
+      {
+        "oid": "1.3.6.1.2.1.1.6.0",
+        "error_code": 404
+      }
+    ],
     "status": 1505,
     "message": "Unrecognised device id",
     "created_at": "2017-06-01T00:00:08",
@@ -41,7 +57,12 @@
   },
   {
     "id": "ffffffff-ffff-ffff-ffff-ffffff000004#0",
-    "oid": "1.3.6.1.2.1.1.6.0",
+    "oids": [
+      {
+        "oid": "1.3.6.1.2.1.1.6.0",
+        "error_code": 200
+      }
+      ],
     "status": 1602,
     "message": "Subscribe exclusive control error (with other subscribing)",
     "created_at": "2017-06-01T00:00:10",
@@ -49,7 +70,12 @@
   },
   {
     "id": "ffffffff-ffff-ffff-ffff-ffffff000005#0",
-    "oid": "1.3.6.1.2.1.1.6.0",
+    "oids": [
+      {
+        "oid": "1.3.6.1.2.1.1.6.0",
+        "error_code": 200
+        }
+      ],
     "status": 2202,
     "message": "Unsubscribe accepted",
     "created_at": "2017-06-01T00:00:12",
@@ -57,7 +83,12 @@
   },
   {
     "id": "ffffffff-ffff-ffff-ffff-ffffff000006#0",
-    "oid": "1.3.6.1.2.1.1.6.0",
+    "oids": [
+      {
+        "oid": "1.3.6.1.2.1.1.6.0",
+        "error_code": 200
+        }
+      ],
     "status": 1600,
     "message": "Error",
     "created_at": "2017-06-01T00:00:14",
@@ -65,7 +96,6 @@
   },
   {
     "id": "ffffffff-ffff-ffff-ffff-ffffff000007#0",
-    "oid": "1.3.6.1.2.1.1.6.0",
     "status": 1202,
     "message": "Subscribe accepted",
     "created_at": "2017-06-01T00:00:16",
@@ -73,7 +103,12 @@
   },
   {
     "id": "ffffffff-ffff-ffff-ffff-ffffff000008#0",
-    "oid": "1.3.6.1.2.1.1.6.0",
+    "oids": [
+      {
+        "oid": "1.3.6.1.2.1.1.6.0",
+        "error_code": 200
+      }
+    ],
     "status": 2603,
     "message": "Unsubscribe exclusive control error (with other unsubscribing)",
     "created_at": "2017-06-01T00:00:18",
@@ -81,7 +116,12 @@
   },
   {
     "id": "ffffffff-ffff-ffff-ffff-ffffff000009#0",
-    "oid": "1.3.6.1.2.1.1.6.0",
+    "oids": [
+      {
+        "oid": "1.3.6.1.2.1.1.6.0",
+        "error_code": 200
+      }
+    ],
     "status": 2500,
     "message": "Error",
     "created_at": "2017-06-01T00:00:20",
@@ -89,63 +129,31 @@
   },
   {
     "id": "ffffffff-ffff-ffff-ffff-ffffff000010#0",
-    "oid": "1.3.6.1.2.1.1.6.0",
-    "status": 1200,
-    "message": "Subscribed",
-    "created_at": "2017-06-01T00:01:00",
-    "updated_at": "2017-06-01T00:00:01"
-  },
-  {
-    "id": "ffffffff-ffff-ffff-ffff-ffffff000010#0",
-    "oid": "1.3.6.1.2.1.1.4.0",
-    "status": 1603,
-    "message": "Unsubscribe exclusive control error (with other unsubscribing)",
-    "created_at": "2017-06-01T00:01:00",
-    "updated_at": "2017-06-01T00:00:01"
-  },
-  {
-    "id": "ffffffff-ffff-ffff-ffff-ffffff000010#0",
-    "oid": "1.3.6.1.2.1.2.2.1.6.1",
+    "oids": [
+      {
+        "oid": "1.3.6.1.2.1.1.6.0",
+        "error_code": 200
+      },
+      {
+        "oid": "1.3.6.1.2.1.1.4.0",
+        "error_code": 200
+      },
+      {
+        "oid": "1.3.6.1.2.1.2.2.1.6.1",
+        "error_code": 200
+      },
+      {
+        "oid": "1.3.6.1.4.7",
+        "error_code": 404
+      }
+    ],
     "status": 1202,
     "message": "Subscribe Accepted",
     "created_at": "2017-06-01T00:01:00",
     "updated_at": "2017-06-02T00:00:01"
   },
   {
-    "id": "ffffffff-ffff-ffff-ffff-ffffff000010#0",
-    "oid": "1.3.6.1.4.7",
-    "status": 1505,
-    "message": "Device not found",
-    "created_at": "2017-06-01T00:01:00",
-    "updated_at": "2017-06-01T00:00:01"
-  },
-  {
     "id": "ffffffff-ffff-ffff-ffff-ffffff000011#0",
-    "oid": "1.3.6.1.2.1.1.6.0",
-    "status": 1202,
-    "message": "Subscribe accepted",
-    "created_at": "2017-06-01T00:00:00",
-    "updated_at": "2017-06-01T00:00:01"
-  },
-  {
-    "id": "ffffffff-ffff-ffff-ffff-ffffff000011#0",
-    "oid": "1.3.6.1.2.1.1.4.0",
-    "status": 1202,
-    "message": "Subscribe accepted",
-    "created_at": "2017-06-01T00:00:00",
-    "updated_at": "2017-06-01T00:00:01"
-  },
-  {
-    "id": "ffffffff-ffff-ffff-ffff-ffffff000011#0",
-    "oid": "1.3.6.1.2.1.2.2.1.6.1",
-    "status": 1202,
-    "message": "Subscribe accepted",
-    "created_at": "2017-06-01T00:00:00",
-    "updated_at": "2017-06-01T00:00:01"
-  },
-  {
-    "id": "ffffffff-ffff-ffff-ffff-ffffff000011#0",
-    "oid": "1.3.6.1.2.1.25.3.2.1.3.1",
     "status": 1202,
     "message": "Subscribe accepted",
     "created_at": "2017-06-01T00:00:00",
@@ -153,7 +161,12 @@
   },
   {
     "id": "da23bd9a-86da-2580-cefa-d05acfff7eb4#0",
-    "oid": "1.3.6.1.2.1.25.3.2.1.3.1",
+    "oids": [
+      {
+        "oid": "1.3.6.1.2.1.25.3.2.1.3.1",
+        "error_code": 200
+      }
+    ],
     "status": 1200,
     "message": "Subscribed",
     "created_at": "2017-06-01T00:00:00",
@@ -161,31 +174,24 @@
   },
   {
     "id": "ffffffff-ffff-ffff-ffff-ffffff000012#0",
-    "oid": "1.3.6.1.2.1.1.6.0",
-    "status": 2202,
-    "message": "Unsubscribe accepted",
-    "created_at": "2017-06-01T00:00:00",
-    "updated_at": "2017-06-01T00:00:01"
-  },
-  {
-    "id": "ffffffff-ffff-ffff-ffff-ffffff000012#0",
-    "oid": "1.3.6.1.2.1.1.4.0",
-    "status": 2202,
-    "message": "Unsubscribe accepted",
-    "created_at": "2017-06-01T00:00:00",
-    "updated_at": "2017-06-01T00:00:01"
-  },
-  {
-    "id": "ffffffff-ffff-ffff-ffff-ffffff000012#0",
-    "oid": "1.3.6.1.2.1.2.2.1.6.1",
-    "status": 2202,
-    "message": "Unsubscribe accepted",
-    "created_at": "2017-06-01T00:00:00",
-    "updated_at": "2017-06-01T00:00:01"
-  },
-  {
-    "id": "ffffffff-ffff-ffff-ffff-ffffff000012#0",
-    "oid": "1.3.6.1.2.1.25.3.2.1.3.1",
+    "oids": [
+      {
+        "oid": "1.3.6.1.2.1.1.6.0",
+        "error_code": 200
+      },
+      {
+        "oid": "1.3.6.1.2.1.1.4.0",
+        "error_code": 200
+      },
+      {
+        "oid": "1.3.6.1.2.1.2.2.1.6.1",
+        "error_code": 200
+      },
+      {
+        "oid": "1.3.6.1.2.1.25.3.2.1.3.1",
+        "error_code": 200
+      }
+    ],
     "status": 2202,
     "message": "Unsubscribe accepted",
     "created_at": "2017-06-01T00:00:00",
@@ -193,7 +199,12 @@
   },
   {
     "id": "ffffffff-ffff-ffff-ffff-ffffff000013#0",
-    "oid": "1.3.6.1.2.1.25.3.2.1.3.1",
+    "oids": [
+      {
+        "oid": "1.3.6.1.2.1.25.3.2.1.3.1",
+        "error_code": 555
+      }
+    ],
     "status": 654,
     "message": "Unknown error",
     "created_at": "2017-06-01T00:00:00",
@@ -201,31 +212,24 @@
   },
   {
     "id": "ffffffff-ffff-ffff-ffff-ffffff000014#0",
-    "oid": "1.3.6.1.2.1.1.6.0",
-    "status": 1201,
-    "message": "Subscribed offline",
-    "created_at": "2017-06-01T00:00:00",
-    "updated_at": "2017-06-01T00:00:01"
-  },
-  {
-    "id": "ffffffff-ffff-ffff-ffff-ffffff000014#0",
-    "oid": "1.3.6.1.2.1.1.4.0",
-    "status": 1201,
-    "message": "Subscribed offline",
-    "created_at": "2017-06-01T00:00:00",
-    "updated_at": "2017-06-01T00:00:01"
-  },
-  {
-    "id": "ffffffff-ffff-ffff-ffff-ffffff000014#0",
-    "oid": "1.3.6.1.2.1.2.2.1.6.1",
-    "status": 1201,
-    "message": "Subscribed offline",
-    "created_at": "2017-06-01T00:00:00",
-    "updated_at": "2017-06-01T00:00:01"
-  },
-  {
-    "id": "ffffffff-ffff-ffff-ffff-ffffff000014#0",
-    "oid": "1.3.6.1.2.1.25.3.2.1.3.1",
+    "oids": [
+      {
+        "oid": "1.3.6.1.2.1.1.6.0",
+        "error": 404
+      },
+      {
+        "oid": "1.3.6.1.2.1.1.4.0",
+        "error": 404
+      },
+      {
+        "oid": "1.3.6.1.2.1.2.2.1.6.1",
+        "error": 404
+      },
+      {
+        "oid": "1.3.6.1.2.1.25.3.2.1.3.1",
+        "error": 404
+      }
+    ],
     "status": 1201,
     "message": "Subscribed offline",
     "created_at": "2017-06-01T00:00:00",

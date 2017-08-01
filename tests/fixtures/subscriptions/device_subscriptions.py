@@ -13,8 +13,9 @@ r = redis.StrictRedis(host='localhost', port=6379, db=0)
 r.flushall()
 
 for device in device_subscriptions:
-    r.hmset(f'device_subscriptions:{device["id"]}:{device["oid"]}',
-            {"status": device["status"],
+    r.hmset(f'device_subscriptions:{device["id"]}',
+            {"oids": device["oids"],
+             "status": device["status"],
              "message": device["message"],
              "created_at": device["created_at"],
              "updated_at": device["updated_at"]

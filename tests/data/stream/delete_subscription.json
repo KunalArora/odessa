@@ -12,9 +12,6 @@
         "Keys":{
           "id":{
             "S":"ffffffff-ffff-ffff-ffff-ffffff000003#0"
-          },
-          "oid":{
-            "S":"1.3.6.1.2.1.1.6.0"
           }
         },
         "StreamViewType":"NEW_IMAGE"

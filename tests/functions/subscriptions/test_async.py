@@ -65,14 +65,27 @@ class AsyncSubscribeTestCase(unittest.TestCase):
         mock.return_value = {
             'success': True,
             'code': 200,
-            'message': 'Success.'
+            'message': 'Success.',
+            'subscribe': [
+                {'error_code': '200',
+                 'object_id': '1.3.6.1.2.1.25.3.2.1.3.1',
+                 'message': 'No error.'},
+                {'error_code': '200',
+                 'object_id': '1.3.6.1.2.1.2.2.1.6.1',
+                 'message': 'No error.'},
+                {'error_code': '200',
+                 'object_id': '1.3.6.1.2.1.1.6.0',
+                 'message': 'No error.'},
+                {'error_code': '200',
+                 'object_id': '1.3.6.1.2.1.1.4.0',
+                 'message': 'No error.'}
+            ]
         }
 
         before = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000011#0')
-        self.assertEqual(len(before['Items']), 4)
-        for subscription in before['Items']:
-            self.assertEqual(int(subscription['status']), 1202)
+        self.assertEqual(len(before['Items'][0]['oids']), 4)
+        self.assertEqual(int(before['Items'][0]['status']), 1202)
         async.run_subscribe({
             "device_id": "ffffffff-ffff-ffff-ffff-ffffff000011",
             "log_service_id": "0", "time_period": -1}, 'dummy')
@@ -92,9 +105,8 @@ class AsyncSubscribeTestCase(unittest.TestCase):
              'is_fwd': 'true'}, 300)
         after = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000011#0')
-        self.assertEqual(len(after['Items']), 4)
-        for subscription in after['Items']:
-            self.assertEqual(int(subscription['status']), 1200)
+        self.assertEqual(len(after['Items'][0]['oids']), 4)
+        self.assertEqual(int(after['Items'][0]['status']), 1200)
 
     @patch('boc.base.Base.post_content')
     def test_subscribe_non_existing_device(self, mock):
@@ -147,9 +159,8 @@ class AsyncSubscribeTestCase(unittest.TestCase):
 
         before = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000011#0')
-        self.assertEqual(len(before['Items']), 4)
-        for subscription in before['Items']:
-            self.assertEqual(int(subscription['status']), 1202)
+        self.assertEqual(len(before['Items'][0]['oids']), 4)
+        self.assertEqual(int(before['Items'][0]['status']), 1202)
         async.run_subscribe({
             "device_id": "ffffffff-ffff-ffff-ffff-ffffff000011",
             "log_service_id": "0", "time_period": 1000}, 'dummy')
@@ -169,9 +180,8 @@ class AsyncSubscribeTestCase(unittest.TestCase):
              'is_fwd': 'true'}, 300)
         after = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000011#0')
-        self.assertEqual(len(after['Items']), 4)
-        for subscription in after['Items']:
-            self.assertEqual(int(subscription['status']), 1200)
+        self.assertEqual(len(after['Items'][0]['oids']), 4)
+        self.assertEqual(int(after['Items'][0]['status']), 1200)
 
     @patch('boc.base.Base.post_content')
     def test_subscribe_partial_success(self, mock):
@@ -198,9 +208,8 @@ class AsyncSubscribeTestCase(unittest.TestCase):
 
         before = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000011#0')
-        self.assertEqual(len(before['Items']), 4)
-        for subscription in before['Items']:
-            self.assertEqual(int(subscription['status']), 1202)
+        self.assertEqual(len(before['Items'][0]['oids']), 4)
+        self.assertEqual(int(before['Items'][0]['status']), 1202)
         async.run_subscribe({
             "device_id": "ffffffff-ffff-ffff-ffff-ffffff000011",
             "log_service_id": "0", "time_period": "45"}, 'dummy')
@@ -220,9 +229,8 @@ class AsyncSubscribeTestCase(unittest.TestCase):
              'is_fwd': 'true'}, 300)
         after = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000011#0')
-        self.assertEqual(len(after['Items']), 3)
-        for subscription in after['Items']:
-            self.assertEqual(int(subscription['status']), 1200)
+        self.assertEqual(len(after['Items'][0]['oids']), 3)
+        self.assertEqual(int(after['Items'][0]['status']), 1200)
 
     @patch('boc.base.Base.post_content')
     def test_subscribe_partial_error(self, mock):
@@ -249,18 +257,16 @@ class AsyncSubscribeTestCase(unittest.TestCase):
 
         before = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000011#0')
-        self.assertEqual(len(before['Items']), 4)
-        for subscription in before['Items']:
-            self.assertEqual(int(subscription['status']), 1202)
+        self.assertEqual(len(before['Items'][0]['oids']), 4)
+        self.assertEqual(int(before['Items'][0]['status']), 1202)
         async.run_subscribe({
             "device_id": "ffffffff-ffff-ffff-ffff-ffffff000011",
             "log_service_id": "0", "time_period": 45}, 'dummy')
         mock.assert_called()
         after = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000011#0')
-        self.assertEqual(len(after['Items']), 3)
-        for subscription in after['Items']:
-            self.assertEqual(int(subscription['status']), 1207)
+        self.assertEqual(len(after['Items'][0]['oids']), 3)
+        self.assertEqual(int(after['Items'][0]['status']), 1207)
 
     @patch('boc.base.Base.post_content')
     def test_subscribe_error(self, mock):
@@ -287,9 +293,8 @@ class AsyncSubscribeTestCase(unittest.TestCase):
 
         before = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000011#0')
-        self.assertEqual(len(before['Items']), 4)
-        for subscription in before['Items']:
-            self.assertEqual(int(subscription['status']), 1202)
+        self.assertEqual(len(before['Items'][0]['oids']), 4)
+        self.assertEqual(int(before['Items'][0]['status']), 1202)
         async.run_subscribe({
             "device_id": "ffffffff-ffff-ffff-ffff-ffffff000011",
             "log_service_id": "0", "time_period": 45}, 'dummy')
@@ -309,9 +314,8 @@ class AsyncSubscribeTestCase(unittest.TestCase):
              'is_fwd': 'true'}, 300)
         after = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000011#0')
-        self.assertEqual(len(after['Items']), 4)
-        for subscription in after['Items']:
-            self.assertEqual(int(subscription['status']), 1500)
+        self.assertEqual(len(after['Items'][0]['oids']), 4)
+        self.assertEqual(int(after['Items'][0]['status']), 1500)
 
     @patch('boc.base.Base.post_content')
     def test_subscribe_unknown_error(self, mock):
@@ -321,18 +325,16 @@ class AsyncSubscribeTestCase(unittest.TestCase):
             'message': 'Unknown.'}
         before = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000011#0')
-        self.assertEqual(len(before['Items']), 4)
-        for subscription in before['Items']:
-            self.assertEqual(int(subscription['status']), 1202)
+        self.assertEqual(len(before['Items'][0]['oids']), 4)
+        self.assertEqual(int(before['Items'][0]['status']), 1202)
         async.run_subscribe({
             "device_id": "ffffffff-ffff-ffff-ffff-ffffff000011",
             "log_service_id": "0", "time_period": 45}, 'dummy')
         mock.assert_called()
         after = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000011#0')
-        self.assertEqual(len(after['Items']), 4)
-        for subscription in after['Items']:
-            self.assertEqual(int(subscription['status']), 1999)
+        self.assertEqual(len(after['Items'][0]['oids']), 4)
+        self.assertEqual(int(after['Items'][0]['status']), 1999)
 
     @patch('boc.base.Base.post_content')
     def test_subscribe_offline_device(self, mock):
@@ -342,18 +344,16 @@ class AsyncSubscribeTestCase(unittest.TestCase):
             'message': 'Success but device offline'}
         before = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000011#0')
-        self.assertEqual(len(before['Items']), 4)
-        for subscription in before['Items']:
-            self.assertEqual(int(subscription['status']), 1202)
+        self.assertEqual(len(before['Items'][0]['oids']), 4)
+        self.assertEqual(int(before['Items'][0]['status']), 1202)
         async.run_subscribe({
             "device_id": "ffffffff-ffff-ffff-ffff-ffffff000011",
             "log_service_id": "0", "time_period": 45}, 'dummy')
         mock.assert_called()
         after = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000011#0')
-        self.assertEqual(len(after['Items']), 4)
-        for subscription in after['Items']:
-            self.assertEqual(int(subscription['status']), 1201)
+        self.assertEqual(len(after['Items'][0]['oids']), 4)
+        self.assertEqual(int(after['Items'][0]['status']), 1201)
 
     @patch('boc.base.Base.post_content')
     def test_subscribe_unrecognized_device(self, mock):
@@ -363,18 +363,16 @@ class AsyncSubscribeTestCase(unittest.TestCase):
             'message': 'Device not recognized'}
         before = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000011#0')
-        self.assertEqual(len(before['Items']), 4)
-        for subscription in before['Items']:
-            self.assertEqual(int(subscription['status']), 1202)
+        self.assertEqual(len(before['Items'][0]['oids']), 4)
+        self.assertEqual(int(before['Items'][0]['status']), 1202)
         async.run_subscribe({
             "device_id": "ffffffff-ffff-ffff-ffff-ffffff000011",
             "log_service_id": "0", "time_period": 45}, 'dummy')
         mock.assert_called()
         after = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000011#0')
-        self.assertEqual(len(after['Items']), 4)
-        for subscription in after['Items']:
-            self.assertEqual(int(subscription['status']), 404)
+        self.assertEqual(len(after['Items'][0]['oids']), 4)
+        self.assertEqual(int(after['Items'][0]['status']), 404)
 
 
 class AsyncUnsubscribeTestCase(unittest.TestCase):
@@ -424,9 +422,8 @@ class AsyncUnsubscribeTestCase(unittest.TestCase):
             'message': 'Success.'}
         before = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000012#0')
-        self.assertEqual(len(before['Items']), 4)
-        for subscription in before['Items']:
-            self.assertEqual(int(subscription['status']), 2202)
+        self.assertEqual(len(before['Items'][0]['oids']), 4)
+        self.assertEqual(int(before['Items'][0]['status']), 2202)
         async.run_unsubscribe({
             "device_id": "ffffffff-ffff-ffff-ffff-ffffff000012",
             "log_service_id": "0"}, 'dummy')
@@ -469,9 +466,8 @@ class AsyncUnsubscribeTestCase(unittest.TestCase):
             'message': 'Device not recognized.'}
         before = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000012#0')
-        self.assertEqual(len(before['Items']), 4)
-        for subscription in before['Items']:
-            self.assertEqual(int(subscription['status']), 2202)
+        self.assertEqual(len(before['Items'][0]['oids']), 4)
+        self.assertEqual(int(before['Items'][0]['status']), 2202)
         async.run_unsubscribe({
             "device_id": "ffffffff-ffff-ffff-ffff-ffffff000012",
             "log_service_id": "0"}, 'dummy')
@@ -488,18 +484,16 @@ class AsyncUnsubscribeTestCase(unittest.TestCase):
             'message': 'Unknown error.'}
         before = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000012#0')
-        self.assertEqual(len(before['Items']), 4)
-        for subscription in before['Items']:
-            self.assertEqual(int(subscription['status']), 2202)
+        self.assertEqual(len(before['Items'][0]['oids']), 4)
+        self.assertEqual(int(before['Items'][0]['status']), 2202)
         async.run_unsubscribe({
             "device_id": "ffffffff-ffff-ffff-ffff-ffffff000012",
             "log_service_id": "0"}, 'dummy')
         mock.assert_called()
         after = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000012#0')
-        self.assertEqual(len(after['Items']), 4)
-        for subscription in after['Items']:
-            self.assertEqual(int(subscription['status']), 2999)
+        self.assertEqual(len(after['Items'][0]['oids']), 4)
+        self.assertEqual(int(after['Items'][0]['status']), 2999)
 
     @patch('boc.base.Base.post_content')
     def test_unsubscribe_partial_error(self, mock):
@@ -526,18 +520,16 @@ class AsyncUnsubscribeTestCase(unittest.TestCase):
 
         before = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000012#0')
-        self.assertEqual(len(before['Items']), 4)
-        for subscription in before['Items']:
-            self.assertEqual(int(subscription['status']), 2202)
+        self.assertEqual(len(before['Items'][0]['oids']), 4)
+        self.assertEqual(int(before['Items'][0]['status']), 2202)
         async.run_unsubscribe({
             "device_id": "ffffffff-ffff-ffff-ffff-ffffff000012",
             "log_service_id": "0"}, 'dummy')
         mock.assert_called()
         after = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000012#0')
-        self.assertEqual(len(after['Items']), 4)
-        for subscription in after['Items']:
-            self.assertEqual(int(subscription['status']), 2207)
+        self.assertEqual(len(after['Items'][0]['oids']), 4)
+        self.assertEqual(int(after['Items'][0]['status']), 2207)
 
     @patch('boc.base.Base.post_content')
     def test_unsubscribe_partial_success(self, mock):
@@ -564,9 +556,8 @@ class AsyncUnsubscribeTestCase(unittest.TestCase):
 
         before = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000012#0')
-        self.assertEqual(len(before['Items']), 4)
-        for subscription in before['Items']:
-            self.assertEqual(int(subscription['status']), 2202)
+        self.assertEqual(len(before['Items'][0]['oids']), 4)
+        self.assertEqual(int(before['Items'][0]['status']), 2202)
         async.run_unsubscribe({
             "device_id": "ffffffff-ffff-ffff-ffff-ffffff000012",
             "log_service_id": "0"}, 'dummy')
@@ -584,18 +575,16 @@ class AsyncUnsubscribeTestCase(unittest.TestCase):
 
         before = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000012#0')
-        self.assertEqual(len(before['Items']), 4)
-        for subscription in before['Items']:
-            self.assertEqual(int(subscription['status']), 2202)
+        self.assertEqual(len(before['Items'][0]['oids']), 4)
+        self.assertEqual(int(before['Items'][0]['status']), 2202)
         async.run_unsubscribe({
             "device_id": "ffffffff-ffff-ffff-ffff-ffffff000012",
             "log_service_id": "0"}, 'dummy')
         mock.assert_called()
         after = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000012#0')
-        self.assertEqual(len(after['Items']), 4)
-        for subscription in after['Items']:
-            self.assertEqual(int(subscription['status']), 2210)
+        self.assertEqual(len(after['Items'][0]['oids']), 4)
+        self.assertEqual(int(after['Items'][0]['status']), 2210)
 
 
 def main():
