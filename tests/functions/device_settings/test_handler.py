@@ -382,3 +382,51 @@ class TestSetDeviceSettings(TestCase):
         self.assertEqual(
             output['device_id'], 'ffffffff-ffff-ffff-ffff-ffffffff0001')
         self.assertEqual(output['data'], [])
+
+    @patch.object(DeviceInfo, 'set')
+    def test_redundant_object_ids_same_values_on_set_settings(self, mock_set):
+        mock_set.return_value={
+            "success": "true",
+            "message": "Success.",
+            "code": "200",
+            "set": [
+                {"error_code": "200",
+                "object_id": "1.3.6.1.4.1.2435.2.4.3.2435.5.36.14.0",
+                "message": "No error"}
+                ]
+            }
+        output = handler.set({'body': json.dumps(
+        {
+            "device_id": "ffffffff-ffff-ffff-ffff-ffffffff0001",
+           "setting": [
+            {"object_id": "1.3.6.1.4.1.2435.2.4.3.2435.5.36.14.0", "value": "1"},
+            {"object_id": "1.3.6.1.4.1.2435.2.4.3.2435.5.36.14.0", "value": "1"}
+            ]
+        })}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 200)
+        self.assertEqual(len(output['data']), 1)
+
+    @patch.object(DeviceInfo, 'set')
+    def test_redundant_object_ids_different_values_on_set_settings(self, mock_set):
+        mock_set.return_value={
+            "success": "true",
+            "message": "Success.",
+            "code": "200",
+            "set": [
+                {"error_code": "200",
+                "object_id": "1.3.6.1.4.1.2435.2.4.3.2435.5.36.14.0",
+                "message": "No error"}
+                ]
+            }
+        output = handler.set({'body': json.dumps(
+        {
+            "device_id": "ffffffff-ffff-ffff-ffff-ffffffff0001",
+           "setting": [
+            {"object_id": "1.3.6.1.4.1.2435.2.4.3.2435.5.36.14.0", "value": "1"},
+            {"object_id": "1.3.6.1.4.1.2435.2.4.3.2435.5.36.14.0", "value": "2"}
+            ]
+        })}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 200)
+        self.assertEqual(len(output['data']), 1)

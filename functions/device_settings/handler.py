@@ -125,6 +125,10 @@ def set(event, context):
     if isinstance(device_id, list):
         device_id = device_id[0]
 
+    # Remove redundancy of different values for same object_id
+    # Choose the last value in the list
+    object_id_value_list = {data['object_id']: data for data in object_id_value_list}.values()
+
     if 'log_service_id' in data:
         log_service_id = str(data['log_service_id'])
     else:
