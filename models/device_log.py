@@ -17,28 +17,28 @@ class DeviceLog(Base):
         #   Retrieve latest logs from either ElastiCache or DynamoDb.
         table = self.dynamodb.Table('device_logs')
         db_res = []
-        if(self.elasticache):
-            redis_res = []
-            for data in subscribed_data['Items']:
-                device_id = (data['id'].split('#')[0])
-                res = self.elasticache.hgetall("device_log:%s" %
-                                     (device_id + '#' + data['oid']))
-                if not res:
-                    break
-                else:
-                    redis_res.append(super().convert(res))
-            if len(redis_res) == len(subscribed_data):
-                return ({'Items': redis_res})
-        for data in subscribed_data['Items']:
-            device_id = (data['id'].split('#')[0])
-            res = table.query(
-                Limit=1,
-                ScanIndexForward=False,
-                KeyConditionExpression=Key('id').eq(
-                    device_id + '#' + data['oid'])
-            )
-            if res['Items']:
-                db_res.append(res['Items'][0])
+        if subscribed_data:
+            device_id = (subscribed_data[0]['id'].split('#')[0])
+            if(self.elasticache):
+                redis_res = []
+                for data in subscribed_data[0]['oids']:
+                    res = self.elasticache.hgetall("device_log:%s" %
+                                         (device_id + '#' + data['oid']))
+                    if not res:
+                        break
+                    else:
+                        redis_res.append(super().convert(res))
+                if len(redis_res) == len(subscribed_data):
+                    return ({'Items': redis_res})
+            for data in subscribed_data[0]['oids']:
+                res = table.query(
+                    Limit=1,
+                    ScanIndexForward=False,
+                    KeyConditionExpression=Key('id').eq(
+                        device_id + '#' + data['oid'])
+                )
+                if res['Items']:
+                    db_res.append(res['Items'][0])
         return ({'Items': db_res})
 
     def is_exists_cache(self, notify_data):

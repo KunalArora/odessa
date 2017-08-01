@@ -227,7 +227,8 @@ def seed_ddb_device_logs(self):
     with table.batch_writer() as batch:
         for subscription in device_subscriptions:
             id = subscription["id"]
-            oid = subscription["oid"]
+            if 'oids' in subscription:
+                oids = subscription["oids"] 
             status = int(subscription["status"])
             message = subscription["message"]
             created_at = subscription["created_at"]
@@ -235,7 +236,7 @@ def seed_ddb_device_logs(self):
             batch.put_item(
                     Item={
                         'id': id,
-                        'oid': oid,
+                        'oids': oids,
                         'status': status,
                         'message': message,
                         'created_at': created_at,

@@ -7,20 +7,12 @@
       {
         "AttributeName": "id",
         "KeyType": "HASH"
-      },
-      {
-        "AttributeName": "oid",
-        "KeyType": "RANGE"
       }
     ],
     "AttributeDefinitions":
     [
       {
         "AttributeName": "id",
-        "AttributeType": "S"
-      },
-      {
-        "AttributeName": "oid",
         "AttributeType": "S"
       }
     ],

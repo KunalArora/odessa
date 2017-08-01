@@ -358,9 +358,9 @@ class DeviceSubscription(Base):
         table = self.dynamodb.Table('device_subscriptions')
         status = table.query(
             KeyConditionExpression=Key('id').eq(device_id + '#' + service_id),
-            FilterExpression=Attr('message').eq('Subscribed')
+            FilterExpression=Attr('status').eq(1200) | Attr('status').eq(1201)
         )
-        return status
+        return status['Items']
 
 
 def device_error_message(error_code):
