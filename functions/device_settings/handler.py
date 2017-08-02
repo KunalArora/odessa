@@ -125,6 +125,13 @@ def set(event, context):
     if isinstance(device_id, list):
         device_id = device_id[0]
 
+    for item in object_id_value_list:
+        if 'object_id' not in item:
+            logger.warning('Missing field object_id on '
+            'handler:set_device_settings')
+            return helper.device_settings_response(
+                MISSING_FIELD_OBJECT_ID, device_id)
+
     # Remove redundancy of different values for same object_id
     # Choose the last value in the list
     object_id_value_list = {data['object_id']: data for data in object_id_value_list}.values()

@@ -430,3 +430,18 @@ class TestSetDeviceSettings(TestCase):
         output = json.loads(output['body'])
         self.assertEqual(output['code'], 200)
         self.assertEqual(len(output['data']), 1)
+
+    def test_missing_field_object_id_on_set_settings(self):
+        output = handler.set({'body': json.dumps(
+        {
+            "device_id": "ffffffff-ffff-ffff-ffff-ffffffff0001",
+            "setting": [
+                {"object_id": "1.3.6.1.4.1.2435.2.4.3.2435.5.36.14.0", "value": "1"},
+                {"value": "2"}
+                ]
+        })}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 503)
+        self.assertEqual(output['message'], 'Missing field object_id')
+        self.assertEqual(output['data'], [])
+        self.assertNotEqual(output['device_id'], '')

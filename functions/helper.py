@@ -83,6 +83,7 @@ def odessa_response_message(error_code):
         DEVICE_NOT_FOUND: 'Device Not Found',
         CONFLICT: 'Requests conflict',
         INTERNAL_SERVER_ERROR: 'Internal Server Error',
+        MISSING_FIELD_OBJECT_ID: 'Missing field object_id',
         ERROR: 'Error',
         DB_CONNECTION_ERROR: 'Failed to connect with DB',
         BOC_DB_CONNECTION_ERROR: 'BOC DB Connection Error',
