@@ -1,5 +1,6 @@
 from boto3.dynamodb.conditions import Key
 from boto3.dynamodb.conditions import Attr
+from botocore.exceptions import ClientError
 import datetime
 import re
 from models.base import Base
@@ -54,6 +55,10 @@ class DeviceSubscription(Base):
             else:
                 return None
 
+        # Ignore unsubscribed devices
+        if int(subscription['status']) == UNSUBSCRIBED:
+            return None
+
         self.device_id = device_id
         self.log_service_id = log_service_id
         self.status = int(subscription['status'])
@@ -68,15 +73,23 @@ class DeviceSubscription(Base):
         self.updated_at = self.created_at
 
         oid_list = ServiceOid().read(log_service_id)['oids']
-        if len(oid_list) > 0:
-            table = self.dynamodb.Table('device_subscriptions')
-            table.put_item(Item={
-                'id': f'{self.device_id}#{self.log_service_id}',
-                'status': self.status,
-                'message': self.message,
-                'created_at': self.created_at,
-                'updated_at': self.updated_at
-            })
+        if len(oid_list) <= 0:
+            return None
+
+        table = self.dynamodb.Table('device_subscriptions')
+        try:
+            table.put_item(
+                ConditionExpression='attribute_not_exists(id)',
+                Item={
+                    'id': f'{self.device_id}#{self.log_service_id}',
+                    'status': self.status,
+                    'message': self.message,
+                    'created_at': self.created_at,
+                    'updated_at': self.updated_at
+                })
+        except ClientError as e:
+            if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
+                self.update(error_code)
 
     def write_to_ec(self, keys, image):
         ec_id = self.format_key(keys)
@@ -112,10 +125,7 @@ class DeviceSubscription(Base):
         self.write_to_ec(keys, image)
 
     def delete(self):
-        table = self.dynamodb.Table('device_subscriptions')
-        table.delete_item(
-            Key={'id': f'{self.device_id}#{self.log_service_id}'}
-        )
+        self.update(UNSUBSCRIBED)
 
     # Processed when an online device is subscribed
     def delete_unsupported_oids(self, boc_response):

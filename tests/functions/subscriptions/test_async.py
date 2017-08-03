@@ -430,7 +430,8 @@ class AsyncUnsubscribeTestCase(unittest.TestCase):
         mock.assert_called()
         after = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000012#0')
-        self.assertEqual(len(after['Items']), 0)
+        self.assertEqual(len(after['Items']), 1)
+        self.assertEqual(int(after['Items'][0]['status']), 2200)
 
     @patch('boc.base.Base.post_content')
     def test_unsubscribe_non_existing_device(self, mock):
@@ -474,7 +475,8 @@ class AsyncUnsubscribeTestCase(unittest.TestCase):
         mock.assert_called()
         after = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000012#0')
-        self.assertEqual(len(after['Items']), 0)
+        self.assertEqual(len(after['Items']), 1)
+        self.assertEqual(int(after['Items'][0]['status']), 2200)
 
     @patch('boc.base.Base.post_content')
     def test_unsubscribe_unknown_error(self, mock):
@@ -564,7 +566,8 @@ class AsyncUnsubscribeTestCase(unittest.TestCase):
         mock.assert_called()
         after = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000012#0')
-        self.assertEqual(len(after['Items']), 0)
+        self.assertEqual(len(after['Items']), 1)
+        self.assertEqual(int(after['Items'][0]['status']), 2200)
 
     @patch('boc.base.Base.post_content')
     def test_unsubscribe_success_but_device_offline(self, mock):
