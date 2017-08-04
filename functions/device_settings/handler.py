@@ -191,7 +191,6 @@ def set(event, context):
             BOC_API_CALL_ERROR, device_id)
 
     if int(boc_response['code']) == SERVER_ERROR:
-        print("hello")
         logger.warning(
             f'Server Error due to incorrect parameters for '
             f'event: {event}')
