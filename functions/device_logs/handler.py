@@ -53,7 +53,6 @@ def get_latest_logs(event, context):
             #   device_id and service_id from DeviceSubscription table.
             status_res = device_subscription.get_device_status(
                 device_id, service_id)
-
             subscribed_offline = False
             if (status_res and status_res[0]['status'] == 1201):
                 subscribed_offline = True
@@ -90,7 +89,6 @@ def get_latest_logs(event, context):
                     logger.warning(
                         "handler:device_logs No records found for device {}".format(device_id)
                     )
-
                 parsed_res = device_log.parse_log_data(log_res)
                 if network_res:
                     parsed_res.append(
@@ -98,6 +96,10 @@ def get_latest_logs(event, context):
                                                     network_res['status'],
                                                     network_res['timestamp'])
                         )
+                elif not network_res and status_res and status_res[0]['status'] == 1200:
+                    parsed_res.append(
+                        helper.create_feature_format(SUCCESS, 'Online_Offline',
+                                                    'online', status_res[0]['updated_at']))
                 features = helper.create_features_layer(parsed_res)
                 devices.append(
                     helper.create_devices_layer(features, device_id))

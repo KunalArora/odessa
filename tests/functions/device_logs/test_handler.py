@@ -186,7 +186,7 @@ class TestDeviceLogs(unittest.TestCase):
                 self.assertEqual(500, data['error_code'])
                 self.assertTrue(data['feature'])
 
-    def test_with_network_status_missing(self):
+    def test_with_network_status_missing_and_subscribed_to_BOC(self):
         res = run_func(
             event = { "body" : "{\"device_id\": [\"ffffffff-ffff-ffff-ffff-ffffffff0002\"], \"log_service_id\": \"0\"}"
             },
@@ -197,34 +197,10 @@ class TestDeviceLogs(unittest.TestCase):
         self.assertEqual("ffffffff-ffff-ffff-ffff-ffffffff0002", res_json['devices'][0]['device_id'])
         self.assertTrue(res_json['devices'][0]['data'])
         for data in res_json['devices'][0]['data']:
-            self.assertNotEqual('Online_Offline', data['feature'])
+            if data['feature'] == 'Online_Offline':
+                count = 1
+        self.assertNotEqual(count, 0)
 
-    def test_records_not_found(self):
-        test_helper.delete_db_data(self)
-        res = run_func(
-            event = { "body" : "{\"device_id\": [\"ffffffff-ffff-ffff-ffff-ffffffff0001\"], \"log_service_id\": \"0\"}"
-            },
-            context = []
-        )
-        res_json = json.loads(res['body'])
-        self.assertEqual(1, len(res_json['devices']))
-        self.assertEqual("ffffffff-ffff-ffff-ffff-ffffffff0001", res_json['devices'][0]['device_id'])
-        self.assertEqual(500, res_json['devices'][0]['error_code'])
-        self.assertFalse(res_json['devices'][0]['data'])
-
-    def test_records_not_found_multiple_devices(self):
-        test_helper.delete_db_data(self)
-        res = run_func(
-            event = { "body" : "{\"device_id\": [\"ffffffff-ffff-ffff-ffff-ffffffff0001\", \"ffffffff-ffff-ffff-ffff-ffffffff0005\"], \"log_service_id\": \"0\"}"
-            },
-            context = []
-        )
-        res_json = json.loads(res['body'])
-        self.assertEqual(2, len(res_json['devices']))
-        for value in res_json['devices']:
-            if value['device_id'] == 'ffffffff-ffff-ffff-ffff-ffffffff0001':
-                self.assertEqual(500, value['error_code'])
-                self.assertFalse(value['data'])
 
     def test_error_while_parsing_data(self):
         parse_res_error = ['Parse Error', 'MIBException', 'Required MIB not found']
@@ -295,4 +271,3 @@ class TestDeviceLogs(unittest.TestCase):
         self.assertEqual(1, len(res_json['devices']))
         self.assertEqual("ffffffff-ffff-ffff-ffff-ffffffff0009", res_json['devices'][0]['device_id'])
         self.assertEqual('Online_Offline', res_json['devices'][0]['data'][0]['feature'])
-
