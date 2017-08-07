@@ -65,6 +65,7 @@ package:
     - .git/**
     - node_modules/**
     - tests/**
+    - db/**
 
 custom:
   defaultStage: local
