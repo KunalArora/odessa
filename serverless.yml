@@ -202,7 +202,7 @@ functions:
     handler: functions/history_logs/handler.get_history_logs
     events:
       - http:
-          path: devices/log/history
+          path: ${self:custom.httpPath}/devices/log/history
           method: post
 
 resources:
