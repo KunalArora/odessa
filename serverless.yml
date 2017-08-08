@@ -85,14 +85,24 @@ custom:
         sources:
           - table: service_oids
             sources: [./db/seeds/service_oids.json]
-      test:
+      test_logs_and_notifications:
         sources:
+          - table: device_logs
+            sources: [./tests/fixtures/logs_and_notifications/device_logs.json]
           - table: device_subscriptions
             sources: [./tests/fixtures/logs_and_notifications/device_subscriptions.json]
           - table: device_network_statuses
             sources: [./tests/fixtures/logs_and_notifications/device_network_statuses.json]
+      test_subscriptions:
+        sources:
+          - table: device_subscriptions
+            sources: [./tests/fixtures/subscriptions/device_subscriptions.json]
+      test_history_logs:
+        sources:
           - table: device_logs
-            sources: [./tests/fixtures/logs_and_notifications/device_logs.json]
+            sources: [./tests/fixtures/history_logs/device_logs.json]
+          - table: device_subscriptions
+            sources: [./tests/fixtures/history_logs/device_subscriptions.json]
 
 functions:
   get_device_settings:
@@ -187,6 +197,13 @@ functions:
   #            - DeviceNetworkStatuses
   #            - StreamArn
   #        startingPosition: TRIM_HORIZON
+
+  get_history_logs:
+    handler: functions/history_logs/handler.get_history_logs
+    events:
+      - http:
+          path: devices/log/history
+          method: post
 
 resources:
   Resources:

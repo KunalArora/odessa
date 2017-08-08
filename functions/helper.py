@@ -6,17 +6,27 @@ from datetime import datetime
 from datetime import timezone
 from constants.odessa_response_codes import *
 from constants.boc_response_codes import *
+from constants.feature_response_codes import *
 from constants.device_response_codes import *
 from constants.oids import *
 from boc.subscription import Subscription
-from pymib.oid import OID
 
 RUN_SUBSCRIBE_ASYNC = 'run_subscribe'
 RUN_UNSUBSCRIBE_ASYNC = 'run_unsubscribe'
 
+FEATURE_ADJUSTING_LIST = (
+    ["TonerInk_LifeBlack", "TonerInk_LifeCyan",
+     "TonerInk_LifeMagenta", "TonerInk_LifeYellow"])
+
+HOURLY = 'Hourly'
+DAILY = 'Daily'
+MONTHLY = 'Monthly'
+TIME_UNIT_VALUES = [HOURLY, DAILY, MONTHLY]
+
 DEFAULT_TIME_PERIOD_MINS = 60
 MINIMUM_TIME_PERIOD_MINS = 1
 MAXIMUM_TIME_PERIOD_MINS = 300
+DEVICE_ID_REGEX = '\w{8}[-]\w{4}[-]\w{4}[-]\w{4}[-]\w{12}'
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -45,8 +55,10 @@ class EventParameterError(Exception):
         Exception.__init__(self)
         self.errArgu = errArgu
 
+
 def latest_logs_response(error_code, device_list=[]):
     return create_odessa_response(error_code, {'devices': device_list})
+
 
 def subscriptions_response(error_code, device_list=[]):
     return create_odessa_response(error_code, {'devices': device_list})
@@ -57,6 +69,11 @@ def device_settings_response(error_code, device_id='', message=None, data=[]):
         for item in data:
             item['error_code'] = int(item['error_code'])
 
+    return create_odessa_response(
+        error_code, {'device_id': device_id, 'data': data}, message)
+
+
+def history_logs_response(error_code, device_id='', data=[], message=None):
     return create_odessa_response(
         error_code, {'device_id': device_id, 'data': data}, message)
 
@@ -78,7 +95,9 @@ def create_odessa_response(error_code, result, message=None):
 def odessa_response_message(error_code):
     error_map = {
         SUCCESS: 'Success',
+        LOGS_NOT_FOUND: 'Logs Not Found',
         PARTIAL_SUCCESS: 'Partial Success',
+        FEATURES_NOT_SUBSCRIBED: 'Features Not Subscribed',
         BAD_REQUEST: 'Bad Request',
         DEVICE_NOT_FOUND: 'Device Not Found',
         CONFLICT: 'Requests conflict',
@@ -88,6 +107,18 @@ def odessa_response_message(error_code):
         DB_CONNECTION_ERROR: 'Failed to connect with DB',
         BOC_DB_CONNECTION_ERROR: 'BOC DB Connection Error',
         BOC_API_CALL_ERROR: 'Failed to call BOC API'
+    }
+    return error_map[error_code]
+
+
+def feature_response_message(error_code):
+    error_map = {
+        SUCCESS: 'Success',
+        LOGS_NOT_FOUND: 'Logs Not Found',
+        PARTIAL_SUCCESS: 'Partial Success',
+        FEATURE_NOT_FOUND: 'Feature Not Found',
+        FEATURE_NOT_SUBSCRIBED: 'Feature Not Subscribed',
+        INTERNAL_SERVER_ERROR: 'Parser Error'
     }
     return error_map[error_code]
 
@@ -151,7 +182,7 @@ def has_acceptable_sub_errors_only(response):
     for item in response['subscribe']:
         item['error_code'] = int(item['error_code'])
         if (item['error_code'] != NO_ERROR and
-           item['error_code'] != ALREADY_SUBSCRIBED):
+                item['error_code'] != ALREADY_SUBSCRIBED):
             return False
     return True
 
@@ -160,29 +191,28 @@ def has_acceptable_unsub_errors_only(response):
     for item in response['unsubscribe']:
         item['error_code'] = int(item['error_code'])
         if (item['error_code'] != NO_ERROR and
-           item['error_code'] != NOT_SUBSCRIBED_FROM_SERVICE and
-           item['error_code'] != SUCCESS_BUT_DEVICE_OFFLINE and
-           item['error_code'] != NO_SUCH_OID):
+            item['error_code'] != NOT_SUBSCRIBED_FROM_SERVICE and
+            item['error_code'] != SUCCESS_BUT_DEVICE_OFFLINE and
+                item['error_code'] != NO_SUCH_OID):
             return False
     return True
 
 
-def filter_res(feature, value):
-    filter_list = (["TonerInk_LifeBlack",
-                    "TonerInk_LifeCyan",
-                    "TonerInk_LifeMagenta",
-                    "TonerInk_LifeYellow"])
-    if feature in filter_list:
-        value = str(int(value)//100)
-    return value
+def adjust_feature_value(value):
+    return str(int(value) // 100)
 
 
 def create_feature_format(code, feature, value, timestamp, **options):
     feature_format = {}
     feature_format['error_code'] = code
     feature_format['feature'] = feature
-    feature_format['status'] = filter_res(feature, value) if value!= " " else ''
-    feature_format['timestamp'] = convert_iso(timestamp) if timestamp != '' else ''
+    if value != " ":
+        feature_format['status'] = value if feature not in FEATURE_ADJUSTING_LIST else adjust_feature_value(
+            value)
+    else:
+        feature_format['status'] = ''
+    feature_format['timestamp'] = convert_iso(
+        timestamp) if timestamp != '' else ''
     if options.get('message'):
         feature_format['message'] = options.get('message')
     else:
@@ -190,9 +220,8 @@ def create_feature_format(code, feature, value, timestamp, **options):
     return(feature_format)
 
 
-
 def create_features_layer(parse_data):
-#    Create features layer data to create response.
+    #    Create features layer data to create response.
     data = []
     for d in parse_data:
         feature = {}
@@ -209,7 +238,7 @@ def create_features_layer(parse_data):
 
 
 def create_devices_layer(data, device_id, **options):
-#    Create devices layer data to create response.
+    #    Create devices layer data to create response.
     device = {}
     if options:
         device['error_code'] = options.get('code')
@@ -259,6 +288,7 @@ def odessa_error_code(data):
         return ERROR
     else:
         return PARTIAL_SUCCESS
+
 
 def convert_iso(time):
     time_dt = datetime.strptime(time, '%Y-%m-%dT%H:%M:%S')

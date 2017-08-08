@@ -1,0 +1,7 @@
+{
+      "log_service_id": "0",
+      "device_id": "ffffffff-ffff-ffff-ffff-ffffffff0001",
+      "features": ["Total_Page_Count"],
+      "from": "2017-02-01T00:00:00+00:00",
+      "to": "2017-03-01T00:00:00+00:00"
+}

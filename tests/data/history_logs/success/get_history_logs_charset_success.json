@@ -1,0 +1,8 @@
+{
+      "log_service_id": "0",
+      "device_id": "ffffffff-ffff-ffff-ffff-ffffffff0001",
+      "features": ["Location"],
+      "from": "2017-01-01T00:00:00+00:00",
+      "to": "2017-05-01T00:00:00+00:00",
+      "time_unit": "Monthly"
+}

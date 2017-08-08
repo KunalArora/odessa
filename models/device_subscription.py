@@ -24,6 +24,7 @@ class DeviceSubscription(Base):
 
     def read(self, device_id, log_service_id):
         subscription = {}
+
         if (self.elasticache):
             ec_id = self.elasticache.keys(
                 f'device_subscriptions:{device_id}#{log_service_id}')
@@ -214,6 +215,17 @@ class DeviceSubscription(Base):
             return oid_list
         else:  # subscribed but device_offline
             return ServiceOid().read(self.log_service_id)['oids']
+
+    def has_oids_field(self):
+        table = self.dynamodb.Table('device_subscriptions')
+        ddb_res = table.get_item(Key={
+            'id': f'{self.device_id}#{self.log_service_id}'
+        })
+        if ('Item' in ddb_res and 'oids' in ddb_res['Item']
+            and ddb_res['Item']['oids']):
+            return True
+        else:
+            return False
 
     def is_existing(self):
         return hasattr(self, 'device_id')
