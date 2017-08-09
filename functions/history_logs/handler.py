@@ -153,7 +153,7 @@ def get_history_logs(event, context):
         object_id_list, unidentified_features = MIB.search_oid(
             original_feature_list)
 
-        device_subscription.read(device_id, log_service_id)
+        device_subscription.read_for_history_logs(device_id, log_service_id)
 
         # Filter the object ids which are (or were) subscribed
         if device_subscription.is_existing():

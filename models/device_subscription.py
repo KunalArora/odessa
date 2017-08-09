@@ -23,6 +23,18 @@ class DeviceSubscription(Base):
         super().__init__()
 
     def read(self, device_id, log_service_id):
+        subscription = self.get_record(device_id, log_service_id)
+
+        # Ignore unsubscribed devices
+        if (not subscription or int(subscription['status']) == UNSUBSCRIBED):
+            return None
+
+        self.device_id = device_id
+        self.log_service_id = log_service_id
+        self.status = int(subscription['status'])
+        self.message = subscription['message']
+
+    def get_record(self, device_id, log_service_id):
         subscription = {}
 
         if (self.elasticache):
@@ -56,14 +68,17 @@ class DeviceSubscription(Base):
             else:
                 return None
 
-        # Ignore unsubscribed devices
-        if int(subscription['status']) == UNSUBSCRIBED:
+        return subscription
+
+    def read_for_history_logs(self, device_id, log_service_id):
+        subscription = self.get_record(device_id, log_service_id)
+
+        # No record = Device not found
+        if not subscription:
             return None
 
         self.device_id = device_id
         self.log_service_id = log_service_id
-        self.status = int(subscription['status'])
-        self.message = subscription['message']
 
     def insert(self, device_id, log_service_id, error_code):
         self.device_id = device_id
@@ -279,7 +294,6 @@ class DeviceSubscription(Base):
             FilterExpression=Attr('status').eq(1200) | Attr('status').eq(1201)
         )
         return status['Items']
-
 
 def device_error_message(error_code):
     error_map = {
