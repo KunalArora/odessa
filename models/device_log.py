@@ -18,6 +18,7 @@ logger.setLevel(logging.INFO)
 class DeviceLog(Base):
     def __init__(self):
         super().__init__()
+        self.table = self.dynamodb.Table('device_logs')
 
     def get_log(self, data, device_id):
         table = self.dynamodb.Table('device_logs')
@@ -118,13 +119,12 @@ class DeviceLog(Base):
 
     def get_charset(self, device_id):
         object_id = CHARSET_OID
-        table = self.dynamodb.Table('device_logs')
         if(self.elasticache):
             res = self.elasticache.hgetall(
                 "device_log:%s" % (device_id + '#' + object_id))
             if res:
                 return (super().convert(res)['value'])
-        res = table.query(
+        res = self.table.query(
             KeyConditionExpression=Key('id').eq(device_id + '#' + object_id)
         )
         if res['Items']:
@@ -156,25 +156,39 @@ class DeviceLog(Base):
                     response.append(res)
         return(response)
 
-    # Retrieve log data from Database for a particular device_id and object_id
+    # Retrieve latest value for a particular device_id and object_id
     # in a particular time interval
-    def get_history_logs(self, db_query_params):
-        table = self.dynamodb.Table("device_logs")
-
-        # Primary Key of DeviceLog table to be searched for
-        table_id = db_query_params['device_id'] + \
-            '#' + db_query_params['object_id']
-
-        start_time = self.unparse_time(db_query_params['from_time'])
-        end_time = self.unparse_time(db_query_params['to_time'])
-
-        db_res = table.query(
+    def get_history_logs_query(self, table_id, db_query_params):
+        return self.table.query(
             KeyConditionExpression=Key('id').eq(table_id) &
-            Key('timestamp').between(start_time, end_time),
+            Key('timestamp').between(
+                db_query_params['from_time'], db_query_params['to_time']),
             ScanIndexForward=False, Limit=1)
-        item_list = db_res['Items']
-        if item_list:
-            return item_list[0]
+
+    # Retrieve all values for a particular device_id and object_id in a
+    # particular time interval
+    def get_history_logs_scan(self, table_id, db_query_params):
+        response = self.table.query(
+            KeyConditionExpression=Key('id').eq(table_id) &
+            Key('timestamp').between(
+                db_query_params['from_time'], db_query_params['to_time']))
+        result = []
+
+        if not response['Items']:
+            return
+        else:
+            result.extend(response['Items'])
+
+        while 'LastEvaluatedKey' in response:
+            response = self.table.query(
+                KeyConditionExpression=Key('id').eq(table_id) &
+                Key('timestamp').between(
+                    db_query_params['from_time'], db_query_params['to_time']),
+                ExclusiveStartKey=response['LastEvaluatedKey'])
+            if response['Items']:
+                result.extend(response['Items'])
+
+        return result
 
     # Breaks the time period into smaller intervals based on the time_unit
     def break_time_period(self, from_time, to_time, time_unit):
@@ -186,7 +200,8 @@ class DeviceLog(Base):
 
         to_time_parsed = self.parse_time(to_time)
 
-        first_item = {'start_time': start_time, 'end_time': end_time}
+        first_item = {
+            'start_time': start_time, 'end_time': end_time}
         time_periods.append(first_item)
         # Break the time period into successive smaller periods
         while (start_time <= to_time_parsed):
@@ -197,7 +212,8 @@ class DeviceLog(Base):
                 start_time, time_unit)
             if end_time > to_time_parsed:
                 end_time = to_time_parsed
-            item = {'start_time': start_time, 'end_time': end_time}
+            item = {
+                'start_time': start_time, 'end_time': end_time}
             time_periods.append(item)
 
         return time_periods
@@ -220,6 +236,11 @@ class DeviceLog(Base):
             last_day = monthrange(date_time.year, date_time.month)[1]
             response = datetime(
                 date_time.year, date_time.month, last_day, 23, 59, 59)
+        else:  # Time Unit = Threshold value
+            response = datetime(
+                date_time.year, date_time.month,
+                date_time.day, date_time.hour, 59, 59) + timedelta(
+                    hours=(time_unit - 1))
         return response
 
     def parse_time(self, unparsed_time):
@@ -227,3 +248,7 @@ class DeviceLog(Base):
 
     def unparse_time(self, parsed_time):
         return datetime.strftime(parsed_time, "%Y-%m-%dT%H:%M:%S")
+
+    # Parsing value without timezone consideration
+    def parse_time_wo_tz(self, unparsed_time):
+        return datetime.strptime(unparsed_time, "%Y-%m-%dT%H:%M:%S")

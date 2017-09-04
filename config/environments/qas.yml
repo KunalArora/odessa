@@ -3,3 +3,4 @@ BOC_BASE_URL: 'https://qas-connections.mysora.net'
 DYNAMO_ENDPOINT_URL: ''
 REDIS_ENDPOINT_URL: ''
 PROXY: ''
+THRESHOLD_TIME_UNIT: '16' #In Hours

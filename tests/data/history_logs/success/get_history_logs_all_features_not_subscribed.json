@@ -1,8 +1,8 @@
 {
       "log_service_id": "0",
       "device_id": "ffffffff-ffff-ffff-ffff-ffffffff0001",
-      "features": ["Black_TonerInk_Replace_Count", "Drum_Unit_Remaining_Life",
-        "Total_Pages_Scanned_ADF_1sided", "Jam_Tray_4"],
+      "features": ["Print_Black_Ink", "Print_Page_SxDx_Count_4x6Postcard_Inkjet",
+        "Total_Pages_Scanned_ADF_1sided", "Print_Page_Count_Ledger"],
       "from": "2017-02-01T00:00:00+00:00",
       "to": "2017-03-01T00:00:00+00:00",
       "time_unit": "Daily"

@@ -6,12 +6,14 @@ from constants import feature_response_codes
 from constants import odessa_response_codes
 from constants.device_response_codes import *
 from constants import oids
+from datetime import timedelta
 from functions import helper
 import json
 import logging
 from models.device_log import DeviceLog
 from models.device_subscription import DeviceSubscription
 from models.service_oid import ServiceOid
+from os import environ
 from pymib.mib import MIB
 from pymib.parse import parse
 import re
@@ -178,35 +180,83 @@ def get_history_logs(event, context):
         # Get the charset record of the device from the Database
         charset = device_log.get_charset(device_id)
 
-        # Break the time period into smaller periods
-        time_periods = device_log.break_time_period(
-            from_time, to_time, time_unit)
+        if (  # For reducing response time in case of Hourly data
+            time_unit == helper.HOURLY and
+                (parsed_to_time - parsed_from_time) > timedelta(days=7)):
+            # Break the time period into smaller periods based on threshold value
+            time_periods = device_log.break_time_period(
+                from_time, to_time, int(environ['THRESHOLD_TIME_UNIT']))
 
-        for period in time_periods:
-            db_res = {}
-            db_query_params = {
-                'device_id': device_id,
-                'from_time': period['start_time'],
-                'to_time': period['end_time'],
-                'time_unit': time_unit
-            }
-            with concurrent.futures.ThreadPoolExecutor() as executor:
-                futures = {
-                    executor.submit(
-                        get_oid_value, device_log, key, db_query_params): key for key in object_id_list.keys()}
-                for future in concurrent.futures.as_completed(futures):
-                    if future.result():
-                        record = future.result()
-                        object_id = record['id'].split('#')[1]
-                        item = {object_id: record}
-                        db_res.update(item)
-            # Parse the retrieved data
-            if db_res:
-                if charset:
-                    db_res.update({oids.CHARSET_OID: charset})
-                parsed_data.extend(
-                    parse_oid_value(
-                        object_id_list, original_feature_list, db_res))
+            for period in time_periods:
+                db_query_params = {
+                    'from_time': device_log.unparse_time(period['start_time']),
+                    'to_time': device_log.unparse_time(period['end_time'])
+                }
+
+                with concurrent.futures.ThreadPoolExecutor() as executor:
+                    futures = {
+                        executor.submit(
+                            device_log.get_history_logs_scan, device_id + '#' + key, db_query_params): key for key in object_id_list.keys()}
+                    for future in concurrent.futures.as_completed(futures):
+                        if future.result():
+                            records = future.result()
+                            start_unit = period['start_time']
+                            end_unit = start_unit + timedelta(hours=1)
+                            child_list = []
+                            while (start_unit <= period['end_time']):
+                                db_res = {}
+                                for item in records:
+                                    if start_unit <= device_log.parse_time_wo_tz(item['timestamp']) < end_unit:
+                                        child_list.append(item)
+                                if child_list:
+                                    required_item = child_list[-1]
+                                    child_list = []
+                                    object_id = required_item['id'].split('#')[
+                                        1]
+                                    db_res.update({object_id: required_item})
+
+                                start_unit = end_unit
+                                end_unit = start_unit + timedelta(hours=1)
+
+                                # Parse the retrieved data
+                                if db_res:
+                                    if charset:
+                                        db_res.update(
+                                            {oids.CHARSET_OID: charset})
+                                    parsed_data.extend(
+                                        parse_oid_value(
+                                            object_id_list, original_feature_list, db_res))
+
+        else:  # Normal Approach
+            # Break the time period into smaller periods
+            time_periods = device_log.break_time_period(
+                from_time, to_time, time_unit)
+
+            for period in time_periods:
+                db_res = {}
+                db_query_params = {
+                    'from_time': device_log.unparse_time(period['start_time']),
+                    'to_time': device_log.unparse_time(period['end_time'])
+                }
+
+                with concurrent.futures.ThreadPoolExecutor() as executor:
+                    futures = {
+                        executor.submit(
+                            device_log.get_history_logs_query, device_id + '#' + key, db_query_params): key for key in object_id_list.keys()}
+                    for future in concurrent.futures.as_completed(futures):
+                        if future.result()['Items']:
+                            record = future.result()['Items'][0]
+                            object_id = record['id'].split('#')[1]
+                            item = {object_id: record}
+                            db_res.update(item)
+
+                # Parse the retrieved data
+                if db_res:
+                    if charset:
+                        db_res.update({oids.CHARSET_OID: charset})
+                    parsed_data.extend(
+                        parse_oid_value(
+                            object_id_list, original_feature_list, db_res))
 
         # Create the data part (feature wise data) of the response body
         response_data = create_feature_data(
@@ -235,20 +285,13 @@ def get_history_logs(event, context):
             f'on event {event}')
         return helper.history_logs_response(
             odessa_response_codes.DB_CONNECTION_ERROR, device_id)
-    except: # pragma: no cover
+    except:  # pragma: no cover
         # Unkown error
         logger.error(sys.exc_info())
         logger.warning(
             f'Unknown Error occurred on handler:get_history_logs on event {event}')
         return helper.history_logs_response(
             odessa_response_codes.INTERNAL_SERVER_ERROR, device_id)
-
-
-def get_oid_value(device_log, object_id, db_query_params):
-    db_query_params['object_id'] = object_id
-    response_from_db = device_log.get_history_logs(db_query_params)
-    if response_from_db:
-        return response_from_db
 
 
 # Parse oid values and send back required features' values

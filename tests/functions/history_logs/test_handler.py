@@ -355,7 +355,7 @@ class TestGetHistoryLogs(unittest.TestCase):
         for feature in output['data']:
             self.assertTrue(feature['error_code'] in (200, 204, 214))
 
-    @patch.object(DeviceLog, 'get_history_logs')
+    @patch.object(DeviceLog, 'get_history_logs_query')
     def test_database_connection_error_on_get_history_logs(self, mock):
         mock.side_effect = ConnectionError
         with open(
