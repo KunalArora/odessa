@@ -31,7 +31,6 @@ DEVICE_ID_REGEX = '\w{8}[-]\w{4}[-]\w{4}[-]\w{4}[-]\w{12}'
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-
 class ServiceIdError(Exception):
     def __init__(self, errArgu):
         Exception.__init__(self)
@@ -55,6 +54,8 @@ class EventParameterError(Exception):
         Exception.__init__(self)
         self.errArgu = errArgu
 
+def reporting_registration_response(error_code, message=None):
+    return create_odessa_response(error_code, {},  message)
 
 def latest_logs_response(error_code, device_list=[]):
     return create_odessa_response(error_code, {'devices': device_list})

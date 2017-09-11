@@ -295,6 +295,16 @@ class DeviceSubscription(Base):
         )
         return status['Items']
 
+    def verify_subscribe(self, device_id, service_id):
+        table = self.dynamodb.Table('device_subscriptions')
+        status = table.query(
+            KeyConditionExpression=Key('id').eq(device_id + '#' + service_id)
+        )
+        if status['Items'] and status['Items'][0]['status'] == 1200:
+            return True
+        else:
+            return False
+
 def device_error_message(error_code):
     error_map = {
         NOT_SUBSCRIBED: 'Not Subscribed',

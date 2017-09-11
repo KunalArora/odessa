@@ -103,6 +103,10 @@ custom:
             sources: [./tests/fixtures/history_logs/device_logs.json]
           - table: device_subscriptions
             sources: [./tests/fixtures/history_logs/device_subscriptions.json]
+      test_reporting_registrations:
+        sources:
+          - table: device_subscriptions
+            sources: [./tests/fixtures/reporting_registrations/device_subscriptions.json]
 
 functions:
   get_device_settings:
@@ -205,6 +209,13 @@ functions:
           path: ${self:custom.httpPath}/devices/log/history
           method: post
 
+  save_reporting_registration:
+    handler: functions/reporting_registrations/handler.save_reporting_registration
+    events:
+      - http:
+          path: ${self:custom.httpPath}/devices/report/activation
+          method: post
+
 resources:
   Resources:
     DeviceSubscriptions:
@@ -261,6 +272,23 @@ resources:
             AttributeType: S
         KeySchema:
           - AttributeName: id
+            KeyType: HASH
+          - AttributeName: timestamp
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+    ReportingRegistrations:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        TableName: reporting_registrations
+        AttributeDefinitions:
+          - AttributeName: reporting_id
+            AttributeType: S
+          - AttributeName: timestamp
+            AttributeType: S
+        KeySchema:
+          - AttributeName: reporting_id
             KeyType: HASH
           - AttributeName: timestamp
             KeyType: RANGE

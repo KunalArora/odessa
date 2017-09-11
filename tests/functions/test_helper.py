@@ -154,6 +154,26 @@ def create_table(self):
                 AttributeDefinitions=schema['AttributeDefinitions'],
                 ProvisionedThroughput=schema['ProvisionedThroughput']
                 )
+    with open(
+            f'{path}/../../db/migrations/reporting_registrations.json'
+            ) as json_file:
+        schema = json.load(json_file)['Table']
+    try:
+        self.dynamodb.create_table(
+            TableName=schema['TableName'],
+            KeySchema=schema['KeySchema'],
+            AttributeDefinitions=schema['AttributeDefinitions'],
+            ProvisionedThroughput=schema['ProvisionedThroughput']
+            )
+    except ClientError as e:
+        if e.response['Error']['Code'] == 'ResourceInUseException':
+            self.dynamodb.Table('device_logs').delete()
+            self.dynamodb.create_table(
+                TableName=schema['TableName'],
+                KeySchema=schema['KeySchema'],
+                AttributeDefinitions=schema['AttributeDefinitions'],
+                ProvisionedThroughput=schema['ProvisionedThroughput']
+                )
 
 
 def seed_ddb_device_settings(self):
@@ -383,12 +403,69 @@ def seed_ddb_history_logs(self):
             )
 
 
+def seed_ddb_reporting_registrations(self):
+    self.dynamodb = boto3.resource(
+        'dynamodb', endpoint_url=environ['DYNAMO_ENDPOINT_URL'])
+    table = self.dynamodb.Table('service_oids')
+    with open(
+            f'{path}/../fixtures/reporting_registrations/service_oids.json'
+            ) as json_file:
+        service_oids = json.load(json_file)
+    with table.batch_writer() as batch:
+        for service_oid in service_oids:
+            id = service_oid["id"]
+            oids = service_oid["oids"]
+            batch.put_item(
+                    Item={
+                        'id': id,
+                        'oids': oids
+                    }
+            )
+    table = self.dynamodb.Table('device_subscriptions')
+    with open(
+            f'{path}/../fixtures/reporting_registrations/device_subscriptions.json'
+            ) as json_file:
+        device_subscriptions = json.load(json_file)
+    with table.batch_writer() as batch:
+        for subscription in device_subscriptions:
+            id = subscription["id"]
+            if 'oids' in subscription:
+                oids = subscription["oids"]
+            else:
+                oids = None
+            status = int(subscription["status"])
+            message = subscription["message"]
+            created_at = subscription["created_at"]
+            updated_at = subscription["updated_at"]
+            if oids:
+                batch.put_item(
+                    Item={
+                        'id': id,
+                        'oids': oids,
+                        'status': status,
+                        'message': message,
+                        'created_at': created_at,
+                        'updated_at': updated_at
+                    }
+                )
+            else:
+                batch.put_item(
+                    Item={
+                        'id': id,
+                        'status': status,
+                        'message': message,
+                        'created_at': created_at,
+                        'updated_at': updated_at
+                    }
+                )
+
+
 def clear_db(self):
     self.dynamodb.Table('device_subscriptions').delete()
     self.dynamodb.Table('device_logs').delete()
     self.dynamodb.Table('device_network_statuses').delete()
     self.dynamodb.Table('service_oids').delete()
-
+    self.dynamodb.Table('reporting_registrations').delete()
 
 def clear_cache(self):
     if environ['REDIS_ENDPOINT_URL']:

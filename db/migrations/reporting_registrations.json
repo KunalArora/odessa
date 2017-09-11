@@ -1,0 +1,33 @@
+{
+   "Table":
+   {
+     "TableName": "reporting_registrations",
+     "KeySchema":
+     [
+       {
+         "AttributeName": "reporting_id",
+         "KeyType": "HASH"
+       },
+       {
+         "AttributeName": "timestamp",
+         "KeyType": "RANGE"
+       }
+     ],
+     "AttributeDefinitions":
+     [
+       {
+         "AttributeName": "reporting_id",
+         "AttributeType": "S"
+       },
+       {
+         "AttributeName": "timestamp",
+         "AttributeType": "S"
+       }
+     ],
+     "ProvisionedThroughput":
+     {
+       "ReadCapacityUnits": 1,
+       "WriteCapacityUnits": 1
+    }
+   }
+ }

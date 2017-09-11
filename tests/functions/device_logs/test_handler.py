@@ -250,7 +250,7 @@ class TestDeviceLogs(unittest.TestCase):
         self.assertEqual("ffffffff-ffff-ffff-ffff-ffffffff0001", res_json['devices'][0]['device_id'])
         self.assertTrue(res_json['devices'][0]['data'])
 
- 
+
     def test_multiple_string_device_id_request_error(self):
         res = run_func(
             event = { "body" : "{\"device_id\": \"abcdefgh-abcd-abcd-abcd-abcdabcd001\", \"ffffffff-ffff-ffff-ffff-ffffffff0001\", \"log_service_id\": \"0\"}"
@@ -259,7 +259,7 @@ class TestDeviceLogs(unittest.TestCase):
         )
         res_json = json.loads(res['body'])
         self.assertEqual({"code": 400, "devices": [], "message": "Bad Request"}, res_json)
-                    
+
 
     def test_subscribe_device_offline(self):
         res = run_func(

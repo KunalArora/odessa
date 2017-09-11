@@ -50,6 +50,7 @@ yaml/
 db/local/*
 seed_cache.py
 dump.rdb
+tests/data/email
 
 
 # PyInstaller
