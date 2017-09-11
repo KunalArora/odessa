@@ -3,4 +3,7 @@ BOC_BASE_URL: 'https://qas-connections.mysora.net'
 DYNAMO_ENDPOINT_URL: ''
 REDIS_ENDPOINT_URL: ''
 PROXY: ''
+S3_ENDPOINT_URL: ''
+S3_ACCESS_KEY: ''
+S3_SECRET_KEY: ''
 THRESHOLD_TIME_UNIT: '16' #In Hours

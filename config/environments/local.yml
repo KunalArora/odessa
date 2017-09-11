@@ -4,4 +4,7 @@ BOC_BASE_URL: 'https://dev-connections.mysora.net'
 DYNAMO_ENDPOINT_URL: http://localhost:8000
 REDIS_ENDPOINT_URL: localhost
 PROXY: ""
+S3_ENDPOINT_URL: http://localhost:9000
+S3_ACCESS_KEY: 'MAMI1JI2T06X2FRWJKFK'
+S3_SECRET_KEY: 'LlXMEnZkyS3lxFRKwQ6TL/iLws9nfLaWL/pcSBDd'
 THRESHOLD_TIME_UNIT: '16' #In Hours

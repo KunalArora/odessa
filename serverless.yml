@@ -2,6 +2,7 @@ service: odessa
 
 plugins:
  - serverless-dynamodb-local
+ - serverless-s3-local
 
 provider:
   name: aws
@@ -107,6 +108,11 @@ custom:
         sources:
           - table: device_subscriptions
             sources: [./tests/fixtures/reporting_registrations/device_subscriptions.json]
+
+    s3:
+      port: 8000
+      directory: /tmp
+      cors: false
 
 functions:
   get_device_settings:
@@ -216,6 +222,9 @@ functions:
           path: ${self:custom.httpPath}/devices/report/activation
           method: post
 
+  save_mail_report:
+    handler: functions/email_notifications/handler.save_mail_report
+
 resources:
   Resources:
     DeviceSubscriptions:
@@ -289,6 +298,23 @@ resources:
             AttributeType: S
         KeySchema:
           - AttributeName: reporting_id
+            KeyType: HASH
+          - AttributeName: timestamp
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+    DeviceEmailLogs:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        TableName: device_email_logs
+        AttributeDefinitions:
+          - AttributeName: serial_number
+            AttributeType: S
+          - AttributeName: timestamp
+            AttributeType: S
+        KeySchema:
+          - AttributeName: serial_number
             KeyType: HASH
           - AttributeName: timestamp
             KeyType: RANGE

@@ -1,0 +1,33 @@
+{
+   "Table":
+   {
+     "TableName": "device_email_logs",
+     "KeySchema":
+     [
+       {
+         "AttributeName": "serial_number",
+         "KeyType": "HASH"
+       },
+       {
+         "AttributeName": "timestamp",
+         "KeyType": "RANGE"
+       }
+     ],
+     "AttributeDefinitions":
+     [
+       {
+         "AttributeName": "serial_number",
+         "AttributeType": "S"
+       },
+       {
+         "AttributeName": "timestamp",
+         "AttributeType": "S"
+      }
+     ],
+     "ProvisionedThroughput":
+     {
+       "ReadCapacityUnits": 1,
+       "WriteCapacityUnits": 1
+    }
+   }
+ }

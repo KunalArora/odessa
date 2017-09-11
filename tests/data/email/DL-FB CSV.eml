@@ -1,0 +1,95 @@
+Delivered-To: akiko.forandroid@gmail.com
+Received: by 10.80.149.196 with SMTP id x4csp3977783eda;
+        Wed, 28 Jun 2017 17:30:09 -0700 (PDT)
+X-Received: by 10.99.103.70 with SMTP id b67mr12790225pgc.96.1498696209798;
+        Wed, 28 Jun 2017 17:30:09 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1498696209; cv=none;
+        d=google.com; s=arc-20160816;
+        b=G9CHUcXZL9hIxLkLXd+OxrUdcbVhY8PX+bomPCYy/tOuHRA6+cm1v5cnM9joFxsXN6
+         TNI+na3+MK3g2yIp9kfpo130kUDEGFkywwRwrQLc3uKTffIOzOZrRFZozcWPiAx+ygsg
+         l0d59JZ0H9iBSrqRlPCptfCrgNLvHAswtzcM27u/2Kz6ereDiA4mOp0Xkh3zEPotUlza
+         R3UdIz+zjdVlPsPmEN4D4/YsuXXP663uIb4Lg2PiGrg+239F6yvDkm6E5gBUs2JkqAWE
+         GxXStA0h4hgcRW/Z50oJaDZ4iwomRKkClPAyL8+TZSNcqX0CfBFjsiOUgKDSZKn8LZjG
+         Jd+Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20160816;
+        h=mime-version:subject:to:from:date:message-id:dkim-signature
+         :arc-authentication-results;
+        bh=CYN8UjrrLWQf0v2bFeK9BbuukdGBKseQLP5xptxw0a0=;
+        b=aylIaJl2HdykTQCmuJbNKyWpLYPZ0uB1vF4lpwnfZ9L3wOp6mwSi57ApqtWJw9w5vm
+         Oo6AQBM0lFPNINMrbVhVHMZw5nB8w6dkBufT75RMTFqridikTThIF0NCpZAxUQmdp8JE
+         0ordD4WFMjqNgZQMWXYqTJcXRnWtx36Ecm9fNMcM+iSyCVmiqD2qS2r77/YMtZ1rLt+Z
+         2qSJSvl6f3k2tZ3VmYIW44xa09v9MVLwzqW2uipyGQZgXiC/0o8F07BnobkmUMdPGTpD
+         jBeFendH16ZT0garQ73OLn/7IDc0EcahPenF+WceklRrlHoqQLWBkmCgGPe9V2FV7OGu
+         LkKA==
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@gmail.com header.b=HwgJSabE;
+       spf=pass (google.com: domain of galapagoskeitai@gmail.com designates 2607:f8b0:400e:c05::233 as permitted sender) smtp.mailfrom=galapagoskeitai@gmail.com;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=gmail.com
+Return-Path: <galapagoskeitai@gmail.com>
+Received: from mail-pg0-x233.google.com (mail-pg0-x233.google.com. [2607:f8b0:400e:c05::233])
+        by mx.google.com with ESMTPS id c23si1197698pli.362.2017.06.28.17.30.09
+        for <akiko.forandroid@gmail.com>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 28 Jun 2017 17:30:09 -0700 (PDT)
+Received-SPF: pass (google.com: domain of galapagoskeitai@gmail.com designates 2607:f8b0:400e:c05::233 as permitted sender) client-ip=2607:f8b0:400e:c05::233;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@gmail.com header.b=HwgJSabE;
+       spf=pass (google.com: domain of galapagoskeitai@gmail.com designates 2607:f8b0:400e:c05::233 as permitted sender) smtp.mailfrom=galapagoskeitai@gmail.com;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=gmail.com
+Received: by mail-pg0-x233.google.com with SMTP id f127so27974389pgc.0
+        for <akiko.forandroid@gmail.com>; Wed, 28 Jun 2017 17:30:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=message-id:date:from:to:subject:mime-version;
+        bh=CYN8UjrrLWQf0v2bFeK9BbuukdGBKseQLP5xptxw0a0=;
+        b=HwgJSabE3cv8vl4y3XgK7dqVZ1Oes3TlWMic87BYPXhW9Ft7JTorSPJx3VDt/HX3MW
+         sxIim+/AynaZ3wOfNp8lK2LkB6Kbuq7vGNNjGWd7ev7Ga8da/WVuOBcywVfJkGVq8M8L
+         fBNqRH05O0jtPIuYaQYJi6I0CPQ9KEulzXT269Zzm71EskpNWJe1gqVrC6BKvZN8PSJJ
+         L+Opq8FXXhfE2ru2R8k/4OrufJ7nJe1nWu6xKNvm6VIvUHa4Xwc6XvaS1pRzhaUQ/7yK
+         NTwIj8WgyvT1wdc8sgkcpOPnJHJiUC6EGPr0bBQxeiQSn0pVlfMg2AI8GC6g2YkMzkq+
+         BHjw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:from:to:subject:mime-version;
+        bh=CYN8UjrrLWQf0v2bFeK9BbuukdGBKseQLP5xptxw0a0=;
+        b=eHcBINVnMBxgud3fPDsQY9MSQlxPVH4IBjmppvw1ZkwKSfKypvaq03uZM4O3ju2RgZ
+         +kMJ/X6pF6x9bWefwOXlpMqGTgEl2k8qS8WrnRJRw5phovhYarG4V17wiOWa26UntZ7h
+         1PCgPIkA8463W6z4VimoHFKgdZ9Z8A94XJfTmlx1Sd13c/ia/UIl50nZmA34PNAE25IC
+         VAG2m/K8+wsJKVchYfG2GTEN4Kxs1yAn3rvwmXkExjlXtavwf17RksDCAGyUV2KXpefU
+         5gwjT9xm5OrytdpBXt9mq8rkJlMK6C4W/Vu5JKv31LxYdGWjV1IxfPploj8daH+/NYEX
+         Ikiw==
+X-Gm-Message-State: AKS2vOwzxERqPWCfi5URRuw3tijPJfYszfOCK1HSiC44Rc2s7CffMa7w
+	oD7OLvYUnhy8kMCM
+X-Received: by 10.84.143.34 with SMTP id 31mr640007ply.94.1498696209138;
+        Wed, 28 Jun 2017 17:30:09 -0700 (PDT)
+Return-Path: <galapagoskeitai@gmail.com>
+Received: from 123BRN30055C77CFBB (p423195-ipngn200304sasajima.aichi.ocn.ne.jp. [122.27.158.195])
+        by smtp.gmail.com with ESMTPSA id q127sm5834413pga.62.2017.06.28.17.30.07
+        for <akiko.forandroid@gmail.com>
+        (version=TLS1_2 cipher=AES128-GCM-SHA256 bits=128/128);
+        Wed, 28 Jun 2017 17:30:07 -0700 (PDT)
+Message-ID: <59544a0f.8543630a.1c70d.e17d@mx.google.com>
+Date: Wed, 28 Jun 2017 17:30:07 -0700 (PDT)
+From: galapagoskeitai@gmail.com
+X-Google-Original-From: brn30055c77cfbb@example.com
+To: akiko.forandroid@gmail.com
+Subject: E-mail Report
+MIME-Version: 1.0
+X-Mailer: Brother Email Client
+Content-Type: multipart/mixed; boundary="boundary_str"
+
+--boundary_str
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: BASE64
+
+U2VlIHRoZSBhdHRhY2htZW50IGZvciB0aGUgaW5mb3JtYXRpb24=
+
+--boundary_str
+Content-Type: text/xml; charset="US-ASCII";
+    name="Report.csv"
+Content-Disposition: attachment;
+    filename="Report.csv"
+Content-Transfer-Encoding: BASE64
+
+VVJMLFJPTSBWZXJzaW9uLE5hbWUsSVAgQWRkcmVzcyxNQUMgQWRkcmVzcyxEYXRlLExvY2F0aW9uLENvbnRhY3QsRGV2aWNlIFR5cGUsU2VyaWFsIE51bWJlcixST00gVmVyc2lvbixTdWIxIEZpcm13YXJlIFZlcnNpb24sTWVtb3J5IFNpemUsVG90YWwgUGFnZSBDb3VudCxEcnVtIENvdW50LERydW0gVW5pdCBSZW1haW5pbmcgTGlmZSxEcnVtIFVuaXQgUmVtYWluaW5nIExpZmUlLEJsYWNrVG9uZXIgUmVtYWluaW5nIExpZmUsUHJpbnQgUGFnZSBDb3VudCBBNC9MZXR0ZXIsUHJpbnQgUGFnZSBDb3VudCBMZWdhbC9Gb2xpbyxQcmludCBQYWdlIENvdW50IEI1L0V4ZSxQcmludCBQYWdlIENvdW50IEVudmVsb3BlcyxQcmludCBQYWdlIENvdW50IEE1L0E1IEwsUHJpbnQgUGFnZSBDb3VudCBPdGhlcnMsUHJpbnQgUGFnZSBDb3VudCBQbGFpbi9UaGluL1JlY3ljbGVkLFByaW50IFBhZ2UgQ291bnQgVGhpY2svVGhpY2tlci9Cb25kLFByaW50IFBhZ2UgQ291bnQgRW52ZWxvcGVzL0Vudi5UaGlja0Vudi5UaGluLFByaW50IFBhZ2UgQ291bnQgTGFiZWwsUHJpbnQgUGFnZSBDb3VudCBIYWdha2ksVG90YWwgUGFnZSBDb3VudCxUb3RhbCAyLXNpZGVkIFByaW50IENvdW50LFRvdGFsIFBhZ2VzIFByaW50ZWQgRmF4LFRvdGFsIFBhZ2VzIFByaW50ZWQgMi1zaWRlZCBGYXgsVG90YWwgUGFnZXMgUHJpbnRlZCBDb3B5LFRvdGFsIFBhZ2VzIFByaW50ZWQgMi1zaWRlZCBDb3B5LFRvdGFsIFBhZ2VzIFByaW50ZWQgUEMgUHJpbnQsVG90YWwgUGFnZXMgUHJpbnRlZCAyLXNpZGVkIFBDIFByaW50LFRvdGFsIFBhZ2VzIFByaW50ZWQgT3RoZXIgUHJpbnQsVG90YWwgUGFnZXMgUHJpbnRlZCAyLXNpZGVkIE90aGVyIFByaW50LFRvdGFsIFBhZ2VzIFNjYW5uZWQgQURGKDEtc2lkZWQpLFRvdGFsIFBhZ2VzIFNjYW5uZWQgQURGKDItc2lkZWQpLFRvdGFsIFBhZ2VzIFNjYW5uZWQgRmxhdGJlZCxUb3RhbCBQYWdlcyBTY2FubmVkLERydW0gVW5pdCBSZXBsYWNlIENvdW50LFRvbmVyIFJlcGxhY2UgQ291bnQsSmFtIFRvdGFsLEphbSBUcmF5MSxKYW0gSW5zaWRlLEphbSBSZWFyLEphbSAyLXNpZGVkLEphbSBBREYoMS1zaWRlZCksSmFtIEFERigyLXNpZGVkKSxFcnJvciBIaXN0b3J5MSxFcnJvciBIaXN0b3J5MShQYWdlIENvdW50KSxFcnJvciBIaXN0b3J5MixFcnJvciBIaXN0b3J5MihQYWdlIENvdW50KSxFcnJvciBIaXN0b3J5MyxFcnJvciBIaXN0b3J5MyhQYWdlIENvdW50KSxFcnJvciBIaXN0b3J5NCxFcnJvciBIaXN0b3J5NChQYWdlIENvdW50KSxFcnJvciBIaXN0b3J5NSxFcnJvciBIaXN0b3J5NShQYWdlIENvdW50KSxFcnJvciBIaXN0b3J5NixFcnJvciBIaXN0b3J5NihQYWdlIENvdW50KSxFcnJvciBIaXN0b3J5NyxFcnJvciBIaXN0b3J5NyhQYWdlIENvdW50KSxFcnJvciBIaXN0b3J5OCxFcnJvciBIaXN0b3J5OChQYWdlIENvdW50KSxFcnJvciBIaXN0b3J5OSxFcnJvciBIaXN0b3J5OShQYWdlIENvdW50KSxFcnJvciBIaXN0b3J5MTAsRXJyb3IgSGlzdG9yeTEwKFBhZ2UgQ291bnQpLA0KIGh0dHA6Ly8xOTIuMTY4LjEyMi4xMjAvZ2VuZXJhbC9zdGF0dXMuaHRtbCxCLEJSTjNDMkFGNDEzNzgyQywxOTIuMTY4LjEyMi4xMjAsM2M6MmE6ZjQ6MTM6Nzg6MmMsNy8xOC8yMDE3IDIwOjUwLCwsQnJvdGhlciBNRkMtTDI3NTBEVyBzZXJpZXMsMDAwRzAxMjM0NTY3ODkwLEIsMS4wMSwyNTYsMiwyLDExOTk4LDEwMC4wMCwxMDAuMDAsMiwwLDAsMCwwLDAsMiwwLDAsMCwwLDIsMCwwLDAsMCwwLDIsMCwwLDAsMCwwLDAsMCwwLDAsMCwwLDAsMCwwLDAsMA==
+--boundary_str--

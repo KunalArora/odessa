@@ -6,6 +6,7 @@ import redis
 import boto3
 from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key
+from botocore.client import Config
 
 path = os.path.dirname(__file__)
 
@@ -168,6 +169,26 @@ def create_table(self):
     except ClientError as e:
         if e.response['Error']['Code'] == 'ResourceInUseException':
             self.dynamodb.Table('device_logs').delete()
+            self.dynamodb.create_table(
+                TableName=schema['TableName'],
+                KeySchema=schema['KeySchema'],
+                AttributeDefinitions=schema['AttributeDefinitions'],
+                ProvisionedThroughput=schema['ProvisionedThroughput']
+                )
+    with open(
+            f'{path}/../../db/migrations/device_email_logs.json'
+            ) as json_file:
+        schema = json.load(json_file)['Table']
+    try:
+        self.dynamodb.create_table(
+            TableName=schema['TableName'],
+            KeySchema=schema['KeySchema'],
+            AttributeDefinitions=schema['AttributeDefinitions'],
+            ProvisionedThroughput=schema['ProvisionedThroughput']
+            )
+    except ClientError as e:
+        if e.response['Error']['Code'] == 'ResourceInUseException':
+            self.dynamodb.Table('device_email_logs').delete()
             self.dynamodb.create_table(
                 TableName=schema['TableName'],
                 KeySchema=schema['KeySchema'],
@@ -466,6 +487,7 @@ def clear_db(self):
     self.dynamodb.Table('device_network_statuses').delete()
     self.dynamodb.Table('service_oids').delete()
     self.dynamodb.Table('reporting_registrations').delete()
+    self.dynamodb.Table('device_email_logs').delete()
 
 def clear_cache(self):
     if environ['REDIS_ENDPOINT_URL']:
@@ -507,6 +529,40 @@ def delete_db_data(self):
                         }
                 )
 
+def seed_s3(self):
+    self.s3client = boto3.resource('s3', endpoint_url=environ['S3_ENDPOINT_URL'],
+                            aws_access_key_id=environ['S3_ACCESS_KEY'],
+                            aws_secret_access_key=environ['S3_SECRET_KEY'],
+                            config=Config(signature_version='s3v4'),
+                            )
+    try:
+        bucket = self.s3client.create_bucket(Bucket='email-test')
+        bucket.put_object(Key='DL-FB XML.eml', Body=open('tests/data/email/DL-FB XML.eml', 'rb'))
+        bucket.put_object(Key='DL-FB CSV.eml', Body=open('tests/data/email/DL-FB CSV.eml', 'rb'))
+    except ClientError as err:
+        error_code = err.response['Error']['Code']
+        if error_code == 'BucketAlreadyOwnedByYou':
+            bucket = self.s3client.Bucket('email-test')
+            bucket.put_object(Key='DL-FB XML.eml', Body=open('tests/data/email/DL-FB XML.eml', 'rb'))
+            bucket.put_object(Key='DL-FB CSV.eml', Body=open('tests/data/email/DL-FB CSV.eml', 'rb'))
+
+
+def delete_s3_bucket(self):
+    self.s3client = boto3.resource('s3', endpoint_url=environ['S3_ENDPOINT_URL'],
+                            aws_access_key_id=environ['S3_ACCESS_KEY'],
+                            aws_secret_access_key=environ['S3_SECRET_KEY'],
+                            config=Config(signature_version='s3v4'),
+                            )
+    try:
+        bucket = self.s3client.Bucket('email-test')
+        for key in bucket.objects.all():
+            key.delete()
+        bucket.delete()
+    except ClientError as err:
+        bucket = self.s3client.Bucket('email-test')
+        for key in bucket.objects.all():
+            key.delete()
+        bucket.delete()
 
 def get_device(self, device_key):
     table = self.dynamodb.Table('device_subscriptions')
