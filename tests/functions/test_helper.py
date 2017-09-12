@@ -168,7 +168,7 @@ def create_table(self):
             )
     except ClientError as e:
         if e.response['Error']['Code'] == 'ResourceInUseException':
-            self.dynamodb.Table('device_logs').delete()
+            self.dynamodb.Table('reporting_registrations').delete()
             self.dynamodb.create_table(
                 TableName=schema['TableName'],
                 KeySchema=schema['KeySchema'],
