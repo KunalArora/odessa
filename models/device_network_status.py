@@ -1,4 +1,5 @@
 from boto3.dynamodb.conditions import Key
+from helpers import time_functions
 from models.base import Base
 
 
@@ -31,7 +32,7 @@ class DeviceNetworkStatus(Base):
                                      (data['device_id']))
                 res = super().convert(res)
                 status = (data['event'].split('_')[0])
-                time = super().time_convert(data['timestamp'])
+                time = time_functions.time_convert(data['timestamp'])
                 if res and res['timestamp'] == time and res['status'] == status:
                     response.remove(data)
         return response
@@ -42,7 +43,7 @@ class DeviceNetworkStatus(Base):
         response = []
         response.extend(notify_data)
         for data in notify_data:
-            iso_time = super().time_convert(data['timestamp'])
+            iso_time = time_functions.time_convert(data['timestamp'])
             res = table.query(
                 KeyConditionExpression=Key('id').eq(
                     data['device_id']) & Key('timestamp').eq(iso_time)
@@ -61,7 +62,7 @@ class DeviceNetworkStatus(Base):
                 batch.put_item(
                     Item={
                         'id': (data['device_id']),
-                        'timestamp': super().time_convert(data['timestamp']),
+                        'timestamp': time_functions.time_convert(data['timestamp']),
                         'status': status,
                     }
                 )

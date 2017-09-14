@@ -27,6 +27,3 @@ class Base(object):
         if isinstance(data, tuple):
             return map(self.convert, data)
         return data  # pragma: no cover
-
-    def time_convert(self, data):
-        return datetime.datetime.utcfromtimestamp(int(data)).isoformat()

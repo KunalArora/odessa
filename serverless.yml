@@ -2,7 +2,6 @@ service: odessa
 
 plugins:
  - serverless-dynamodb-local
- - serverless-s3-local
 
 provider:
   name: aws
@@ -105,6 +104,10 @@ custom:
             sources: [./tests/fixtures/history_logs/device_logs.json]
           - table: device_subscriptions
             sources: [./tests/fixtures/history_logs/device_subscriptions.json]
+          - table: device_email_logs
+            sources: [./tests/fixtures/history_logs/device_email_logs.json]
+          - table: reporting_registrations
+            sources: [./tests/fixtures/history_logs/reporting_registrations.json]
       test_reporting_registrations:
         sources:
           - table: device_subscriptions

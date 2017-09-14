@@ -2,14 +2,13 @@ import json
 import logging
 from os import environ
 import boto3
-from datetime import datetime
-from datetime import timezone
 from constants.odessa_response_codes import *
 from constants.boc_response_codes import *
 from constants.feature_response_codes import *
 from constants.device_response_codes import *
 from constants.oids import *
 from boc.subscription import Subscription
+from helpers import time_functions
 
 RUN_SUBSCRIBE_ASYNC = 'run_subscribe'
 RUN_UNSUBSCRIBE_ASYNC = 'run_unsubscribe'
@@ -18,15 +17,10 @@ FEATURE_ADJUSTING_LIST = (
     ["TonerInk_LifeBlack", "TonerInk_LifeCyan",
      "TonerInk_LifeMagenta", "TonerInk_LifeYellow"])
 
-HOURLY = 'Hourly'
-DAILY = 'Daily'
-MONTHLY = 'Monthly'
-TIME_UNIT_VALUES = [HOURLY, DAILY, MONTHLY]
-
 DEFAULT_TIME_PERIOD_MINS = 60
 MINIMUM_TIME_PERIOD_MINS = 1
 MAXIMUM_TIME_PERIOD_MINS = 300
-DEVICE_ID_REGEX = '\w{8}[-]\w{4}[-]\w{4}[-]\w{4}[-]\w{12}'
+GUID_REGEX = '\w{8}[-]\w{4}[-]\w{4}[-]\w{4}[-]\w{12}'
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -74,11 +68,6 @@ def device_settings_response(error_code, device_id='', message=None, data=[]):
         error_code, {'device_id': device_id, 'data': data}, message)
 
 
-def history_logs_response(error_code, device_id='', data=[], message=None):
-    return create_odessa_response(
-        error_code, {'device_id': device_id, 'data': data}, message)
-
-
 def create_odessa_response(error_code, result, message=None):
     body = {
         'code': error_code,
@@ -107,7 +96,8 @@ def odessa_response_message(error_code):
         ERROR: 'Error',
         DB_CONNECTION_ERROR: 'Failed to connect with DB',
         BOC_DB_CONNECTION_ERROR: 'BOC DB Connection Error',
-        BOC_API_CALL_ERROR: 'Failed to call BOC API'
+        BOC_API_CALL_ERROR: 'Failed to call BOC API',
+        DB_CONTRADICTION_ERROR: 'Error occured due to contradiction in DB'
     }
     return error_map[error_code]
 
@@ -212,7 +202,7 @@ def create_feature_format(code, feature, value, timestamp, **options):
             value)
     else:
         feature_format['status'] = ''
-    feature_format['timestamp'] = convert_iso(
+    feature_format['timestamp'] = time_functions.convert_iso(
         timestamp) if timestamp != '' else ''
     if options.get('message'):
         feature_format['message'] = options.get('message')
@@ -289,8 +279,3 @@ def odessa_error_code(data):
         return ERROR
     else:
         return PARTIAL_SUCCESS
-
-
-def convert_iso(time):
-    time_dt = datetime.strptime(time, '%Y-%m-%dT%H:%M:%S')
-    return time_dt.replace(tzinfo=timezone.utc).isoformat()

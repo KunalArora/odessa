@@ -1,0 +1,20 @@
+[
+  {
+    "reporting_id": "eeeeeeee-eeee-eeee-eeee-eeeeeeee0001",
+    "communication_type": "cloud",
+    "device_id": "ffffffff-ffff-ffff-ffff-ffffffff0002",
+    "timestamp": "2017-01-01T00:00:00"
+  },
+  {
+    "reporting_id": "eeeeeeee-eeee-eeee-eeee-eeeeeeee0002",
+    "communication_type": "email",
+    "serial_number": "U63480C3A489940",
+    "timestamp": "2017-01-01T00:00:00"
+  },
+  {
+    "reporting_id": "eeeeeeee-eeee-eeee-eeee-eeeeeeee0002",
+    "communication_type": "cloud",
+    "device_id": "ffffffff-ffff-ffff-ffff-ffffffff0001",
+    "timestamp": "2017-07-01T00:00:00"
+  }
+]

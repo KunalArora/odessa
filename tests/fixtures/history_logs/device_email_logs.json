@@ -1,0 +1,98 @@
+[
+  {
+    "serial_number" : "U63480C3A489940",
+    "timestamp" : "2017-01-01T10:15:00",
+    "Total_Page_Count" : "100",
+    "Drum_Count": "2",
+    "TonerInk_Black": "40",
+    "TonerInk_Cyan": "50"
+  },
+  {
+    "serial_number" : "U63480C3A489940",
+    "timestamp" : "2017-01-01T10:30:00",
+    "Total_Page_Count" : "90",
+    "Drum_Count": "2",
+    "TonerInk_Black": "30",
+    "TonerInk_Cyan": "50"
+  },
+  {
+    "serial_number" : "U63480C3A489940",
+    "timestamp" : "2017-01-01T10:45:00",
+    "Total_Page_Count" : "80",
+    "Drum_Count": "2",
+    "TonerInk_Black": "40",
+    "TonerInk_Cyan": "30"
+  },
+  {
+    "serial_number" : "U63480C3A489940",
+    "timestamp" : "2017-01-01T11:15:00",
+    "Total_Page_Count" : "100",
+    "Drum_Count": "2",
+    "TonerInk_Black": "40",
+    "TonerInk_Cyan": "50"
+  },
+  {
+    "serial_number" : "U63480C3A489940",
+    "timestamp" : "2017-01-01T11:30:00",
+    "Total_Page_Count" : "87",
+    "Drum_Count": "2",
+    "TonerInk_Black": "34",
+    "TonerInk_Cyan": "50"
+  },
+  {
+    "serial_number" : "U63480C3A489940",
+    "timestamp" : "2017-01-01T11:45:00",
+    "Total_Page_Count" : "78",
+    "Drum_Count": "2",
+    "TonerInk_Black": "40",
+    "TonerInk_Cyan": "32"
+  },
+  {
+    "serial_number" : "U63480C3A489940",
+    "timestamp" : "2017-01-01T12:15:00",
+    "Total_Page_Count" : "100",
+    "Drum_Count": "2",
+    "TonerInk_Black": "40",
+    "TonerInk_Cyan": "50"
+  },
+  {
+    "serial_number" : "U63480C3A489940",
+    "timestamp" : "2017-01-01T12:30:00",
+    "Total_Page_Count" : "93",
+    "Drum_Count": "2",
+    "TonerInk_Black": "23",
+    "TonerInk_Cyan": "50"
+  },
+  {
+    "serial_number" : "U63480C3A489940",
+    "timestamp" : "2017-01-01T12:45:00",
+    "Total_Page_Count" : "84",
+    "Drum_Count": "2",
+    "TonerInk_Black": "40",
+    "TonerInk_Cyan": "40"
+  },
+  {
+    "serial_number" : "U63480C3A489940",
+    "timestamp" : "2017-01-01T13:15:00",
+    "Total_Page_Count" : "89",
+    "Drum_Count": "2",
+    "TonerInk_Black": "40",
+    "TonerInk_Cyan": "43"
+  },
+  {
+    "serial_number" : "U63480C3A489940",
+    "timestamp" : "2017-01-01T13:30:00",
+    "Total_Page_Count" : "84",
+    "Drum_Count": "2",
+    "TonerInk_Black": "40",
+    "TonerInk_Cyan": "50"
+  },
+  {
+    "serial_number" : "U63480C3A489940",
+    "timestamp" : "2017-01-01T13:45:00",
+    "Total_Page_Count" : "80",
+    "Drum_Count": "2",
+    "TonerInk_Black": "30",
+    "TonerInk_Cyan": "30"
+  }
+]

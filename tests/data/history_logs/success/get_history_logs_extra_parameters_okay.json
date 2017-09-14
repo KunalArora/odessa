@@ -5,14 +5,17 @@
       "features": ["Total_Page_Count"],
       "from": "2017-02-01T00:00:00+00:00",
       "to": "2017-03-01T00:00:00+00:00",
-      "time_unit": "Invalid"
+      "time_unit": "Daily",
+      "parameter_1": "dummy",
+      "parameter_2": "dummy"
   },
   {
-      "log_service_id": "0",
       "reporting_id": "eeeeeeee-eeee-eeee-eeee-eeeeeeee0002",
       "features": ["Total_Page_Count"],
-      "from": "2017-02-01T00:00:00+00:00",
+      "from": "2017-01-01T00:00:00+00:00",
       "to": "2017-03-01T00:00:00+00:00",
-      "time_unit": "Invalid"
+      "time_unit": "Daily",
+      "parameter_3": "dummy",
+      "parameter_4": "dummy"
   }
 ]
