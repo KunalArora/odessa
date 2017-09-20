@@ -1,6 +1,7 @@
 import json
 import logging
 from os import environ
+from os import path
 import boto3
 from constants.odessa_response_codes import *
 from constants.boc_response_codes import *
@@ -68,7 +69,7 @@ def device_settings_response(error_code, device_id='', message=None, data=[]):
         error_code, {'device_id': device_id, 'data': data}, message)
 
 
-def create_odessa_response(error_code, result, message=None):
+def create_odessa_response(error_code, result, message=None, cors=False):
     body = {
         'code': error_code,
         'message': message if message else odessa_response_message(error_code)
@@ -76,10 +77,22 @@ def create_odessa_response(error_code, result, message=None):
 
     body.update(result)
 
-    return {
-        'statusCode': 200,
-        'body': json.dumps(body)
-    }
+    if not cors:
+        return {
+            'statusCode': 200,
+            'body': json.dumps(body)
+        }
+    else:
+        data_path = path.dirname(__file__)
+        with open(
+                f'{data_path}/../config/response_headers.json'
+        ) as data_file:
+            input = json.load(data_file)
+        return {
+            'statusCode': 200,
+            'headers': input,
+            'body': json.dumps(body)
+        }
 
 
 def odessa_response_message(error_code):

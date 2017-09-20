@@ -456,12 +456,14 @@ def create_response_body(data, reporting_id=None, device_id=None):
 def history_logs_response(error_code, reporting_id='', device_id='', data=[], message=None):
     if reporting_id:
         return helper.create_odessa_response(
-            error_code, {'reporting_id': reporting_id, 'data': data}, message)
+            error_code, {'reporting_id': reporting_id, 'data': data},
+            message, cors=True)
 
     elif device_id:
         return helper.create_odessa_response(
-            error_code, {'device_id': device_id, 'data': data}, message)
+            error_code, {'device_id': device_id, 'data': data},
+            message, cors=True)
 
     else:
         return helper.create_odessa_response(
-            error_code, {'data': data}, message)
+            error_code, {'data': data}, message, cors=True)

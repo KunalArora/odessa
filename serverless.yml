@@ -218,6 +218,7 @@ functions:
       - http:
           path: ${self:custom.httpPath}/devices/log/history
           method: post
+          cors: true
 
   save_reporting_registration:
     handler: functions/reporting_registrations/handler.save_reporting_registration

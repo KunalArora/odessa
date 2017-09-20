@@ -74,6 +74,7 @@ class TestGetHistoryLogs(unittest.TestCase):
             input = json.load(data_file)
         input_device_id = json.dumps(input[0])
         output = handler.get_history_logs({'body': input_device_id}, 'dummy')
+        self.assertTrue(output['headers'])
         output = json.loads(output['body'])
         self.assertEqual(output['code'], 400)
         self.assertEqual(
@@ -766,3 +767,12 @@ class TestGetHistoryLogs(unittest.TestCase):
         self.assertTrue(output['data'])
         self.assertTrue('device_id' not in output)
         self.assertTrue('reporting_id' in output and output['reporting_id'])
+
+    def test_response_has_headers_on_get_history_logs(self):
+        with open(
+                f'{self.path}/../../data/history_logs/success/get_history_logs_success.json'
+        ) as data_file:
+            input = json.load(data_file)
+        input_device_id = json.dumps(input[0])
+        output = handler.get_history_logs({'body': input_device_id}, 'dummy')
+        self.assertTrue(output['headers'])
