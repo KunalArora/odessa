@@ -197,57 +197,10 @@ def create_table(self):
             )
 
 
-def seed_ddb_device_settings(self):
-    create_table(self)
+def seed_service_oids_table(self, fixtures_path):
     table = self.dynamodb.Table('service_oids')
     with open(
-            f'{path}/../fixtures/subscriptions/service_oids.json'
-    ) as json_file:
-        service_oids = json.load(json_file)
-    with table.batch_writer() as batch:
-        for service_oid in service_oids:
-            id = service_oid["id"]
-            oids = service_oid["oids"]
-            boc_service_id = service_oid["boc_service_id"]
-            batch.put_item(
-                Item={
-                    'id': id,
-                    'oids': oids,
-                    'boc_service_id': boc_service_id
-                }
-            )
-
-
-def seed_ddb_subscriptions(self):
-    create_table(self)
-    table = self.dynamodb.Table('device_subscriptions')
-    with open(
-            f'{path}/../fixtures/subscriptions/device_subscriptions.json'
-    ) as json_file:
-        device_subscriptions = json.load(json_file)
-    with table.batch_writer() as batch:
-        for subscription in device_subscriptions:
-            id = subscription["id"]
-            if 'oids' in subscription:
-                oids = subscription["oids"]
-            status = int(subscription["status"])
-            message = subscription["message"]
-            created_at = subscription["created_at"]
-            updated_at = subscription["updated_at"]
-            batch.put_item(
-                Item={
-                    'id': id,
-                    'oids': oids,
-                    'status': status,
-                    'message': message,
-                    'created_at': created_at,
-                    'updated_at': updated_at
-                }
-            )
-
-    table = self.dynamodb.Table('service_oids')
-    with open(
-            f'{path}/../fixtures/subscriptions/service_oids.json'
+            f'{path}/../fixtures/{fixtures_path}'
     ) as json_file:
         service_oids = json.load(json_file)
     with table.batch_writer() as batch:
@@ -266,110 +219,10 @@ def seed_ddb_subscriptions(self):
             )
 
 
-def seed_ddb_device_logs(self):
-    create_table(self)
+def seed_device_subscriptions_table(self, fixtures_path):
     table = self.dynamodb.Table('device_subscriptions')
     with open(
-            f'{path}/../fixtures/logs_and_notifications/device_subscriptions.json'
-    ) as json_file:
-        device_subscriptions = json.load(json_file)
-    with table.batch_writer() as batch:
-        for subscription in device_subscriptions:
-            id = subscription["id"]
-            if 'oids' in subscription:
-                oids = subscription["oids"]
-            status = int(subscription["status"])
-            message = subscription["message"]
-            created_at = subscription["created_at"]
-            updated_at = subscription["updated_at"]
-            batch.put_item(
-                Item={
-                    'id': id,
-                    'oids': oids,
-                    'status': status,
-                    'message': message,
-                    'created_at': created_at,
-                    'updated_at': updated_at
-                }
-            )
-
-    table = self.dynamodb.Table('service_oids')
-    with open(
-            f'{path}/../fixtures/logs_and_notifications/service_oids.json'
-    ) as json_file:
-        service_oids = json.load(json_file)
-    with table.batch_writer() as batch:
-        for service_oid in service_oids:
-            id = service_oid["id"]
-            oids = service_oid["oids"]
-            batch.put_item(
-                Item={
-                    'id': id,
-                    'oids': oids
-                }
-            )
-    table = self.dynamodb.Table('device_logs')
-    with open(
-            f'{path}/../fixtures/logs_and_notifications/device_logs.json'
-    ) as json_file:
-        device_logs = json.load(json_file)
-    with table.batch_writer() as batch:
-        for log in device_logs:
-            id = log["id"]
-            timestamp = log["timestamp"]
-            value = log["value"]
-            batch.put_item(
-                Item={
-                    'id': id,
-                    'timestamp': timestamp,
-                    'value': value
-                }
-            )
-
-    table = self.dynamodb.Table('device_network_statuses')
-    with open(
-            f'{path}/../fixtures/logs_and_notifications/device_network_statuses.json'
-    ) as json_file:
-        device_network_statuses = json.load(json_file)
-    with table.batch_writer() as batch:
-        for device_status in device_network_statuses:
-            id = device_status["id"]
-            timestamp = device_status["timestamp"]
-            status = device_status["status"]
-            batch.put_item(
-                Item={
-                    'id': id,
-                    'timestamp': timestamp,
-                    'status': status
-                }
-            )
-
-
-def seed_ddb_device_notifications(self):
-    seed_ddb_device_logs(self)
-
-
-def seed_ddb_history_logs(self):
-    create_table(self)
-    table = self.dynamodb.Table('service_oids')
-    with open(
-            f'{path}/../fixtures/history_logs/service_oids.json'
-    ) as json_file:
-        service_oids = json.load(json_file)
-    with table.batch_writer() as batch:
-        for service_oid in service_oids:
-            id = service_oid["id"]
-            oids = service_oid["oids"]
-            batch.put_item(
-                Item={
-                    'id': id,
-                    'oids': oids
-                }
-            )
-
-    table = self.dynamodb.Table('device_subscriptions')
-    with open(
-            f'{path}/../fixtures/history_logs/device_subscriptions.json'
+            f'{path}/../fixtures/{fixtures_path}'
     ) as json_file:
         device_subscriptions = json.load(json_file)
     with table.batch_writer() as batch:
@@ -405,9 +258,11 @@ def seed_ddb_history_logs(self):
                     }
                 )
 
+
+def seed_device_logs_table(self, fixtures_path):
     table = self.dynamodb.Table('device_logs')
     with open(
-            f'{path}/../fixtures/history_logs/device_logs.json'
+            f'{path}/../fixtures/{fixtures_path}'
     ) as json_file:
         device_logs = json.load(json_file)
     with table.batch_writer() as batch:
@@ -423,33 +278,31 @@ def seed_ddb_history_logs(self):
                 }
             )
 
-    table = self.dynamodb.Table('device_email_logs')
+
+def seed_device_network_statuses_table(self, fixtures_path):
+    table = self.dynamodb.Table('device_network_statuses')
     with open(
-            f'{path}/../fixtures/history_logs/device_email_logs.json'
+            f'{path}/../fixtures/{fixtures_path}'
     ) as json_file:
-        device_email_logs = json.load(json_file)
+        device_network_statuses = json.load(json_file)
     with table.batch_writer() as batch:
-        for email_log in device_email_logs:
-            serial_number = email_log["serial_number"]
-            timestamp = email_log["timestamp"]
-            total_page_count = email_log["Total_Page_Count"]
-            drum_count = email_log["Drum_Count"]
-            tonerink_black = email_log["TonerInk_Black"]
-            tonerink_cyan = email_log["TonerInk_Cyan"]
+        for device_status in device_network_statuses:
+            id = device_status["id"]
+            timestamp = device_status["timestamp"]
+            status = device_status["status"]
             batch.put_item(
                 Item={
-                    'serial_number': serial_number,
+                    'id': id,
                     'timestamp': timestamp,
-                    'Total_Page_Count': total_page_count,
-                    'Drum_Count': drum_count,
-                    'TonerInk_Black': tonerink_black,
-                    'TonerInk_Cyan': tonerink_cyan
+                    'status': status
                 }
             )
 
+
+def seed_reporting_registrations_table(self, fixtures_path):
     table = self.dynamodb.Table('reporting_registrations')
     with open(
-            f'{path}/../fixtures/history_logs/reporting_registrations.json'
+            f'{path}/../fixtures/{fixtures_path}'
     ) as json_file:
         reporting_registrations = json.load(json_file)
     with table.batch_writer() as batch:
@@ -479,61 +332,71 @@ def seed_ddb_history_logs(self):
                 )
 
 
-def seed_ddb_reporting_registrations(self):
-    self.dynamodb = boto3.resource(
-        'dynamodb', endpoint_url=environ['DYNAMO_ENDPOINT_URL'])
-    table = self.dynamodb.Table('service_oids')
+def seed_ddb_device_settings(self):
+    create_table(self)
+    seed_service_oids_table(self, 'subscriptions/service_oids.json')
+
+
+def seed_ddb_subscriptions(self):
+    create_table(self)
+    seed_service_oids_table(self, 'subscriptions/service_oids.json')
+    seed_device_subscriptions_table(
+        self, 'subscriptions/device_subscriptions.json')
+
+
+def seed_ddb_device_logs(self):
+    create_table(self)
+    seed_device_subscriptions_table(
+        self, 'logs_and_notifications/device_subscriptions.json')
+    seed_service_oids_table(self, 'logs_and_notifications/service_oids.json')
+    seed_device_logs_table(self, 'logs_and_notifications/device_logs.json')
+    seed_device_network_statuses_table(
+        self, 'logs_and_notifications/device_network_statuses.json')
+
+
+def seed_ddb_device_notifications(self):
+    seed_ddb_device_logs(self)
+
+
+def seed_ddb_history_logs(self):
+    create_table(self)
+    seed_service_oids_table(self, 'history_logs/service_oids.json')
+    seed_device_subscriptions_table(
+        self, 'history_logs/device_subscriptions.json')
+    seed_device_logs_table(self, 'history_logs/device_logs.json')
+    seed_reporting_registrations_table(
+        self, 'history_logs/reporting_registrations.json')
+
+    table = self.dynamodb.Table('device_email_logs')
     with open(
-            f'{path}/../fixtures/reporting_registrations/service_oids.json'
+            f'{path}/../fixtures/history_logs/device_email_logs.json'
     ) as json_file:
-        service_oids = json.load(json_file)
+        device_email_logs = json.load(json_file)
     with table.batch_writer() as batch:
-        for service_oid in service_oids:
-            id = service_oid["id"]
-            oids = service_oid["oids"]
+        for email_log in device_email_logs:
+            serial_number = email_log["serial_number"]
+            timestamp = email_log["timestamp"]
+            total_page_count = email_log["Total_Page_Count"]
+            drum_count = email_log["Drum_Count"]
+            tonerink_black = email_log["TonerInk_Black"]
+            tonerink_cyan = email_log["TonerInk_Cyan"]
             batch.put_item(
                 Item={
-                    'id': id,
-                    'oids': oids
+                    'serial_number': serial_number,
+                    'timestamp': timestamp,
+                    'Total_Page_Count': total_page_count,
+                    'Drum_Count': drum_count,
+                    'TonerInk_Black': tonerink_black,
+                    'TonerInk_Cyan': tonerink_cyan
                 }
             )
-    table = self.dynamodb.Table('device_subscriptions')
-    with open(
-            f'{path}/../fixtures/reporting_registrations/device_subscriptions.json'
-    ) as json_file:
-        device_subscriptions = json.load(json_file)
-    with table.batch_writer() as batch:
-        for subscription in device_subscriptions:
-            id = subscription["id"]
-            if 'oids' in subscription:
-                oids = subscription["oids"]
-            else:
-                oids = None
-            status = int(subscription["status"])
-            message = subscription["message"]
-            created_at = subscription["created_at"]
-            updated_at = subscription["updated_at"]
-            if oids:
-                batch.put_item(
-                    Item={
-                        'id': id,
-                        'oids': oids,
-                        'status': status,
-                        'message': message,
-                        'created_at': created_at,
-                        'updated_at': updated_at
-                    }
-                )
-            else:
-                batch.put_item(
-                    Item={
-                        'id': id,
-                        'status': status,
-                        'message': message,
-                        'created_at': created_at,
-                        'updated_at': updated_at
-                    }
-                )
+
+
+def seed_ddb_reporting_registrations(self):
+    create_table(self)
+    seed_service_oids_table(self, 'reporting_registrations/service_oids.json')
+    seed_device_subscriptions_table(
+        self, 'reporting_registrations/device_subscriptions.json')
 
 
 def clear_db(self):
