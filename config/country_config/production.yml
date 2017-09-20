@@ -1,0 +1,46 @@
+CountryConfig:
+  at:  #Austria
+    email_enabled: false
+    subject_list: 'E-Mail-Bericht|E-mail Report'
+  be:  #Belgium
+    email_enabled: false
+    subject_list: 'E-mailrapport|E-mail Report'
+  de:  #Germany
+    email_enabled: false
+    subject_list: 'E-Mail-Bericht|E-mail Report'
+  dk:  #Denmark
+    email_enabled: false
+    subject_list: 'E-mail rapport|E-mail Report'
+  es:  #Spain
+    email_enabled: false
+    subject_list: 'Informe correo electrónico|E-mail Report'
+  fi:  #Finland
+    email_enabled: false
+    subject_list: 'Sähköpostiraportti|E-mail Report'
+  fr:  #France
+    email_enabled: false
+    subject_list: 'Rapport de courriel|E-mail Report'
+  uk:  #UK
+    email_enabled: false
+    subject_list: 'E-mail Report'
+  ie:  #Ireland
+    email_enabled: false
+    subject_list: 'E-mail Report'
+  it:  #Italy
+    email_enabled: false
+    subject_list: 'Rapporto e-mail|E-mail Report'
+  nl:  #Netherlands
+    email_enabled: false
+    subject_list: 'E-mailrapport|E-mail Report'
+  no:  #Norway
+    email_enabled: false
+    subject_list: 'E-postrapport|E-mail Report'
+  pl:  #Poland
+    email_enabled: false
+    subject_list: 'Raport e-mail|E-mail Report'
+  se:  #Sweden
+    email_enabled: false
+    subject_list: 'E-postrapport|E-mail Report'
+  ch:  #Switzerland
+    email_enabled: false
+    subject_list: 'E-Mail-Bericht|E-mail Report'

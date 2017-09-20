@@ -3,7 +3,7 @@ import csv
 import email
 import io
 import logging
-from config import CountryConfig
+import json
 from config import PrintCountFieldMap
 from models.device_email_log import DeviceEmailLog
 import xml.etree.ElementTree as ET
@@ -11,10 +11,11 @@ from botocore.exceptions import ClientError
 from botocore.exceptions import ConnectionError
 from os import environ
 from botocore.client import Config
+import yaml
+import os
 
 logger = logging.getLogger('email_notifications')
 logger.setLevel(logging.INFO)
-
 
 def save_mail_report(event, context):
     device_email_log = DeviceEmailLog()
@@ -23,20 +24,41 @@ def save_mail_report(event, context):
     csv_parsed_field_map_dict = {}
 
     try:
-        email_from = event['mail']['commonHeaders']['from'][0]
-        country_code = (email_from.split('@')[1].split('.')[1])
+        request = json.loads(event["Records"][0]['Sns']['Message'])
+        email_from = request['mail']['commonHeaders']['from'][0]
+        country_code = email_from[-2:]
+        subject_present = False
+        env = os.environ['STAGE']
 
-        if CountryConfig.EmailEnableConfigPerCountry[country_code]:
-            email_subject = event['mail']['commonHeaders']['subject']
-            if email_subject not in CountryConfig.SubjectListConfigPerCountry[country_code]:
+        with open(f"config/country_config/{env}.yml") as data:
+            yaml_data = yaml.load(data)
+
+        if (
+            country_code in yaml_data['CountryConfig']
+                and yaml_data['CountryConfig'][country_code]['email_enabled']):
+            email_subject = request['mail']['commonHeaders']['subject']
+            country_email_subject = yaml_data['CountryConfig'][country_code]['subject_list'].split('|')
+
+            for subject in country_email_subject:
+                if subject in email_subject:
+                    subject_present = True
+                    break
+            if not subject_present:
+                logger.warning(
+                    f'handler:email_notifications this email does not belong '
+                    f'to print counts as the email subject {email_subject} '
+                    f'does not match country {country_code} email '
+                    f'subject {country_email_subject}.'
+                )
                 return
 
-            bucket_name = event['receipt']['action']['bucketName']
-            bucket_object_key = event['receipt']['action']['objectKey']
-            mail_timestamp = event['mail']['timestamp']
+            bucket_name = request['receipt']['action']['bucketName']
+            bucket_object_key = request['receipt']['action']['objectKey']
+            bucket_region_name = request['receipt']['action']['topicArn'].split(':')[3]
+            mail_timestamp = request['mail']['timestamp']
 
 
-            raw_email = retrieve_mail(bucket_name, bucket_object_key)
+            raw_email = retrieve_mail(bucket_name, bucket_object_key, bucket_region_name)
             msg = email.message_from_string(raw_email)
             attachments = find_attachments(msg)
             for cdisp, part in attachments:
@@ -67,40 +89,48 @@ def save_mail_report(event, context):
                                       ] = v if v else ' '
             else:
                 logger.warning(
-                    "{} file extension not yet supported.".format(extension))
+                    f'handler:email_notifications {extension} '
+                    f'file extension not yet supported')
                 return
 
             mail_log_data['timestamp'] = mail_timestamp
             device_email_log.create(mail_log_data)
         else:
-            logger.warning("Email Notifications functionality is not enabled "
-                           "for the specified country {}".format(country_code))
+            logger.warning(
+                f'handler:email_notifications email notifications functionality '
+                f'is not enabled for the specified country {country_code}')
     except ValueError as e:
         logger.warning(
-            "handler:email_notifications JSON format Value error in the "
-            "request for event {}".format(event))
+            f'handler:email_notifications value error in the '
+            f'request for event {event}')
     except TypeError as e:
         logger.warning(
-            "handler:email_notifications Format Type error in the "
-            "request for event {}".format(event))
+            f'handler:email_notifications type error in the '
+            f'request for event {event}')
     except ConnectionError as e:
         logger.error(e)
         logger.warning(
-            "handler:email_notifications Dynamodb Connection Error "
-            "on SaveMailReport for bucket {}, object_key {} "
-            "and xml_parsed_data {}".format(bucket_name, bucket_object_key, mail_log_data))
+            f'handler:email_notifications dynamodb connection error '
+            f'on SaveMailReport for bucket {bucket_name}, object_key '
+            f'{bucket_object_key} and xml_parsed_data {mail_log_data}')
     except ClientError as e:
         logger.error(e)
         error_code = e.response['Error']['Code']
         if error_code == 'NoSuchBucket':
             logger.warning(
-                "handler:email_notifications Amazon S3 Invalid Bucket Name Error on "
-                "SaveMailReport for bucket {} and object_key {}".format(bucket_name, bucket_object_key))
+                f'handler:email_notifications Amazon S3 invalid bucket name '
+                f'error on SaveMailReport for bucket {bucket_name} and '
+                f'object_key {bucket_object_key}')
+        elif error_code == 'NoSuchKey':
+            logger.warning(
+                f'handler:email_notifications Amazon S3 invalid object key name '
+                f'error on SaveMailReport for bucket {bucket_name} and '
+                f'object_key {bucket_object_key}')
         else:
             logger.warning(
-                "handler:email_notifications Dynamodb Client Error "
-                "on SaveMailReport for bucket {}, object_key {} "
-                "and xml_parsed_data {}".format(bucket_name, bucket_object_key, mail_log_data))
+                f'handler:email_notifications dynamodb client error '
+                f'on SaveMailReport for bucket {bucket_name}, object_key '
+                f'{bucket_object_key} and xml_parsed_data {mail_log_data}')
 
 def parse_xml(root):
     res = []
@@ -125,13 +155,15 @@ def read_rec(node, name, parent=None):
         return [parent + '_' + name, node.text]
 
 
-def retrieve_mail(bucket_name, bucket_object_key):
+def retrieve_mail(bucket_name, bucket_object_key, bucket_region_name):
     if environ['S3_ENDPOINT_URL']:
         s3client = boto3.resource('s3', endpoint_url=environ['S3_ENDPOINT_URL'],
                                 aws_access_key_id=environ['S3_ACCESS_KEY'],
                                 aws_secret_access_key=environ['S3_SECRET_KEY'],
                                 config=Config(signature_version='s3v4'),
                                 )
+    else:
+        s3client = boto3.resource('s3', region_name=bucket_region_name)
     obj = s3client.Object(bucket_name, bucket_object_key)
     res = obj.get()
     return (res['Body'].read().decode('utf-8'))

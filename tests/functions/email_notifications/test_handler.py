@@ -20,7 +20,7 @@ class EmailNotificationTestCase(unittest.TestCase):
 		                'dynamodb', endpoint_url='http://localhost:8000')
 		test_helper.set_env_var(self)
 		test_helper.seed_s3(self)
-#		logging.getLogger('email_notifications').setLevel(100)
+		logging.getLogger('email_notifications').setLevel(100)
 
 	def tearDown(self):
 		test_helper.delete_s3_bucket(self)
@@ -29,9 +29,10 @@ class EmailNotificationTestCase(unittest.TestCase):
 		test_helper.seed_s3(self)
 
 	def test_invalid_request(self):
+		event_data = json.load(open('tests/data/email_notifications/invalid_request_event.json'))
 		res = run_func(
-			event= { "mail" : "{" },
-			context= []
+			event= event_data,
+		    context= []
 			)
 		self.assertEqual(None, res)
 		self.assertRaises(ValueError)
@@ -60,6 +61,30 @@ class EmailNotificationTestCase(unittest.TestCase):
 		table = self.dynamodb.Table('device_email_logs')
 		before_keys = table.scan()['Items']
 		event_data = json.load(open('tests/data/email_notifications/email_not_enabled_country_event.json'))
+		res = run_func(
+			event = event_data,
+			context = []
+			)
+		after_keys = table.scan()['Items']
+		self.assertEqual(before_keys, after_keys)
+		self.assertEqual((len(after_keys)-len(before_keys)), 0)
+
+	def test_email_subject_invalid(self):
+		table = self.dynamodb.Table('device_email_logs')
+		before_keys = table.scan()['Items']
+		event_data = json.load(open('tests/data/email_notifications/email_subject_invalid_event.json'))
+		res = run_func(
+			event = event_data,
+			context = []
+			)
+		after_keys = table.scan()['Items']
+		self.assertEqual(before_keys, after_keys)
+		self.assertEqual((len(after_keys)-len(before_keys)), 0)
+
+	def test_no_such_key(self):
+		table = self.dynamodb.Table('device_email_logs')
+		before_keys = table.scan()['Items']
+		event_data = json.load(open('tests/data/email_notifications/no_such_key_event.json'))
 		res = run_func(
 			event = event_data,
 			context = []
