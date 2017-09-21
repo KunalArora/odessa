@@ -1,0 +1,57 @@
+[
+  {
+    "id" : "ffffffff-ffff-ffff-ffff-ffffffff0001",
+    "timestamp" : "2017-01-12T12:45:01",
+    "status" : "online"
+  },
+  {
+    "id" : "ffffffff-ffff-ffff-ffff-ffffffff0001",
+    "timestamp" : "2017-01-13T12:45:02",
+    "status" : "offline"
+  },
+  {
+    "id" : "ffffffff-ffff-ffff-ffff-ffffffff0001",
+    "timestamp" : "2017-01-14T12:45:03",
+    "status" : "offline"
+  },
+  {
+    "id" : "ffffffff-ffff-ffff-ffff-ffffffff0001",
+    "timestamp" : "2017-01-15T12:45:04",
+    "status" : "online"
+  },
+  {
+    "id" : "ffffffff-ffff-ffff-ffff-ffffffff0001",
+    "timestamp" : "2017-01-16T12:45:05",
+    "status" : "offline"
+  },
+  {
+    "id" : "ffffffff-ffff-ffff-ffff-ffffffff0001",
+    "timestamp" : "2017-01-17T12:45:06",
+    "status" : "online"
+  },
+  {
+    "id" : "ffffffff-ffff-ffff-ffff-ffffffff0001",
+    "timestamp" : "2017-08-12T12:45:01",
+    "status" : "online"
+  },
+  {
+    "id" : "ffffffff-ffff-ffff-ffff-ffffffff0001",
+    "timestamp" : "2017-08-13T12:45:01",
+    "status" : "offline"
+  },
+  {
+    "id" : "ffffffff-ffff-ffff-ffff-ffffffff0001",
+    "timestamp" : "2017-08-14T12:45:01",
+    "status" : "online"
+  },
+  {
+    "id" : "ffffffff-ffff-ffff-ffff-ffffffff0001",
+    "timestamp" : "2017-08-15T12:45:01",
+    "status" : "offline"
+  },
+  {
+    "id" : "ffffffff-ffff-ffff-ffff-ffffffff0001",
+    "timestamp" : "2017-08-16T12:45:01",
+    "status" : "online"
+  }
+]

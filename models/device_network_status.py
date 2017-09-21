@@ -12,7 +12,8 @@ class DeviceNetworkStatus(Base):
         table = self.dynamodb.Table('device_network_statuses')
         if device_id:
             if(self.elasticache):
-                redis_res = self.elasticache.hgetall("device_network_status:%s" % (device_id))
+                redis_res = self.elasticache.hgetall(
+                    "device_network_status:%s" % (device_id))
                 if redis_res:
                     return(super().convert(redis_res))
             db_res = table.query(
@@ -29,7 +30,7 @@ class DeviceNetworkStatus(Base):
         if(self.elasticache):
             for data in notify_data:
                 res = self.elasticache.hgetall("device_network_status:%s" %
-                                     (data['device_id']))
+                                               (data['device_id']))
                 res = super().convert(res)
                 status = (data['event'].split('_')[0])
                 time = time_functions.time_convert(data['timestamp'])
@@ -76,8 +77,67 @@ class DeviceNetworkStatus(Base):
                 timestamp = (data['dynamodb']['NewImage']['timestamp']['S'])
                 status = (data['dynamodb']['NewImage']['status']['S'])
                 self.elasticache.hmset("device_network_status:%s" % (device_id),
-                             {
+                                       {
                     'id': device_id,
                     'timestamp': timestamp,
                     'status': status,
                 })
+
+    # Retrieve one previous record from the timestamp
+    # value 'from_time' for the 'device_id'
+    def get_one_previous_record(self, device_id, from_time):
+        table = self.dynamodb.Table('device_network_statuses')
+        db_res = table.query(
+            KeyConditionExpression=Key('id').eq(device_id) &
+            Key('timestamp').lt(from_time),
+            ProjectionExpression="#ts, #st",
+            ExpressionAttributeNames={"#ts": "timestamp", "#st": "status"},
+            Limit=1
+        )
+        if db_res['Items']:
+            return db_res['Items'][0]
+
+    # Retrieve all statuses for a device in a particular time interval
+    # Note: Status of the device at the 'from' point of time is also
+    # evaluated and sent back as response in except one special case desc below
+    def get_status_history(self, params):
+        table = self.dynamodb.Table('device_network_statuses')
+        result = []
+        response = table.query(
+            KeyConditionExpression=Key('id').eq(params['device_id']) &
+            Key('timestamp').between(
+                params['from_time'], params['to_time']
+            ),
+            ProjectionExpression="#ts, #st",
+            ExpressionAttributeNames={"#ts": "timestamp", "#st": "status"}
+        )
+
+        # Special Case: If a record already exists at the timestamp
+        # value 'params['from_time']', then don't find one previous record
+        if response['Items'] and response['Items'][0]['timestamp'] == params['from_time']:
+            result.extend(response['Items'])
+        else:
+            # Find out one previous record
+            previous_record = self.get_one_previous_record(
+                params['device_id'], params['from_time'])
+            if previous_record:
+                previous_record['timestamp'] = params['from_time']
+                result.append(previous_record)
+            else:
+                result.append(
+                    {'status': 'offline', 'timestamp': params['from_time']})
+
+            result.extend(response['Items'])
+
+        while 'LastEvaluatedKey' in response:
+            response = table.query(
+                KeyConditionExpression=Key('id').eq(params['device_id']) &
+                Key('timestamp').between(
+                    params['from_time'], params['to_time']),
+                ProjectionExpression="#ts, #st",
+                ExpressionAttributeNames={"#ts": "timestamp", "#st": "status"},
+                ExclusiveStartKey=response['LastEvaluatedKey'])
+            if response['Items']:
+                result.extend(response['Items'])
+
+        return result

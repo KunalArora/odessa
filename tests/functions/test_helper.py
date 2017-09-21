@@ -399,6 +399,17 @@ def seed_ddb_reporting_registrations(self):
         self, 'reporting_registrations/device_subscriptions.json')
 
 
+def seed_ddb_history_statuses(self):
+    create_table(self)
+    seed_service_oids_table(self, 'history_statuses/service_oids.json')
+    seed_device_subscriptions_table(
+        self, 'history_statuses/device_subscriptions.json')
+    seed_reporting_registrations_table(
+        self, 'history_statuses/reporting_registrations.json')
+    seed_device_network_statuses_table(
+        self, 'history_statuses/device_network_statuses.json')
+
+
 def clear_db(self):
     self.dynamodb.Table('device_subscriptions').delete()
     self.dynamodb.Table('device_logs').delete()

@@ -134,6 +134,14 @@ custom:
         sources:
           - table: device_subscriptions
             sources: [./tests/fixtures/reporting_registrations/device_subscriptions.json]
+      test_history_statuses:
+        sources:
+          - table: device_subscriptions
+            sources: [./tests/fixtures/history_statuses/device_subscriptions.json]
+          - table: reporting_registrations
+            sources: [./tests/fixtures/history_statuses/reporting_registrations.json]
+          - table: device_network_statuses
+            sources: [./tests/fixtures/history_statuses/device_network_statuses.json]
 
     s3:
       port: 8000
@@ -251,6 +259,13 @@ functions:
 
   save_mail_report:
     handler: functions/email_notifications/handler.save_mail_report
+
+  get_history_statuses:
+    handler: functions/history_statuses/handler.get_history_statuses
+    events:
+      - http:
+          path: ${self:custom.httpPath}/devices/status/history
+          method: post
 
 resources:
   Resources:

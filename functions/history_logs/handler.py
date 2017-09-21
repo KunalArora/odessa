@@ -34,6 +34,7 @@ def get_history_logs(event, context):
     service_oid = ServiceOid()
     device_subscription = DeviceSubscription()
     device_email_log = DeviceEmailLog()
+    reporting_registration = ReportingRegistration()
 
     missing_params_list = []
 
@@ -223,7 +224,7 @@ def get_history_logs(event, context):
                 feature_response.extend(result)
 
         elif reporting_id:
-            reporting_records = get_reporting_records(
+            reporting_records = reporting_registration.get_reporting_records(
                 reporting_id, from_time, to_time)
             if not reporting_records:
                 # Reporting Id not found
@@ -320,49 +321,6 @@ def get_history_logs(event, context):
             f'Unknown Error occurred on handler:get_history_logs on event {event}')
         return history_logs_response(
             odessa_response_codes.INTERNAL_SERVER_ERROR, device_id)
-
-
-def get_reporting_records(reporting_id, from_time, to_time):
-    reporting_registration = ReportingRegistration()
-    records = reporting_registration.read(reporting_id)
-
-    if not records:  # No records = Reporting Id not found
-        return None
-    else:  # One or more records
-        for i, record in enumerate(records):
-            if record['timestamp'] > to_time:
-                break
-
-            if i < len(records) - 1:  # If next item exists in 'records' list
-                # Condition for calculating 'from_time_unit'
-                if from_time <= record['timestamp'] < records[i + 1]['timestamp']:
-                    record['from_time_unit'] = record['timestamp']
-                elif record['timestamp'] < from_time < records[i + 1]['timestamp']:
-                    record['from_time_unit'] = from_time
-                elif record['timestamp'] < records[i + 1]['timestamp'] <= from_time:
-                    continue
-
-                # Condition for calculating 'to_time_unit'
-                if record['from_time_unit'] < records[i + 1]['timestamp'] < to_time:
-                    record['to_time_unit'] = time_functions.subtract_seconds(
-                        records[i + 1]['timestamp'], 1)
-                    # Condition for next loop
-                    from_time = records[i + 1]['timestamp']
-                elif to_time <= records[i + 1]['timestamp']:
-                    record['to_time_unit'] = to_time
-                    # Condition for next loop
-                    from_time = records[i + 1]['timestamp']
-
-            elif i == len(records) - 1:  # If this is the last item in 'records' list
-                # Condition for calculating 'from_time_unit'
-                if record['timestamp'] <= from_time:
-                    record['from_time_unit'] = from_time
-                elif from_time < record['timestamp'] <= to_time:
-                    record['from_time_unit'] = record['timestamp']
-
-                record['to_time_unit'] = to_time
-
-        return records
 
 
 def create_feature_data(
