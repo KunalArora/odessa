@@ -279,9 +279,22 @@ class TestGetHistoryLogs(unittest.TestCase):
         output = json.loads(output['body'])
         self.assertEqual(output['code'], 400)
         self.assertEqual(
-            output['message'], f"Parameter 'log_service_id' has invalid value: {json.loads(input)['log_service_id']}")
+            output['message'], f"Parameter 'log_service_id' has incorrect value: {json.loads(input)['log_service_id']}")
         self.assertTrue(output['device_id'])
         self.assertFalse(output['data'])
+
+        with open(
+                f'{self.path}/../../data/history_logs/bad_requests/get_history_logs_log_service_id_empty_value.json'
+        ) as data_file:
+            input = json.dumps(json.load(data_file))
+        output = handler.get_history_logs({'body': input}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 400)
+        self.assertEqual(
+            output['message'], f"Parameter 'log_service_id' has incorrect value: {json.loads(input)['log_service_id']}")
+        self.assertFalse(output['data'])
+        self.assertTrue('device_id' not in output)
+        self.assertTrue('reporting_id' in output and output['reporting_id'])
 
     def test_device_not_found_on_get_history_logs(self):
         with open(

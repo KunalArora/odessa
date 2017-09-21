@@ -166,13 +166,29 @@ def get_history_logs(event, context):
 
         if 'log_service_id' in request_body:
             log_service_id = str(request_body['log_service_id'])
+            if log_service_id == "": # empty
+                logger.warning(
+                    f"BadRequest on handler:get_history_logs, "
+                    "Reason: Parameter 'log_service_id' has empty value: "
+                    f"on event {event}")
+                return history_logs_response(
+                    odessa_response_codes.BAD_REQUEST, reporting_id, device_id,
+                    message=f"Parameter 'log_service_id' has incorrect "
+                    f"value: {log_service_id}")
         else:
             log_service_id = '0'
 
         # Test if log_service_id doesn't exist in database
         oid = service_oid.read(log_service_id)
         if not oid:
-            raise helper.ServiceIdError(event)
+            logger.warning(
+                f"BadRequest on handler:get_history_logs, "
+                "Reason: Parameter 'log_service_id' has incorrect value: "
+                f"on event {event}")
+            return history_logs_response(
+                odessa_response_codes.BAD_REQUEST, reporting_id, device_id,
+                message=f"Parameter 'log_service_id' has incorrect "
+                f"value: {log_service_id}")
 
         # Find out the corresponding object ids from features
         # Features which do not exist (if any) are also returned
@@ -299,14 +315,6 @@ def get_history_logs(event, context):
 
         return odessa_response
 
-    except helper.ServiceIdError as e:
-        logger.warning(
-            f"BadRequest on handler:get_history_logs, Reason: Parameter "
-            f"'log_service_id' has invalid value: {log_service_id} "
-            f"on event {event}")
-        return history_logs_response(
-            odessa_response_codes.BAD_REQUEST, reporting_id, device_id,
-            message=f"Parameter 'log_service_id' has invalid value: {log_service_id}")
     except (ConnectionError, ClientError) as e:
         logger.error(e)
         logger.warning(

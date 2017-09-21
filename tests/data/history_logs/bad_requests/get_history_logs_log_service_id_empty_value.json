@@ -1,0 +1,8 @@
+{
+    "log_service_id": "",
+    "reporting_id": "eeeeeeee-eeee-eeee-eeee-eeeeeeee0002",
+    "features": ["Total_Page_Count"],
+    "from": "2017-01-01T00:00:00+00:00",
+    "to": "2017-03-01T00:00:00+00:00",
+    "time_unit": "Daily"
+}
