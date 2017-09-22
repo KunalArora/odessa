@@ -63,25 +63,11 @@ provider:
     - Effect: Allow
       Action:
         - s3:ListBucket
-      Resource:
-        - 'Fn::Join':
-          - ''
-          -
-            - 'arn:aws:s3:::'
-            - Ref: 'dev-odessa-eu-email'
-            - Ref: 'qas-odessa-eu-email'
-            - Ref: 'odessa-eu-email'
-    - Effect: Allow
-      Action:
         - s3:GetObject
       Resource:
-        - 'Fn::Join':
-          - ''
-          -
-            - 'arn:aws:s3:::'
-            - Ref: 'dev-odessa-eu-email/*'
-            - Ref: 'qas-odessa-eu-email/*'
-            - Ref: 'odessa-eu-email/*'
+            - 'arn:aws:s3:::dev-odessa-eu-email/*'
+            - 'arn:aws:s3:::qas-odessa-eu-email/*'
+            - 'arn:aws:s3:::odessa-eu-email/*'
 package:
   exclude:
     - .env/**

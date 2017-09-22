@@ -13,6 +13,7 @@ from os import environ
 from botocore.client import Config
 import yaml
 import os
+import traceback
 
 logger = logging.getLogger('email_notifications')
 logger.setLevel(logging.INFO)
@@ -22,9 +23,11 @@ def save_mail_report(event, context):
     mail_log_data = {}
     xml_parsed_field_map_dict = {}
     csv_parsed_field_map_dict = {}
+    logger.info(f"Request parameter: {event}")
 
     try:
         request = json.loads(event["Records"][0]['Sns']['Message'])
+
         email_from = request['mail']['commonHeaders']['from'][0]
         country_code = email_from[-2:]
         subject_present = False
@@ -63,8 +66,9 @@ def save_mail_report(event, context):
             attachments = find_attachments(msg)
             for cdisp, part in attachments:
                 extension = cdisp['filename'].split('.')[1]
-                attach_data = str(part.get_payload(decode=True),
-                    part.get_content_charset())
+                mail_charset = part.get_content_charset()
+                encoding= mail_charset if mail_charset else 'utf-8'
+                attach_data = str(part.get_payload(decode=True), encoding)
 
             if extension == 'xml':
                 root = ET.fromstring(attach_data)
@@ -100,13 +104,9 @@ def save_mail_report(event, context):
                 f'handler:email_notifications email notifications functionality '
                 f'is not enabled for the specified country {country_code}')
     except ValueError as e:
-        logger.warning(
-            f'handler:email_notifications value error in the '
-            f'request for event {event}')
+        logger.warning(traceback.format_exc())
     except TypeError as e:
-        logger.warning(
-            f'handler:email_notifications type error in the '
-            f'request for event {event}')
+        logger.warning(traceback.format_exc())
     except ConnectionError as e:
         logger.error(e)
         logger.warning(

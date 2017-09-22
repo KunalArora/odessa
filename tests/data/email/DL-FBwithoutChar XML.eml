@@ -85,7 +85,7 @@ Content-Transfer-Encoding: BASE64
 U2VlIHRoZSBhdHRhY2htZW50IGZvciB0aGUgaW5mb3JtYXRpb24=
 
 --boundary_str
-Content-Type: text/xml; charset="UTF-8";
+Content-Type: text/xml; 
     name="Report.xml"
 Content-Disposition: attachment;
     filename="Report.xml"

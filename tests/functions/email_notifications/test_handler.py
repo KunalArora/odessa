@@ -107,10 +107,24 @@ class EmailNotificationTestCase(unittest.TestCase):
 		self.assertTrue('serial_number' in after_keys[0])
 		self.assertTrue('timestamp' in after_keys[0])
 
-	def test_successful_xml_email_data(self):
+	def test_successful_xml_email_data_without_charset_in_mail(self):
 		table = self.dynamodb.Table('device_email_logs')
 		before_keys = table.scan()['Items']
-		event_data = json.load(open('tests/data/email_notifications/successful_xml_event.json'))
+		event_data = json.load(open('tests/data/email_notifications/successful_xml_event_without_charset.json'))
+		res = run_func(
+			event = event_data,
+			context = []
+			)
+		after_keys = table.scan()['Items']
+		self.assertNotEqual(before_keys, after_keys)
+		self.assertEqual((len(after_keys)-len(before_keys)), 1)
+		self.assertTrue('serial_number' in after_keys[0])
+		self.assertTrue('timestamp' in after_keys[0])
+
+	def test_successful_xml_email_data_with_charset_in_mail(self):
+		table = self.dynamodb.Table('device_email_logs')
+		before_keys = table.scan()['Items']
+		event_data = json.load(open('tests/data/email_notifications/successful_xml_event_with_charset.json'))
 		res = run_func(
 			event = event_data,
 			context = []

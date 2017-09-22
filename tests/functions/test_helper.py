@@ -468,16 +468,20 @@ def seed_s3(self):
                                    )
     try:
         bucket = self.s3client.create_bucket(Bucket='email-test')
-        bucket.put_object(Key='DL-FB XML.eml',
-                          Body=open('tests/data/email/DL-FB XML.eml', 'rb'))
+        bucket.put_object(Key='DL-BFwithChar XML.eml',
+                          Body=open('tests/data/email/DL-BFwithChar XML.eml', 'rb'))
+        bucket.put_object(Key='DL-FBwithoutChar XML.eml',
+                          Body=open('tests/data/email/DL-FBwithoutChar XML.eml', 'rb'))
         bucket.put_object(Key='DL-FB CSV.eml',
                           Body=open('tests/data/email/DL-FB CSV.eml', 'rb'))
     except ClientError as err:
         error_code = err.response['Error']['Code']
         if error_code == 'BucketAlreadyOwnedByYou':
             bucket = self.s3client.Bucket('email-test')
-            bucket.put_object(Key='DL-FB XML.eml',
-                              Body=open('tests/data/email/DL-FB XML.eml', 'rb'))
+            bucket.put_object(Key='DL-BFwithChar XML.eml',
+                              Body=open('tests/data/email/DL-BFwithChar XML.eml', 'rb'))
+            bucket.put_object(Key='DL-FBwithoutChar XML.eml',
+                              Body=open('tests/data/email/DL-FBwithoutChar XML.eml', 'rb'))
             bucket.put_object(Key='DL-FB CSV.eml',
                               Body=open('tests/data/email/DL-FB CSV.eml', 'rb'))
 
