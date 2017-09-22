@@ -221,6 +221,32 @@ class TestGetHistoryLogs(unittest.TestCase):
         self.assertTrue('device_id' not in output)
         self.assertTrue('reporting_id' in output and output['reporting_id'])
 
+    def test_bad_request_features_empty_value_on_get_history_logs(self):
+        with open(
+                f'{self.path}/../../data/history_logs/bad_requests/get_history_logs_features_empty_value.json'
+        ) as data_file:
+            input = json.load(data_file)
+        input_device_id = json.dumps(input[0])
+        output = handler.get_history_logs({'body': input_device_id}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 400)
+        self.assertEqual(output['message'],
+                         f"Parameter 'features' has incorrect value: {json.loads(input_device_id)['features']}")
+        self.assertFalse(output['data'])
+        self.assertTrue('device_id' in output and output['device_id'])
+        self.assertTrue('reporting_id' not in output)
+
+        input_reporting_id = json.dumps(input[1])
+        output = handler.get_history_logs(
+            {'body': input_reporting_id}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 400)
+        self.assertEqual(output['message'],
+                         f"Parameter 'features' has incorrect value: {json.loads(input_reporting_id)['features']}")
+        self.assertFalse(output['data'])
+        self.assertTrue('device_id' not in output)
+        self.assertTrue('reporting_id' in output and output['reporting_id'])
+
     def test_bad_request_device_id_invalid_format_on_get_history_logs(self):
         with open(
                 f'{self.path}/../../data/history_logs/bad_requests/get_history_logs_device_id_invalid_format.json'
@@ -376,12 +402,21 @@ class TestGetHistoryLogs(unittest.TestCase):
         with open(
                 f'{self.path}/../../data/history_logs/success/get_history_logs_success_parameter_features_is_string.json'
         ) as data_file:
-            input = json.dumps(json.load(data_file))
-        output = handler.get_history_logs({'body': input}, 'dummy')
+            input = json.load(data_file)
+        input_device_id = json.dumps(input[0])
+        output = handler.get_history_logs({'body': input_device_id}, 'dummy')
         output = json.loads(output['body'])
         self.assertEqual(output['code'], 207)
         self.assertEqual(output['message'], 'Partial Success')
         self.assertEqual(len(output['data']), 3)
+
+        input_reporting_id = json.dumps(input[1])
+        output = handler.get_history_logs(
+            {'body': input_reporting_id}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 207)
+        self.assertEqual(output['message'], 'Partial Success')
+        self.assertEqual(len(output['data']), 2)
 
     def test_logs_not_found_on_get_history_logs(self):
         with open(

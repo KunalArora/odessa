@@ -145,9 +145,12 @@ def get_history_logs(event, context):
     original_feature_list = request_body['features']
 
     # Test if parameter 'features' is not a list or a string
-    if not isinstance(original_feature_list, list):
-        if isinstance(original_feature_list, str):
-            original_feature_list = original_feature_list.split()
+    if (not original_feature_list
+        or not isinstance(original_feature_list, list)):
+        if (isinstance(original_feature_list, str)
+            and original_feature_list):
+            original_feature_list = [
+                f.strip() for f in original_feature_list.split(',')]
         else:
             logger.warning(
                 f"BadRequest on handler:get_history_logs, "
