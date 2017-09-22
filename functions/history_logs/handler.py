@@ -84,18 +84,19 @@ def get_history_logs(event, context):
                 or re.match(helper.GUID_REGEX, device_id) is None):
             logger.warning(
                 f"BadRequest on handler:get_history_logs, "
-                f"Reason: Parameter 'device_id' = {device_id} has incorrect format")
+                f"Reason: Parameter 'device_id' has incorrect value: {device_id}")
             return history_logs_response(
                 odessa_response_codes.BAD_REQUEST, device_id=device_id, message=f"Parameter "
-                f"'device_id' = '{device_id}' has incorrect value")
+                f"'device_id' has incorrect value: '{device_id}'")
 
-    if reporting_id == "":
-        logger.warning(
-            f"BadRequest on handler:get_history_logs, "
-            f"Reason: Parameter 'reporting_id' has empty value")
-        return history_logs_response(
-            odessa_response_codes.BAD_REQUEST, reporting_id, message=f"Parameter "
-            f"'reporting_id' = '{reporting_id}' has incorrect value")
+    if reporting_id is not None:
+        if (not isinstance(reporting_id, str) or reporting_id == ""):
+            logger.warning(
+                f"BadRequest on handler:get_history_logs, "
+                f"Reason: Parameter 'reporting_id' has incorrect value")
+            return history_logs_response(
+                odessa_response_codes.BAD_REQUEST, reporting_id, message=f"Parameter "
+                f"'reporting_id' has incorrect value: '{reporting_id}'")
 
     from_time = request_body['from']
     to_time = request_body['to']

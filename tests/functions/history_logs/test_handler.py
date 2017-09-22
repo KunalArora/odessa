@@ -267,7 +267,7 @@ class TestGetHistoryLogs(unittest.TestCase):
         output = json.loads(output['body'])
         self.assertEqual(output['code'], 400)
         self.assertEqual(
-            output['message'], f"Parameter 'device_id' = '{json.loads(input)['device_id']}' has incorrect value")
+            output['message'], f"Parameter 'device_id' has incorrect value: '{json.loads(input)['device_id']}'")
         self.assertFalse(output['data'])
 
         with open(
@@ -278,7 +278,7 @@ class TestGetHistoryLogs(unittest.TestCase):
         output = json.loads(output['body'])
         self.assertEqual(output['code'], 400)
         self.assertEqual(
-            output['message'], f"Parameter 'device_id' = '{json.loads(input)['device_id']}' has incorrect value")
+            output['message'], f"Parameter 'device_id' has incorrect value: '{json.loads(input)['device_id']}'")
         self.assertFalse(output['data'])
 
     def test_bad_request_device_id_value_empty_on_get_history_logs(self):
@@ -290,11 +290,11 @@ class TestGetHistoryLogs(unittest.TestCase):
         output = json.loads(output['body'])
         self.assertEqual(output['code'], 400)
         self.assertEqual(
-            output['message'], f"Parameter 'device_id' = '{json.loads(input)['device_id']}' has incorrect value")
+            output['message'], f"Parameter 'device_id' has incorrect value: '{json.loads(input)['device_id']}'")
         self.assertFalse(output['data'])
         self.assertTrue('reporting_id' not in output)
 
-    def test_bad_request_reporting_id_value_empty_on_get_history_logs(self):
+    def test_bad_request_reporting_id_incorrect_value_on_get_history_logs(self):
         with open(
                 f'{self.path}/../../data/history_logs/bad_requests/get_history_logs_reporting_id_value_empty.json'
         ) as data_file:
@@ -303,7 +303,19 @@ class TestGetHistoryLogs(unittest.TestCase):
         output = json.loads(output['body'])
         self.assertEqual(output['code'], 400)
         self.assertEqual(
-            output['message'], f"Parameter 'reporting_id' = '{json.loads(input)['reporting_id']}' has incorrect value")
+            output['message'], f"Parameter 'reporting_id' has incorrect value: '{json.loads(input)['reporting_id']}'")
+        self.assertFalse(output['data'])
+        self.assertTrue('device_id' not in output)
+
+        with open(
+                f'{self.path}/../../data/history_logs/bad_requests/get_history_logs_reporting_id_incorrect_format.json'
+        ) as data_file:
+            input = json.dumps(json.load(data_file))
+        output = handler.get_history_logs({'body': input}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 400)
+        self.assertEqual(
+            output['message'], f"Parameter 'reporting_id' has incorrect value: '{json.loads(input)['reporting_id']}'")
         self.assertFalse(output['data'])
         self.assertTrue('device_id' not in output)
 
