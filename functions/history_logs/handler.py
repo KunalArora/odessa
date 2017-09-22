@@ -99,9 +99,7 @@ def get_history_logs(event, context):
 
     from_time = request_body['from']
     to_time = request_body['to']
-
-    # Convert time_unit to lower case always
-    time_unit = request_body['time_unit'].lower()
+    time_unit = request_body['time_unit']
 
     try:
         # Test for incorrect format of parameters 'from' and 'to' or if value
@@ -134,13 +132,17 @@ def get_history_logs(event, context):
                 f"'to' has incorrect value: {to_time}")
 
     # Test for incorrect value of parameter 'time_unit'
-    if time_unit not in time_functions.TIME_UNIT_VALUES:
+    if (not isinstance(time_unit, str)
+        or time_unit.lower() not in time_functions.TIME_UNIT_VALUES):
         logger.warning(
             f"BadRequest on handler:get_history_logs, "
             f"Reason: Parameter 'time_unit' has incorrect value: {time_unit}")
         return history_logs_response(
             odessa_response_codes.BAD_REQUEST, reporting_id, device_id, message=f"Parameter "
             f"'time_unit' has incorrect value: {request_body['time_unit']}")
+
+    # Convert time_unit to lower case
+    time_unit = time_unit.lower()
 
     original_feature_list = request_body['features']
 

@@ -195,6 +195,17 @@ class TestGetHistoryLogs(unittest.TestCase):
         self.assertTrue('device_id' not in output)
         self.assertTrue('reporting_id' in output and output['reporting_id'])
 
+        input_reporting_id = json.dumps(input[2])
+        output = handler.get_history_logs(
+            {'body': input_reporting_id}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 400)
+        self.assertEqual(
+            output['message'], f"Parameter 'time_unit' has incorrect value: {json.loads(input_reporting_id)['time_unit']}")
+        self.assertFalse(output['data'])
+        self.assertTrue('device_id' not in output)
+        self.assertTrue('reporting_id' in output and output['reporting_id'])
+
     def test_bad_request_features_not_a_list_or_string_on_get_history_logs(self):
         with open(
                 f'{self.path}/../../data/history_logs/bad_requests/get_history_logs_features_not_a_list_or_string.json'
