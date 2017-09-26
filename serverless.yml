@@ -15,6 +15,7 @@ provider:
     - Effect: Allow
       Action:
         - dynamodb:Query
+        - dynamodb:Scan
         - dynamodb:GetItem
         - dynamodb:PutItem
         - dynamodb:UpdateItem
@@ -190,8 +191,7 @@ functions:
     handler: functions/subscriptions/async.run_unsubscribe
 
   handle_device_events:
-    name: handle_device_events
-    handler: functions/device_events/handle.handle_device_events
+    handler: functions/device_events/handler.handle_device_events
 
   get_latest_logs:
     handler: functions/device_logs/handler.get_latest_logs
