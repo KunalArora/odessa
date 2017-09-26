@@ -34,6 +34,8 @@ class DeviceSubscription(Base):
         self.status = int(subscription['status'])
         self.message = subscription['message']
 
+        return self
+
     def get_record(self, device_id, log_service_id):
         subscription = {}
 
