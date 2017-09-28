@@ -41,6 +41,12 @@ def get_history_logs(event, context):
 
     device_id = None
     reporting_id = None
+    client_origin = None
+
+    if 'headers' in event:
+        request_headers = json.loads(event['headers'])
+        if 'origin' in request_headers:
+            client_origin = request_headers['origin']
 
     try:
         request_body = json.loads(event['body'])
@@ -51,7 +57,7 @@ def get_history_logs(event, context):
             f'{event}')
         return history_logs_response(
             odessa_response_codes.BAD_REQUEST, message="Request Body has "
-            "incorrect format"
+            "incorrect format", client_origin=client_origin
         )
 
     if 'reporting_id' in request_body:
@@ -65,7 +71,7 @@ def get_history_logs(event, context):
             f'reporting_id/device_id')
         return history_logs_response(
             odessa_response_codes.BAD_REQUEST, message=f'Parameters Missing: '
-            f'reporting_id/device_id')
+            f'reporting_id/device_id', client_origin=client_origin)
 
     for param in QUERY_PARAMS_LIST:
         if param not in request_body:
@@ -77,8 +83,9 @@ def get_history_logs(event, context):
             f'Reason: Parameters missing from Request Body: '
             f'{missing_params_list}')
         return history_logs_response(
-            odessa_response_codes.BAD_REQUEST, reporting_id, device_id, message=f'Parameters Missing: '
-            f"{', '.join(missing_params_list)}")
+            odessa_response_codes.BAD_REQUEST, reporting_id, device_id,
+            message=f"Parameters Missing: {', '.join(missing_params_list)}",
+            client_origin=client_origin)
 
     if device_id is not None:
         if (not isinstance(device_id, str)
@@ -87,8 +94,9 @@ def get_history_logs(event, context):
                 f"BadRequest on handler:get_history_logs, "
                 f"Reason: Parameter 'device_id' has incorrect value: {device_id}")
             return history_logs_response(
-                odessa_response_codes.BAD_REQUEST, device_id=device_id, message=f"Parameter "
-                f"'device_id' has incorrect value: '{device_id}'")
+                odessa_response_codes.BAD_REQUEST, device_id=device_id,
+                message=f"Parameter 'device_id' has incorrect value: '{device_id}'",
+                client_origin=client_origin)
 
     if reporting_id is not None:
         if (not isinstance(reporting_id, str) or reporting_id == ""):
@@ -97,7 +105,8 @@ def get_history_logs(event, context):
                 f"Reason: Parameter 'reporting_id' has incorrect value")
             return history_logs_response(
                 odessa_response_codes.BAD_REQUEST, reporting_id, message=f"Parameter "
-                f"'reporting_id' has incorrect value: '{reporting_id}'")
+                f"'reporting_id' has incorrect value: '{reporting_id}'",
+                client_origin=client_origin)
 
     from_time = request_body['from']
     to_time = request_body['to']
@@ -116,7 +125,8 @@ def get_history_logs(event, context):
                 f"parameter 'to' = {to_time}")
             return history_logs_response(
                 odessa_response_codes.BAD_REQUEST, reporting_id, device_id, message="Parameter "
-                f"'from' = {from_time} should be less than parameter 'to' = {to_time}")
+                f"'from' = {from_time} should be less than parameter 'to' = {to_time}",
+                client_origin=client_origin)
     except (TypeError, ValueError) as e:
         if parsed_from_time is None:
             logger.warning(
@@ -124,14 +134,15 @@ def get_history_logs(event, context):
                 "Reason: Parameter 'from' has incorrect format")
             return history_logs_response(
                 odessa_response_codes.BAD_REQUEST, reporting_id, device_id, message=f"Parameter "
-                f"'from' has incorrect value: {from_time}")
+                f"'from' has incorrect value: {from_time}",
+                client_origin=client_origin)
         else:
             logger.warning(
                 f"BadRequest on handler:get_history_logs, error occured = {e}"
                 "Reason: Parameter 'to' has incorrect format")
             return history_logs_response(
                 odessa_response_codes.BAD_REQUEST, reporting_id, device_id, message=f"Parameter "
-                f"'to' has incorrect value: {to_time}")
+                f"'to' has incorrect value: {to_time}", client_origin=client_origin)
 
     # Test for incorrect value of parameter 'time_unit'
     if (not isinstance(time_unit, str)
@@ -141,7 +152,8 @@ def get_history_logs(event, context):
             f"Reason: Parameter 'time_unit' has incorrect value: {time_unit}")
         return history_logs_response(
             odessa_response_codes.BAD_REQUEST, reporting_id, device_id, message=f"Parameter "
-            f"'time_unit' has incorrect value: {request_body['time_unit']}")
+            f"'time_unit' has incorrect value: {request_body['time_unit']}",
+            client_origin=client_origin)
 
     # Convert time_unit to lower case
     time_unit = time_unit.lower()
@@ -162,7 +174,8 @@ def get_history_logs(event, context):
                 f"is not a list or string")
             return history_logs_response(
                 odessa_response_codes.BAD_REQUEST, reporting_id, device_id, message="Parameter "
-                f"'features' has incorrect value: {request_body['features']}")
+                f"'features' has incorrect value: {request_body['features']}",
+                client_origin=client_origin)
 
     # Remove redundancy from features list
     original_feature_list = list(OrderedDict.fromkeys(original_feature_list))
@@ -181,7 +194,7 @@ def get_history_logs(event, context):
                 return history_logs_response(
                     odessa_response_codes.BAD_REQUEST, reporting_id, device_id,
                     message=f"Parameter 'log_service_id' has incorrect "
-                    f"value: {log_service_id}")
+                    f"value: {log_service_id}", client_origin=client_origin)
         else:
             log_service_id = '0'
 
@@ -195,7 +208,7 @@ def get_history_logs(event, context):
             return history_logs_response(
                 odessa_response_codes.BAD_REQUEST, reporting_id, device_id,
                 message=f"Parameter 'log_service_id' has incorrect "
-                f"value: {log_service_id}")
+                f"value: {log_service_id}", client_origin=client_origin)
 
         # Find out the corresponding object ids from features
         # Features which do not exist (if any) are also returned
@@ -228,7 +241,8 @@ def get_history_logs(event, context):
                         key: val for key, val in object_id_list.items() if key in subscribed_oids}
             else:  # Device not found
                 return history_logs_response(
-                    odessa_response_codes.DEVICE_NOT_FOUND, device_id=device_id)
+                    odessa_response_codes.DEVICE_NOT_FOUND,
+                    device_id=device_id, client_origin=client_origin)
 
             # Erasing duplicates in case of features' type being count_type etc.
             unsubscribed_features_list.extend(
@@ -253,7 +267,8 @@ def get_history_logs(event, context):
                 # Reporting Id not found
                 return history_logs_response(
                     odessa_response_codes.DEVICE_NOT_FOUND, reporting_id,
-                        message="Reporting ID Not Found")
+                        message="Reporting ID Not Found",
+                        client_origin=client_origin)
 
             for record in reporting_records:
                 if (
@@ -287,7 +302,7 @@ def get_history_logs(event, context):
                             "subscribed (currently or in the past)")
                         return history_logs_response(
                             odessa_response_codes.DB_CONTRADICTION_ERROR,
-                            reporting_id)
+                            reporting_id, client_origin=client_origin)
 
                     # Erasing duplicates in case of features' type being count_type etc.
                     unsubscribed_features_list.extend(
@@ -315,7 +330,7 @@ def get_history_logs(event, context):
 
         # Create the history logs API response body
         odessa_response = create_response_body(
-            response_data, reporting_id, device_id)
+            response_data, reporting_id, device_id, client_origin=client_origin)
 
         logger.info(
             f'handler:get_history_logs, response status code: '
@@ -329,7 +344,8 @@ def get_history_logs(event, context):
             f'Database Error on handler:get_history_logs '
             f'on event {event}. Traceback: {traceback.format_exc()}')
         return history_logs_response(
-            odessa_response_codes.DB_CONNECTION_ERROR, reporting_id, device_id)
+            odessa_response_codes.DB_CONNECTION_ERROR,
+            reporting_id, device_id, client_origin=client_origin)
     except:  # pragma: no cover
         # Unkown error
         logger.error(sys.exc_info())
@@ -337,7 +353,8 @@ def get_history_logs(event, context):
             f'Unknown Error occurred on handler:get_history_logs on '
             f'event {event}. Traceback: {traceback.format_exc()}')
         return history_logs_response(
-            odessa_response_codes.INTERNAL_SERVER_ERROR, device_id)
+            odessa_response_codes.INTERNAL_SERVER_ERROR,
+            device_id, client_origin=client_origin)
 
 
 def create_feature_data(
@@ -401,44 +418,53 @@ def create_feature_format(feature, error_code, value=None, updated=None):
     return response
 
 
-def create_response_body(data, reporting_id=None, device_id=None):
+def create_response_body(
+        data, reporting_id=None, device_id=None, client_origin=None):
     # Data for none of the features could be parsed
     if all(feature['error_code'] == feature_response_codes.INTERNAL_SERVER_ERROR for feature in data):
         return history_logs_response(
-            odessa_response_codes.ERROR, reporting_id, device_id, data)
+            odessa_response_codes.ERROR, reporting_id, device_id,
+            data, client_origin=client_origin)
     # None of the features were found to be valid
     elif all(feature['error_code'] == feature_response_codes.FEATURE_NOT_FOUND for feature in data):
         return history_logs_response(
-            odessa_response_codes.BAD_REQUEST, reporting_id, device_id, data, message="Features Not Found")
+            odessa_response_codes.BAD_REQUEST, reporting_id, device_id,
+            data, message="Features Not Found", client_origin=client_origin)
     # None of the features are/were subscribed
     elif all(feature['error_code'] == feature_response_codes.FEATURE_NOT_SUBSCRIBED for feature in data):
         return history_logs_response(
-            odessa_response_codes.FEATURES_NOT_SUBSCRIBED, reporting_id, device_id, data)
+            odessa_response_codes.FEATURES_NOT_SUBSCRIBED, reporting_id,
+            device_id, data, client_origin=client_origin)
     # Log data for none of the features could be found for the specified time period
     elif all(feature['error_code'] == feature_response_codes.LOGS_NOT_FOUND for feature in data):
         return history_logs_response(
-            odessa_response_codes.LOGS_NOT_FOUND, reporting_id, device_id, data)
+            odessa_response_codes.LOGS_NOT_FOUND, reporting_id, device_id,
+            data, client_origin=client_origin)
     # Data retrieved successfully for all features
     elif all(feature['error_code'] == feature_response_codes.SUCCESS for feature in data):
         return history_logs_response(
-            odessa_response_codes.SUCCESS, reporting_id, device_id, data)
+            odessa_response_codes.SUCCESS, reporting_id,
+            device_id, data, client_origin=client_origin)
     # Rest of the cases fall into the Partial Success category
     else:
         return history_logs_response(
-            odessa_response_codes.PARTIAL_SUCCESS, reporting_id, device_id, data)
+            odessa_response_codes.PARTIAL_SUCCESS, reporting_id,
+            device_id, data, client_origin=client_origin)
 
 
-def history_logs_response(error_code, reporting_id='', device_id='', data=[], message=None):
+def history_logs_response(
+        error_code, reporting_id='', device_id='', data=[], message=None, client_origin=None):
     if reporting_id:
         return helper.create_odessa_response(
             error_code, {'reporting_id': reporting_id, 'data': data},
-            message, cors=True)
+            message, cors=True, client_origin=client_origin)
 
     elif device_id:
         return helper.create_odessa_response(
             error_code, {'device_id': device_id, 'data': data},
-            message, cors=True)
+            message, cors=True, client_origin=client_origin)
 
     else:
         return helper.create_odessa_response(
-            error_code, {'data': data}, message, cors=True)
+            error_code, {'data': data}, message,
+            cors=True, client_origin=client_origin)

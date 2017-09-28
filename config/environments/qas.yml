@@ -9,3 +9,6 @@ S3_SECRET_KEY: ''
 THRESHOLD_TIME_UNIT_BOC: '16' #In Hours
 THRESHOLD_TIME_UNIT_EMAIL: '120' #In Hours
 STAGE: 'qas'
+
+# To add more URLs, append the URL in the string like 'URLA, URLB, URLC, etc.' separated by commas
+AUTHORIZED_ORIGINS: 'https://qas-boc-mgt01.brother.co.jp'

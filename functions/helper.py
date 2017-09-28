@@ -69,7 +69,8 @@ def device_settings_response(error_code, device_id='', message=None, data=[]):
         error_code, {'device_id': device_id, 'data': data}, message)
 
 
-def create_odessa_response(error_code, result, message=None, cors=False):
+def create_odessa_response(
+        error_code, result, message=None, cors=False, client_origin=None):
     body = {
         'code': error_code,
         'message': message if message else odessa_response_message(error_code)
@@ -88,9 +89,20 @@ def create_odessa_response(error_code, result, message=None, cors=False):
                 f'{data_path}/../config/response_headers.json'
         ) as data_file:
             input = json.load(data_file)
+
+        headers = input
+
+        authorized_origins = [
+            o.strip() for o in environ['AUTHORIZED_ORIGINS'].split(',')]
+
+        if client_origin:
+            if (client_origin in authorized_origins
+                or 'http://localhost:' in client_origin):
+                headers['Access-Control-Allow-Origin'] = client_origin
+
         return {
             'statusCode': 200,
-            'headers': input,
+            'headers': headers,
             'body': json.dumps(body)
         }
 
