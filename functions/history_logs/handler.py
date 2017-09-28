@@ -17,6 +17,7 @@ from os import environ
 from pymib.mib import MIB
 import re
 import sys
+import traceback
 
 
 QUERY_PARAMS_LIST = ['features', 'from', 'to', 'time_unit']
@@ -317,7 +318,8 @@ def get_history_logs(event, context):
             response_data, reporting_id, device_id)
 
         logger.info(
-            f'handler:get_history_logs, response: {json.dumps(odessa_response)}')
+            f'handler:get_history_logs, response status code: '
+            f"{odessa_response['statusCode']}")
 
         return odessa_response
 
@@ -325,14 +327,15 @@ def get_history_logs(event, context):
         logger.error(e)
         logger.warning(
             f'Database Error on handler:get_history_logs '
-            f'on event {event}')
+            f'on event {event}. Traceback: {traceback.format_exc()}')
         return history_logs_response(
             odessa_response_codes.DB_CONNECTION_ERROR, reporting_id, device_id)
     except:  # pragma: no cover
         # Unkown error
         logger.error(sys.exc_info())
         logger.warning(
-            f'Unknown Error occurred on handler:get_history_logs on event {event}')
+            f'Unknown Error occurred on handler:get_history_logs on '
+            f'event {event}. Traceback: {traceback.format_exc()}')
         return history_logs_response(
             odessa_response_codes.INTERNAL_SERVER_ERROR, device_id)
 

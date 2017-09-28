@@ -11,6 +11,7 @@ from models.reporting_registration import ReportingRegistration
 from models.service_oid import ServiceOid
 import re
 import sys
+import traceback
 
 
 QUERY_PARAMS_LIST = ['from', 'to']
@@ -232,8 +233,8 @@ def get_history_statuses(event, context):
             db_res, reporting_id, device_id)
 
         logger.info(
-            f'handler:get_history_statuses, '
-            f'response: {json.dumps(odessa_response)}')
+            f'handler:get_history_statuses, response status code: '
+            f"{odessa_response['statusCode']}")
 
         return odessa_response
 
@@ -241,7 +242,7 @@ def get_history_statuses(event, context):
         logger.error(e)
         logger.warning(
             f'Database Error on handler:get_history_statuses '
-            f'on event {event}')
+            f'on event {event}. Traceback: {traceback.format_exc()}')
         return history_statuses_response(
             odessa_response_codes.DB_CONNECTION_ERROR, reporting_id, device_id)
     except Exception:  # pragma: no cover
@@ -249,7 +250,7 @@ def get_history_statuses(event, context):
         logger.error(sys.exc_info())
         logger.warning(
             f'Unknown Error occurred on handler:get_history_statuses '
-            f'on event {event}')
+            f'on event {event}. Traceback: {traceback.format_exc()}')
         return history_statuses_response(
             odessa_response_codes.INTERNAL_SERVER_ERROR, device_id)
 
