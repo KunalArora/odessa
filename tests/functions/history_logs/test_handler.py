@@ -844,11 +844,11 @@ class TestGetHistoryLogs(unittest.TestCase):
                 f'{self.path}/../../data/history_logs/success/get_history_logs_response_has_correct_headers.json'
         ) as data_file:
             input = json.load(data_file)
-        headers = json.dumps(input['headers'])
+        headers = input['headers']
         body = json.dumps(input['body'])
         output = handler.get_history_logs({'headers': headers, 'body': body}, 'dummy')
         self.assertTrue(output['headers'])
-        self.assertEqual(output['headers']['Access-Control-Allow-Origin'], json.loads(headers)['origin'])
+        self.assertEqual(output['headers']['Access-Control-Allow-Origin'], headers['origin'])
 
         with open(
                 f'{self.path}/../../data/history_logs/success/get_history_logs_success.json'

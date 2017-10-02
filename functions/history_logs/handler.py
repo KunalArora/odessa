@@ -44,7 +44,7 @@ def get_history_logs(event, context):
     client_origin = None
 
     if 'headers' in event:
-        request_headers = json.loads(event['headers'])
+        request_headers = event['headers']
         if 'origin' in request_headers:
             client_origin = request_headers['origin']
 
