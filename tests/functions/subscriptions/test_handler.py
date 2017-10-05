@@ -278,7 +278,7 @@ class UnsubscribeTestCase(unittest.TestCase):
         self.assertEqual(output["devices"][0]["error_code"], 200)
         self.assertEqual(output["devices"][0]["device_id"],
                          "ffffffff-ffff-ffff-ffff-ffffff0wrong")
-        self.assertEqual(output["devices"][0]["message"], "Not Subscribed")
+        self.assertEqual(output["devices"][0]["message"], "Not subscribed")
         self.assertEqual(output["code"], 200)
         self.assertEqual(output["message"], "Success")
         output = handler.unsubscribe(
@@ -290,7 +290,7 @@ class UnsubscribeTestCase(unittest.TestCase):
         self.assertEqual(output["code"], 200)
         self.assertEqual(output["devices"][0]["device_id"],
                          "ffffffff-ffff-ffff-ffff-fffff1string")
-        self.assertEqual(output["devices"][0]["message"], "Not Subscribed")
+        self.assertEqual(output["devices"][0]["message"], "Not subscribed")
         self.assertEqual(output["code"], 200)
 
     def test_unsubscribe_subscription_error_device(self):
@@ -304,11 +304,11 @@ class UnsubscribeTestCase(unittest.TestCase):
         self.assertEqual(output["devices"][0]["error_code"], 200)
         self.assertEqual(output["devices"][0]["device_id"],
                          "ffffffff-ffff-ffff-ffff-ffffff000003")
-        self.assertEqual(output["devices"][0]["message"], "Not Subscribed")
+        self.assertEqual(output["devices"][0]["message"], "Not subscribed")
         self.assertEqual(output["devices"][1]["error_code"], 200)
         self.assertEqual(output["devices"][1]["device_id"],
                          "ffffffff-ffff-ffff-ffff-ffffff000004")
-        self.assertEqual(output["devices"][1]["message"], "Not Subscribed")
+        self.assertEqual(output["devices"][1]["message"], "Not subscribed")
         self.assertEqual(output["code"], 200)
         self.assertEqual(output["message"], "Success")
 

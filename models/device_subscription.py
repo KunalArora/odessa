@@ -309,7 +309,7 @@ class DeviceSubscription(Base):
 
 def device_error_message(error_code):
     error_map = {
-        NOT_SUBSCRIBED: 'Not Subscribed',
+        NOT_SUBSCRIBED: 'Not subscribed',
         DEVICE_NOT_FOUND: 'Device not found',
         SUBSCRIBED: 'Subscribed',
         UNSUBSCRIBED: 'Unsubscribed',
