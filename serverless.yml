@@ -283,7 +283,7 @@ resources:
           - AttributeName: id
             AttributeType: S
         ProvisionedThroughput:
-          ReadCapacityUnits: 1
+          ReadCapacityUnits: 5
           WriteCapacityUnits: 1
     DeviceNetworkStatuses:
       Type: 'AWS::DynamoDB::Table'
@@ -300,8 +300,8 @@ resources:
           - AttributeName: timestamp
             KeyType: RANGE
         ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
+          ReadCapacityUnits: 50
+          WriteCapacityUnits: 5
     DeviceLogs:
       Type: 'AWS::DynamoDB::Table'
       Properties:
@@ -317,8 +317,8 @@ resources:
           - AttributeName: timestamp
             KeyType: RANGE
         ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
+          ReadCapacityUnits: 50
+          WriteCapacityUnits: 5
     ReportingRegistrations:
       Type: 'AWS::DynamoDB::Table'
       Properties:
@@ -351,5 +351,5 @@ resources:
           - AttributeName: timestamp
             KeyType: RANGE
         ProvisionedThroughput:
-          ReadCapacityUnits: 1
+          ReadCapacityUnits: 10
           WriteCapacityUnits: 1
