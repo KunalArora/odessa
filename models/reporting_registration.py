@@ -1,4 +1,5 @@
 from boto3.dynamodb.conditions import Key
+from boto3.dynamodb.conditions import Attr
 from helpers import time_functions
 from models.base import Base
 
@@ -13,6 +14,7 @@ class ReportingRegistration(Base):
         store_data['reporting_id'] = data['reporting_id']
         store_data['timestamp'] = time_functions.current_utc_time()
         store_data['communication_type'] = data['communication_type']
+        store_data['log_service_id'] = data['log_service_id']
         if data['communication_type'] == 'cloud':
             store_data['device_id'] = data['device_id']
         else:
@@ -21,18 +23,19 @@ class ReportingRegistration(Base):
             Item=store_data)
 
 
-    def read(self, reporting_id):
+    def read(self, reporting_id, log_service_id):
         result = self.table.query(
-            KeyConditionExpression=Key('reporting_id').eq(
-                reporting_id))
+            KeyConditionExpression=Key('reporting_id').eq(reporting_id),
+            FilterExpression=Attr('log_service_id').eq(log_service_id)
+            )
         if result['Items']:
             return result['Items']
 
 
     # Get reporting records in a particular time interval
     # Also return the adjusted time intervals for accurate searching
-    def get_reporting_records(self, reporting_id, from_time, to_time):
-        records = self.read(reporting_id)
+    def get_reporting_records(self, reporting_id, log_service_id, from_time, to_time):
+        records = self.read(reporting_id, log_service_id)
 
         if not records:  # No records = Reporting Id not found
             return None

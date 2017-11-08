@@ -190,7 +190,7 @@ def get_history_statuses(event, context):
 
         elif reporting_id:
             reporting_records = reporting_registration.get_reporting_records(
-                reporting_id, from_time, to_time)
+                reporting_id, log_service_id, from_time, to_time)
             if not reporting_records:
                 # Reporting Id not found
                 return history_statuses_response(

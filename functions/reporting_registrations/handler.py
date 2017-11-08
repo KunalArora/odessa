@@ -26,10 +26,13 @@ def save_reporting_registration(event, context):
             return res_basic
         subscribe_res = True
 
-        service_id = str(request['log_service_id']) if 'log_service_id' in request and request['log_service_id'] else '0'
+        if 'log_service_id' in request and request['log_service_id']:
+            request['log_service_id'] = str(request['log_service_id'])
+        else:
+            request['log_service_id'] = '0'
         comm_type = request['communication_type'].lower()
 
-        oid = service_oid.read(service_id)
+        oid = service_oid.read(request['log_service_id'])
         if not oid:
             logger.warning(
                 "handler:reporting_registration Log service Id doesn't exist "
@@ -78,7 +81,7 @@ def save_reporting_registration(event, context):
                 return helper.reporting_registration_response(BAD_REQUEST, DEVICE_ID_NOT_STRING)
             if request['device_id']:
                 subscribe_res = device_subscription.verify_subscribe(
-                    request['device_id'], service_id)
+                    request['device_id'], request['log_service_id'])
 
         if subscribe_res:
             request['communication_type'] = comm_type
@@ -110,7 +113,7 @@ def save_reporting_registration(event, context):
             "handler:reporting_registration Dynamodb Client Error "
             "for request {}".format(request))
         return helper.reporting_registration_response(DB_CONNECTION_ERROR)
-    except: 
+    except:
         logger.warning(
             "handler:reporting_registration Unknown Error "
             "for request {}".format(request))

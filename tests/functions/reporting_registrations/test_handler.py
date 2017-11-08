@@ -312,9 +312,11 @@ class TestReportingRegistrations(unittest.TestCase):
         self.assertTrue('timestamp' in after_keys[0])
         self.assertTrue('communication_type' in after_keys[0])
         self.assertTrue('device_id' in after_keys[0])
+        self.assertTrue('log_service_id' in after_keys[0])
         self.assertTrue('serial_number' not in after_keys[0])
-        self.assertEqual(4, len(after_keys[0]))
+        self.assertEqual(5, len(after_keys[0]))
         self.assertEqual('cloud', after_keys[0]['communication_type'])
+        self.assertEqual('0', after_keys[0]['log_service_id'])
 
     def test_communication_type_cloud_device_id_and_serial_number_present_success(self):
         table = self.dynamodb.Table('reporting_registrations')
@@ -337,9 +339,11 @@ class TestReportingRegistrations(unittest.TestCase):
         self.assertTrue('timestamp' in after_keys[0])
         self.assertTrue('communication_type' in after_keys[0])
         self.assertTrue('device_id' in after_keys[0])
+        self.assertTrue('log_service_id' in after_keys[0])
         self.assertTrue('serial_number' not in after_keys[0])
-        self.assertEqual(4, len(after_keys[0]))
+        self.assertEqual(5, len(after_keys[0]))
         self.assertEqual('cloud', after_keys[0]['communication_type'])
+        self.assertEqual('0', after_keys[0]['log_service_id'])
 
     def test_communication_type_email_serial_number_present_only_success(self):
         table = self.dynamodb.Table('reporting_registrations')
@@ -362,8 +366,10 @@ class TestReportingRegistrations(unittest.TestCase):
         self.assertTrue('communication_type' in after_keys[0])
         self.assertTrue('serial_number' in after_keys[0])
         self.assertTrue('device_id' not in after_keys[0])
-        self.assertEqual(4, len(after_keys[0]))
+        self.assertTrue('log_service_id' in after_keys[0])
+        self.assertEqual(5, len(after_keys[0]))
         self.assertEqual('email', after_keys[0]['communication_type'])
+        self.assertEqual('0', after_keys[0]['log_service_id'])
 
     def test_communication_type_email_serial_number_and_device_id_present_success(self):
         table = self.dynamodb.Table('reporting_registrations')
@@ -387,8 +393,10 @@ class TestReportingRegistrations(unittest.TestCase):
         self.assertTrue('communication_type' in after_keys[0])
         self.assertTrue('serial_number' in after_keys[0])
         self.assertTrue('device_id' not in after_keys[0])
-        self.assertEqual(4, len(after_keys[0]))
+        self.assertTrue('log_service_id' in after_keys[0])
+        self.assertEqual(5, len(after_keys[0]))
         self.assertEqual('email', after_keys[0]['communication_type'])
+        self.assertEqual('0', after_keys[0]['log_service_id'])
 
     def test_communication_type_email_not_in_lowercase(self):
         table = self.dynamodb.Table('reporting_registrations')
@@ -406,8 +414,9 @@ class TestReportingRegistrations(unittest.TestCase):
         self.assertEqual(200, res_json['code'])
         self.assertEqual('Success', res_json['message'])
         self.assertEqual((len(after_keys)-len(before_keys)),1)
-        self.assertEqual(4, len(after_keys[0]))
+        self.assertEqual(5, len(after_keys[0]))
         self.assertEqual('email', after_keys[0]['communication_type'])
+        self.assertEqual('0', after_keys[0]['log_service_id'])
 
     def test_communication_type_cloud_not_in_lowercase(self):
         table = self.dynamodb.Table('reporting_registrations')
@@ -426,5 +435,6 @@ class TestReportingRegistrations(unittest.TestCase):
         self.assertEqual(200, res_json['code'])
         self.assertEqual('Success', res_json['message'])
         self.assertEqual((len(after_keys)-len(before_keys)),1)
-        self.assertEqual(4, len(after_keys[0]))
+        self.assertEqual(5, len(after_keys[0]))
         self.assertEqual('cloud', after_keys[0]['communication_type'])
+        self.assertEqual('0', after_keys[0]['log_service_id'])

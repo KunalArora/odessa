@@ -308,6 +308,7 @@ def seed_reporting_registrations_table(self, fixtures_path):
     with table.batch_writer() as batch:
         for report in reporting_registrations:
             reporting_id = report["reporting_id"]
+            log_service_id = report["log_service_id"]
             timestamp = report["timestamp"]
             communication_type = report["communication_type"]
             if communication_type == 'email':
@@ -315,6 +316,7 @@ def seed_reporting_registrations_table(self, fixtures_path):
                 batch.put_item(
                     Item={
                         'reporting_id': reporting_id,
+                        'log_service_id': log_service_id,
                         'timestamp': timestamp,
                         'communication_type': communication_type,
                         'serial_number': serial_number
@@ -325,6 +327,7 @@ def seed_reporting_registrations_table(self, fixtures_path):
                 batch.put_item(
                     Item={
                         'reporting_id': reporting_id,
+                        'log_service_id': log_service_id,
                         'timestamp': timestamp,
                         'communication_type': communication_type,
                         'device_id': device_id
