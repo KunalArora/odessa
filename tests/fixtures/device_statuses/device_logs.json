@@ -1,0 +1,22 @@
+[
+  {
+    "id" : "ffffffff-ffff-ffff-ffff-ffffffff0003#1.3.6.1.4.1.2435.2.3.9.4.2.1.5.5.10.0",
+    "timestamp" : "2017-02-01T12:23:01",
+    "value" : "000104000012E9FF"
+  },
+  {
+    "id" : "ffffffff-ffff-ffff-ffff-ffffffff0004#1.3.6.1.4.1.2435.2.3.9.4.2.1.5.5.10.0",
+    "timestamp" : "2017-02-01T10:23:01",
+    "value" : "000104000012E9FF"
+  },
+  {
+    "id" : "ffffffff-ffff-ffff-ffff-ffffffff0004#1.3.6.1.4.1.2435.2.3.9.4.2.1.5.5.10.0",
+    "timestamp" : "2017-02-02T17:23:01",
+    "value" : "000104000012E9FF"
+  },
+  {
+    "id" : "ffffffff-ffff-ffff-ffff-ffffffff0004#1.3.6.1.4.1.2435.2.3.9.4.2.1.5.5.10.0",
+    "timestamp" : "2017-02-03T17:23:01",
+    "value" : "000104000012E9FF"
+  }
+]

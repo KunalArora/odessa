@@ -164,7 +164,8 @@ def create_table(self):
             TableName=schema['TableName'],
             KeySchema=schema['KeySchema'],
             AttributeDefinitions=schema['AttributeDefinitions'],
-            ProvisionedThroughput=schema['ProvisionedThroughput']
+            ProvisionedThroughput=schema['ProvisionedThroughput'],
+            GlobalSecondaryIndexes=schema['GlobalSecondaryIndexes']
         )
     except ClientError as e:
         if e.response['Error']['Code'] == 'ResourceInUseException':
@@ -173,7 +174,8 @@ def create_table(self):
                 TableName=schema['TableName'],
                 KeySchema=schema['KeySchema'],
                 AttributeDefinitions=schema['AttributeDefinitions'],
-                ProvisionedThroughput=schema['ProvisionedThroughput']
+                ProvisionedThroughput=schema['ProvisionedThroughput'],
+                GlobalSecondaryIndexes=schema['GlobalSecondaryIndexes']
             )
     with open(
             f'{path}/../../db/migrations/device_email_logs.json'
@@ -189,6 +191,26 @@ def create_table(self):
     except ClientError as e:
         if e.response['Error']['Code'] == 'ResourceInUseException':
             self.dynamodb.Table('device_email_logs').delete()
+            self.dynamodb.create_table(
+                TableName=schema['TableName'],
+                KeySchema=schema['KeySchema'],
+                AttributeDefinitions=schema['AttributeDefinitions'],
+                ProvisionedThroughput=schema['ProvisionedThroughput']
+            )
+    with open(
+            f'{path}/../../db/migrations/device_statuses.json'
+    ) as json_file:
+        schema = json.load(json_file)['Table']
+    try:
+        self.dynamodb.create_table(
+            TableName=schema['TableName'],
+            KeySchema=schema['KeySchema'],
+            AttributeDefinitions=schema['AttributeDefinitions'],
+            ProvisionedThroughput=schema['ProvisionedThroughput']
+        )
+    except ClientError as e:
+        if e.response['Error']['Code'] == 'ResourceInUseException':
+            self.dynamodb.Table('device_statuses').delete()
             self.dynamodb.create_table(
                 TableName=schema['TableName'],
                 KeySchema=schema['KeySchema'],
@@ -335,6 +357,26 @@ def seed_reporting_registrations_table(self, fixtures_path):
                 )
 
 
+def seed_device_statuses_table(self, fixtures_path):
+    table = self.dynamodb.Table('device_statuses')
+    with open(
+            f'{path}/../fixtures/{fixtures_path}'
+    ) as json_file:
+        device_statuses = json.load(json_file)
+    with table.batch_writer() as batch:
+        for status in device_statuses:
+            batch.put_item(
+                Item={
+                    'reporting_id': status['reporting_id'],
+                    'object_id': status['object_id'],
+                    'timestamp': status['timestamp'],
+                    'data': status['data'],
+                    'created_at': status['created_at'],
+                    'updated_at': status['updated_at'],
+                }
+            )
+
+
 def seed_ddb_device_settings(self):
     create_table(self)
     seed_service_oids_table(self, 'subscriptions/service_oids.json')
@@ -411,6 +453,14 @@ def seed_ddb_history_statuses(self):
         self, 'history_statuses/reporting_registrations.json')
     seed_device_network_statuses_table(
         self, 'history_statuses/device_network_statuses.json')
+
+
+def seed_ddb_device_statuses(self):
+    create_table(self)
+    seed_reporting_registrations_table(
+        self, 'device_statuses/reporting_registrations.json')
+    seed_device_statuses_table(self, 'device_statuses/device_statuses.json')
+    seed_device_logs_table(self, 'device_statuses/device_logs.json')
 
 
 def clear_db(self):

@@ -1,0 +1,37 @@
+[
+  {
+    "reporting_id": "eeeeeeee-eeee-eeee-eeee-eeeeeeee0000",
+    "log_service_id": "0",
+    "communication_type": "cloud",
+    "device_id": "ffffffff-ffff-ffff-ffff-ffffffff0000",
+    "timestamp": "2017-01-01T00:00:00"
+  },
+  {
+    "reporting_id": "eeeeeeee-eeee-eeee-eeee-eeeeeeee0001",
+    "log_service_id": "0",
+    "communication_type": "cloud",
+    "device_id": "ffffffff-ffff-ffff-ffff-ffffffff0001",
+    "timestamp": "2017-01-01T00:00:00"
+  },
+  {
+    "reporting_id": "eeeeeeee-eeee-eeee-eeee-eeeeeeee0002",
+    "log_service_id": "0",
+    "communication_type": "cloud",
+    "device_id": "ffffffff-ffff-ffff-ffff-ffffffff0002",
+    "timestamp": "2017-01-01T00:00:00"
+  },
+  {
+    "reporting_id": "eeeeeeee-eeee-eeee-eeee-eeeeeeee0003",
+    "log_service_id": "0",
+    "communication_type": "cloud",
+    "device_id": "ffffffff-ffff-ffff-ffff-ffffffff0003",
+    "timestamp": "2017-01-01T00:00:00"
+  },
+  {
+    "reporting_id": "eeeeeeee-eeee-eeee-eeee-eeeeeeee0004",
+    "log_service_id": "0",
+    "communication_type": "cloud",
+    "device_id": "ffffffff-ffff-ffff-ffff-ffffffff0004",
+    "timestamp": "2017-01-01T00:00:00"
+  }
+]

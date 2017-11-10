@@ -1,0 +1,33 @@
+{
+   "Table":
+   {
+     "TableName": "device_statuses",
+     "KeySchema":
+     [
+       {
+         "AttributeName": "reporting_id",
+         "KeyType": "HASH"
+       },
+       {
+         "AttributeName": "object_id",
+         "KeyType": "RANGE"
+       }
+     ],
+     "AttributeDefinitions":
+     [
+       {
+         "AttributeName": "reporting_id",
+         "AttributeType": "S"
+       },
+       {
+         "AttributeName": "object_id",
+         "AttributeType": "S"
+      }
+     ],
+     "ProvisionedThroughput":
+     {
+       "ReadCapacityUnits": 1,
+       "WriteCapacityUnits": 1
+    }
+   }
+ }
