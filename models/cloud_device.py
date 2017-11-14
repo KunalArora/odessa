@@ -1,6 +1,4 @@
 from boto3.dynamodb.conditions import Key
-from boto3.dynamodb.conditions import Attr
-from helpers import time_functions
 from models.base import Base
 
 

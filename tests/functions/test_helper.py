@@ -217,6 +217,26 @@ def create_table(self):
                 AttributeDefinitions=schema['AttributeDefinitions'],
                 ProvisionedThroughput=schema['ProvisionedThroughput']
             )
+    with open(
+            f'{path}/../../db/migrations/push_notification_subscriptions.json'
+    ) as json_file:
+        schema = json.load(json_file)['Table']
+    try:
+        self.dynamodb.create_table(
+            TableName=schema['TableName'],
+            KeySchema=schema['KeySchema'],
+            AttributeDefinitions=schema['AttributeDefinitions'],
+            ProvisionedThroughput=schema['ProvisionedThroughput']
+        )
+    except ClientError as e:
+        if e.response['Error']['Code'] == 'ResourceInUseException':
+            self.dynamodb.Table('push_notification_subscriptions').delete()
+            self.dynamodb.create_table(
+                TableName=schema['TableName'],
+                KeySchema=schema['KeySchema'],
+                AttributeDefinitions=schema['AttributeDefinitions'],
+                ProvisionedThroughput=schema['ProvisionedThroughput']
+            )
 
 
 def seed_service_oids_table(self, fixtures_path):
@@ -377,6 +397,25 @@ def seed_device_statuses_table(self, fixtures_path):
             )
 
 
+def seed_push_notification_subscriptions_table(self, fixtures_path):
+    table = self.dynamodb.Table('push_notification_subscriptions')
+    with open(
+            f'{path}/../fixtures/{fixtures_path}'
+    ) as json_file:
+        _push_notification_subscriptions = json.load(json_file)
+    with table.batch_writer() as batch:
+        for subscription in _push_notification_subscriptions:
+            batch.put_item(
+                Item={
+                    'log_service_id': subscription['log_service_id'],
+                    'object_id': subscription['object_id'],
+                    'notify_url': subscription['notify_url'],
+                    'created_at': subscription['created_at'],
+                    'updated_at': subscription['updated_at'],
+                }
+            )
+
+
 def seed_ddb_device_settings(self):
     create_table(self)
     seed_service_oids_table(self, 'subscriptions/service_oids.json')
@@ -461,6 +500,7 @@ def seed_ddb_device_statuses(self):
         self, 'device_statuses/reporting_registrations.json')
     seed_device_statuses_table(self, 'device_statuses/device_statuses.json')
     seed_device_logs_table(self, 'device_statuses/device_logs.json')
+    seed_push_notification_subscriptions_table(self, 'device_statuses/push_notification_subscriptions.json')
 
 
 def clear_db(self):

@@ -1,0 +1,33 @@
+{
+  "Table":
+  {
+    "TableName": "push_notification_subscriptions",
+    "KeySchema":
+    [
+      {
+        "AttributeName": "reporting_id",
+        "KeyType": "HASH"
+      },
+      {
+        "AttributeName": "object_id",
+        "KeyType": "HASH"
+      }
+    ],
+    "AttributeDefinitions":
+    [
+      {
+        "AttributeName": "reporting_id",
+        "AttributeType": "S"
+      },
+      {
+        "AttributeName": "object_id",
+        "AttributeType": "S"
+      }
+    ],
+    "ProvisionedThroughput":
+    {
+      "ReadCapacityUnits": 1,
+      "WriteCapacityUnits": 1
+    }
+  }
+}
