@@ -2,7 +2,7 @@
   "time_period": 30,
   "device_id" :[
       "ffffffff-ffff-ffff-ffff-ffffff000000",
-      "ffffffff-ffff-ffff-ffff-ffffff000002",
+      "FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFF0002",
       "ffffffff-ffff-ffff-ffff-ffffff000004"
   ]
 }

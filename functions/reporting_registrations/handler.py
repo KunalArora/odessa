@@ -81,7 +81,7 @@ def save_reporting_registration(event, context):
                 return helper.reporting_registration_response(BAD_REQUEST, DEVICE_ID_NOT_STRING)
             if request['device_id']:
                 subscribe_res = device_subscription.verify_subscribe(
-                    request['device_id'], request['log_service_id'])
+                    request['device_id'].lower(), request['log_service_id'])
 
         if subscribe_res:
             request['communication_type'] = comm_type

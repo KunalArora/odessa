@@ -88,8 +88,9 @@ def get_history_logs(event, context):
             client_origin=client_origin)
 
     if device_id is not None:
-        if (not isinstance(device_id, str)
-                or re.match(helper.GUID_REGEX, device_id) is None):
+        if isinstance(device_id, str) and re.match(helper.GUID_REGEX, device_id):
+            device_id = device_id.lower()
+        else:
             logger.warning(
                 f"BadRequest on handler:get_history_logs, "
                 f"Reason: Parameter 'device_id' has incorrect value: {device_id}")

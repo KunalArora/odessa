@@ -75,8 +75,9 @@ def get_history_statuses(event, context):
             f"{', '.join(missing_params_list)}")
 
     if device_id is not None:
-        if (not isinstance(device_id, str)
-                or re.match(helper.GUID_REGEX, device_id) is None):
+        if isinstance(device_id, str) and re.match(helper.GUID_REGEX, device_id):
+            device_id = device_id.lower()
+        else:
             logger.warning(
                 f"BadRequest on handler:get_history_statuses, "
                 f"Reason: Parameter 'device_id' = {device_id} "

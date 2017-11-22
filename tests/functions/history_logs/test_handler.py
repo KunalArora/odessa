@@ -355,7 +355,7 @@ class TestGetHistoryLogs(unittest.TestCase):
         self.assertEqual(output['code'], 404)
         self.assertEqual(
             output['message'], "Device Not Found")
-        self.assertEqual(output['device_id'], json.loads(input)['device_id'])
+        self.assertEqual(output['device_id'], json.loads(input)['device_id'].lower())
         self.assertEqual(output['data'], [])
 
     def test_reporting_id_not_found_on_get_history_logs(self):

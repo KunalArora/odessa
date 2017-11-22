@@ -17,7 +17,7 @@ def save_notify_logs_db(event, context):
     logger.info("Request parameter {}".format(event))
     try:
         request = json.loads(event['body'].replace("\\x22", "\""))
-        device_id = request['device_id'] if 'device_id' in request else ''
+        device_id = request['device_id'].lower() if 'device_id' in request else ''
         notification = request['notification'] if 'notification' in request else ''
         if not device_id:
             logger.warning(

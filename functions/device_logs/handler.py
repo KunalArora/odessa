@@ -49,6 +49,7 @@ def get_latest_logs(event, context):
         device_ids = list(set(device_ids))
 
         for device_id in device_ids:
+            device_id = device_id.lower()
             #   Retrieve object_ids (whose status is Subscribed) for a particular
             #   device_id and service_id from DeviceSubscription table.
             status_res = device_subscription.get_device_status(
@@ -57,7 +58,7 @@ def get_latest_logs(event, context):
             if (status_res and status_res[0]['status'] == 1201):
                 subscribed_offline = True
                 subscribed_offline_timestamp = status_res[0]['updated_at']
-            
+
             #   Retrieve Online_Offline feature value from
             #   DeviceNetworkStatus table
             network_res = device_network_status.get_latest_status(
@@ -79,7 +80,7 @@ def get_latest_logs(event, context):
             elif subscribed_offline:
                 feature = helper.create_feature_format(SUCCESS, 'Online_Offline',
                                                        'offline', subscribed_offline_timestamp)
-                features = helper.create_features_layer([feature])          
+                features = helper.create_features_layer([feature])
                 devices.append(
                     helper.create_devices_layer(features, device_id))
             else:

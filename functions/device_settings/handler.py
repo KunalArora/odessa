@@ -39,7 +39,7 @@ def get(event, context):
     # In case of device_id being a list, choose the first element of the list
     # to be the only device_id to be processed
     if isinstance(device_id, list):
-        device_id = device_id[0]
+        device_id = device_id[0].lower()
 
     if 'log_service_id' in data:
         log_service_id = str(data['log_service_id'])

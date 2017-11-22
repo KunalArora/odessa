@@ -66,6 +66,7 @@ def subscribe(event, context):
 
     for device_id in data['device_id']:
         try:
+            device_id = device_id.lower()
             device_info = DeviceSubscription()
             device_info.read(device_id, log_service_id)
             if not device_info.is_existing():
@@ -181,6 +182,7 @@ def unsubscribe(event, context):
 
     for device_id in data['device_id']:
         try:
+            device_id = device_id.lower()
             device_info = DeviceSubscription()
             device_info.read(device_id, log_service_id)
             if not device_info.is_existing():
@@ -292,6 +294,7 @@ def subscription_info(event, context):
 
     for device_id in data['device_id']:
         try:
+            device_id = device_id.lower()
             device_info = DeviceSubscription()
             device_info.read(device_id, log_service_id)
         except (ClientError, ConnectionError,
