@@ -1,0 +1,41 @@
+{
+  "Records": [
+    {
+      "eventID":"new_status",
+      "eventName":"INSERT",
+      "eventVersion":"1.1",
+      "eventSourceARN": "dummy",
+      "eventSource":"aws:dynamodb",
+      "awsRegion":"us-east-1",
+      "dynamodb":{
+        "ApproximateCreationDateTime":123,
+        "Keys":{
+          "serial_number":{
+            "S":"U63480C3A489941"
+          }
+        },
+        "NewImage":{
+          "timestamp": {
+            "S": "2017-02-05T12:23:01"
+          },
+          "TonerInk_Black": {
+            "S": "100"
+          },
+          "TonerInk_Cyan": {
+            "S": "100"
+          },
+          "unknown1": {
+            "S": "unknown"
+          },
+          "unknown2": {
+            "S": "unknown"
+          },
+          "unknown3": {
+            "S": "unknown"
+          }
+        },
+        "StreamViewType":"NEW_IMAGE"
+      }
+    }
+  ]
+}

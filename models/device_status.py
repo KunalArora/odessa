@@ -18,8 +18,10 @@ class DeviceStatus(Base):
             self.object_id = object_id
             self.timestamp = ddb_res['Item']['timestamp']
             self.data = ddb_res['Item']['data']
+        else:
+            return None
 
-            return self
+        return self
 
     def insert(self, reporting_id, object_id, timestamp, data):
         created_at = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')

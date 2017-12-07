@@ -56,6 +56,13 @@ provider:
             - 'arn:aws:dynamodb'
             - Ref: 'AWS::Region'
             - Ref: 'AWS::AccountId'
+            - 'table/device_email_logs'
+        - 'Fn::Join':
+          - ':'
+          -
+            - 'arn:aws:dynamodb'
+            - Ref: 'AWS::Region'
+            - Ref: 'AWS::AccountId'
             - 'table/device_network_statuses'
     - Effect: Allow
       Action:
@@ -200,7 +207,7 @@ functions:
           path: ${self:custom.httpPath}/devices/log/get
           method: post
 
-  device_status_stream_trigger:
+  cloud_device_status_stream_trigger:
    handler: functions/device_statuses/stream.save_cloud_device_status
    events:
      - stream:
@@ -260,6 +267,17 @@ functions:
 
   save_mail_report:
     handler: functions/email_notifications/handler.save_mail_report
+
+  email_device_status_stream_trigger:
+   handler: functions/device_statuses/stream.save_email_device_status
+   events:
+     - stream:
+         type: dynamodb
+         arn:
+           Fn::GetAtt:
+             - DeviceEmailLogs
+             - StreamArn
+         startingPosition: TRIM_HORIZON
 
   get_history_statuses:
     handler: functions/history_statuses/handler.get_history_statuses
@@ -345,6 +363,8 @@ resources:
             AttributeType: S
           - AttributeName: device_id
             AttributeType: S
+          - AttributeName: serial_number
+            AttributeType: S
         KeySchema:
           - AttributeName: reporting_id
             KeyType: HASH
@@ -357,6 +377,20 @@ resources:
           - IndexName: cloud_devices
             KeySchema:
             - AttributeName: device_id
+              KeyType: HASH
+            - AttributeName: timestamp
+              KeyType: RANGE
+            Projection:
+              NonKeyAttributes:
+              - reporting_id
+              - log_service_id
+              ProjectionType: INCLUDE
+            ProvisionedThroughput:
+              ReadCapacityUnits: 10
+              WriteCapacityUnits: 1
+          - IndexName: email_devices
+            KeySchema:
+            - AttributeName: serial_number
               KeyType: HASH
             - AttributeName: timestamp
               KeyType: RANGE

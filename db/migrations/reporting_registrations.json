@@ -26,6 +26,10 @@
       {
         "AttributeName": "device_id",
         "AttributeType": "S"
+      },
+      {
+        "AttributeName": "serial_number",
+        "AttributeType": "S"
       }
     ],
     "ProvisionedThroughput":
@@ -41,6 +45,34 @@
         [
           {
             "AttributeName": "device_id",
+            "KeyType": "HASH"
+          },
+          {
+            "AttributeName": "timestamp",
+            "KeyType": "RANGE"
+          }
+        ],
+        "Projection":
+        {
+          "NonKeyAttributes":
+          [
+            "reporting_id",
+            "log_service_id"
+          ],
+          "ProjectionType": "INCLUDE"
+        },
+        "ProvisionedThroughput":
+        {
+          "ReadCapacityUnits": 10,
+          "WriteCapacityUnits": 1
+        }
+      },
+      {
+        "IndexName": "email_devices",
+        "KeySchema":
+        [
+          {
+            "AttributeName": "serial_number",
             "KeyType": "HASH"
           },
           {

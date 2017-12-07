@@ -11,7 +11,7 @@ class PushNotificationSubscription(Base):
                 'log_service_id': log_service_id,
                 'object_id': object_id
             })
-        if result['Item']:
+        if 'Item' in result:
             self.log_service_id = result['Item']['log_service_id']
             self.object_id = result['Item']['object_id']
             self.notify_url = result['Item']['notify_url']
