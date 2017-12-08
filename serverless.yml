@@ -290,6 +290,13 @@ functions:
     name: send_push_notification
     handler: functions/push_notification/async.send_push_notification
 
+  get_device_statuses:
+    handler: functions/device_statuses/handler.get_device_statuses
+    events:
+      - http:
+          path: ${self:custom.httpPath}/devices/status
+          method: post
+
 resources:
   Resources:
     DeviceSubscriptions:
