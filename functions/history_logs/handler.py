@@ -421,18 +421,8 @@ def create_feature_format(feature, error_code, value=None, updated=None):
 
 def create_response_body(
         data, reporting_id=None, device_id=None, client_origin=None):
-    # Data for none of the features could be parsed
-    if all(feature['error_code'] == feature_response_codes.INTERNAL_SERVER_ERROR for feature in data):
-        return history_logs_response(
-            odessa_response_codes.ERROR, reporting_id, device_id,
-            data, client_origin=client_origin)
-    # None of the features were found to be valid
-    elif all(feature['error_code'] == feature_response_codes.FEATURE_NOT_FOUND for feature in data):
-        return history_logs_response(
-            odessa_response_codes.BAD_REQUEST, reporting_id, device_id,
-            data, message="Features Not Found", client_origin=client_origin)
     # None of the features are/were subscribed
-    elif all(feature['error_code'] == feature_response_codes.FEATURE_NOT_SUBSCRIBED for feature in data):
+    if all(feature['error_code'] == feature_response_codes.FEATURE_NOT_SUBSCRIBED for feature in data):
         return history_logs_response(
             odessa_response_codes.FEATURES_NOT_SUBSCRIBED, reporting_id,
             device_id, data, client_origin=client_origin)
@@ -446,11 +436,24 @@ def create_response_body(
         return history_logs_response(
             odessa_response_codes.SUCCESS, reporting_id,
             device_id, data, client_origin=client_origin)
-    # Rest of the cases fall into the Partial Success category
-    else:
+    # At least 1 feature has a 2XX response code
+    elif any((feature['error_code'] == feature_response_codes.SUCCESS or
+              feature['error_code'] == feature_response_codes.LOGS_NOT_FOUND or
+              feature['error_code'] == feature_response_codes.PARTIAL_SUCCESS or
+              feature['error_code'] == feature_response_codes.FEATURE_NOT_SUBSCRIBED) for feature in data):
         return history_logs_response(
             odessa_response_codes.PARTIAL_SUCCESS, reporting_id,
             device_id, data, client_origin=client_origin)
+    # None of the features have 2XX response code but have at least 1 404
+    elif any(feature['error_code'] == feature_response_codes.FEATURE_NOT_FOUND for feature in data):
+        return history_logs_response(
+            odessa_response_codes.BAD_REQUEST, reporting_id, device_id,
+            data, message="Features Not Found", client_origin=client_origin)
+    # Data for none of the features could be parsed
+    else:
+        return history_logs_response(
+            odessa_response_codes.ERROR, reporting_id, device_id,
+            data, client_origin=client_origin)
 
 
 def history_logs_response(
