@@ -4,6 +4,7 @@ import email
 import io
 import logging
 import json
+from datetime import datetime
 from config import PrintCountFieldMap
 from models.device_email_log import DeviceEmailLog
 import xml.etree.ElementTree as ET
@@ -97,7 +98,9 @@ def save_mail_report(event, context):
                     f'file extension not yet supported')
                 return
 
-            mail_log_data['timestamp'] = mail_timestamp
+            mail_timestamp = datetime.strptime(mail_timestamp, '%Y-%m-%dT%H:%M:%S.%fZ')
+            mail_timestamp = mail_timestamp.replace(microsecond=0)
+            mail_log_data['timestamp'] = mail_timestamp.isoformat()
             device_email_log.create(mail_log_data)
         else:
             logger.warning(
