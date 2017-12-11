@@ -127,7 +127,8 @@ def create_device_result(reporting_id, device_data, error_code=None):
     if error_code == LOGS_NOT_FOUND or error_code == DEVICE_NOT_FOUND:
         device_result['error_code'] = error_code
     elif all(feature['error_code'] == FEATURE_NOT_FOUND for feature in device_data):
-        device_result['error_code'] = FEATURE_NOT_FOUND
+        # In this case one or more features exist but their logs are not found
+        device_result['error_code'] = PARTIAL_SUCCESS
     elif all(feature['error_code'] == SUCCESS for feature in device_data):
         device_result['error_code'] = SUCCESS
     elif any(feature['error_code'] == SUCCESS for feature in device_data):

@@ -122,6 +122,19 @@ class GetDeviceStatusesTestCase(unittest.TestCase):
                 self.assertTrue('updated' in feature)
                 self.assertEqual(feature['message'], 'Success')
 
+    def test_single_status_unknown_feature_no_logs(self):
+        with open(
+                f'{self.path}/../../data/device_statuses/handler/single_unknown_feature_no_logs.json'
+                ) as data_file:
+            input = json.dumps(json.load(data_file))
+        output = handler.get_device_statuses({'body': input}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 207)
+        self.assertEqual(len(output["devices"]), 1)
+        self.assertEqual(len(output["devices"][0]['data']), 1)
+        self.assertEqual(output["devices"][0]['data'][0]['error_code'], 404)
+        self.assertEqual(output["devices"][0]['error_code'], 207)
+
     def test_multi_status_success(self):
         with open(
                 f'{self.path}/../../data/device_statuses/handler/multi_success.json'
