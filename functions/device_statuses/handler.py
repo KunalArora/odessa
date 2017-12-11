@@ -59,7 +59,6 @@ def get_device_statuses(event, context):
     if missings and not oids:
         return device_statuses_response(BAD_REQUEST, [], '"features" values are invalid')
 
-    device_status = DeviceStatus()
     response_data = []
     for reporting_id in data['reporting_ids']:
         try:
@@ -71,6 +70,7 @@ def get_device_statuses(event, context):
             for missing_feature in missings:
                 feature_results.append(create_feature_result(missing_feature, None, FEATURE_NOT_FOUND))
             for object_id, feature_names in oids.items():
+                device_status = DeviceStatus()
                 device_status.read(reporting_id, object_id)
                 if(device_status.is_existing() and
                    timestamp_newer_than(device_status.timestamp, status_from)):

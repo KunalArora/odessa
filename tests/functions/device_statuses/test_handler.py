@@ -136,9 +136,9 @@ class GetDeviceStatusesTestCase(unittest.TestCase):
         self.assertEqual(len(output["devices"][1]['data']), 4)
         self.assertEqual(output["devices"][1]['error_code'], 200)
 
-    def test_multi_status_partial_success(self):
+    def test_multi_status_partial_success_not_found(self):
         with open(
-                f'{self.path}/../../data/device_statuses/handler/multi_partial_success.json'
+                f'{self.path}/../../data/device_statuses/handler/multi_partial_success_not_found.json'
                 ) as data_file:
             input = json.dumps(json.load(data_file))
         output = handler.get_device_statuses({'body': input}, 'dummy')
@@ -149,6 +149,20 @@ class GetDeviceStatusesTestCase(unittest.TestCase):
         self.assertEqual(output["devices"][0]['error_code'], 404)
         self.assertEqual(len(output["devices"][1]['data']), 4)
         self.assertEqual(output["devices"][1]['error_code'], 200)
+
+    def test_multi_status_partial_success_no_logs(self):
+        with open(
+                f'{self.path}/../../data/device_statuses/handler/multi_partial_success_no_logs.json'
+                ) as data_file:
+            input = json.dumps(json.load(data_file))
+        output = handler.get_device_statuses({'body': input}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 207)
+        self.assertEqual(len(output["devices"]), 2)
+        self.assertEqual(len(output["devices"][0]['data']), 4)
+        self.assertEqual(output["devices"][0]['error_code'], 200)
+        self.assertEqual(len(output["devices"][1]['data']), 0)
+        self.assertEqual(output["devices"][1]['error_code'], 204)
 
     def test_multi_status_unknown_feature(self):
         with open(
