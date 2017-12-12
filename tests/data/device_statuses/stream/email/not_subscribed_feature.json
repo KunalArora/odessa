@@ -1,0 +1,29 @@
+{
+  "Records": [
+    {
+      "eventID":"new_status",
+      "eventName":"INSERT",
+      "eventVersion":"1.1",
+      "eventSourceARN": "dummy",
+      "eventSource":"aws:dynamodb",
+      "awsRegion":"us-east-1",
+      "dynamodb":{
+        "ApproximateCreationDateTime":123,
+        "Keys":{
+          "serial_number":{
+            "S":"U63480C3A489941"
+          }
+        },
+        "NewImage":{
+          "timestamp": {
+            "S": "2017-02-05T12:23:01"
+          },
+          "Print_Page_Count_Executive": {
+            "S": "2"
+          }
+        },
+        "StreamViewType":"NEW_IMAGE"
+      }
+    }
+  ]
+}

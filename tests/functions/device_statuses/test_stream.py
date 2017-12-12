@@ -168,12 +168,24 @@ class StreamTestCase(unittest.TestCase):
         self.assertEqual(before, after)
         mock.assert_not_called()
 
-    def test_outdated_email_device_status(self):
+    def test_unknown_features(self):
         with open(
                 f'{self.path}/../../data/device_statuses/stream/email/unknown_features.json'
                 ) as data_file:
             input = json.load(data_file)
         timestamp = (input['Records'][0]['dynamodb']['NewImage']['timestamp']['S'])
+        serial_number = input['Records'][0]['dynamodb']['Keys']['serial_number']['S']
+        before = get_email_device_status(self, serial_number)
+        self.assertTrue(before)
+        stream.save_email_device_status(input, 'dummy')
+        after = get_email_device_status(self, serial_number)
+        self.assertEqual(before, after)
+
+    def test_not_subscribed_feature(self):
+        with open(
+                f'{self.path}/../../data/device_statuses/stream/email/not_subscribed_feature.json'
+                ) as data_file:
+            input = json.load(data_file)
         serial_number = input['Records'][0]['dynamodb']['Keys']['serial_number']['S']
         before = get_email_device_status(self, serial_number)
         self.assertTrue(before)

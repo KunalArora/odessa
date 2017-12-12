@@ -4,6 +4,7 @@ import json
 from models.device_status import DeviceStatus
 from models.cloud_device import CloudDevice
 from models.email_device import EmailDevice
+from models.service_oid import ServiceOid
 from models.push_notification_subscription import PushNotificationSubscription
 from functions import helper
 from helpers.time_functions import parse_time
@@ -87,11 +88,15 @@ def save_email_device_status(event, context):
                 features = record['dynamodb']['NewImage']
                 features.pop('timestamp')
 
+                service_oids = ServiceOid().read(email_device.log_service_id)['oids']
                 oids, missings = MIB.search_oid(list(features.keys()))
                 if missings:
                     logger.warning(f'unknown features {missings} saved in email logs')
 
                 for object_id, feature_names in oids.items():
+                    if object_id not in service_oids:
+                        continue
+
                     device_status = DeviceStatus()
                     device_status.read(email_device.reporting_id, object_id)
                     notify_data = []

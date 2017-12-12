@@ -498,6 +498,7 @@ def seed_ddb_history_statuses(self):
 
 def seed_ddb_device_statuses(self):
     create_table(self)
+    seed_service_oids_table(self, 'device_statuses/service_oids.json')
     seed_reporting_registrations_table(
         self, 'device_statuses/reporting_registrations.json')
     seed_device_statuses_table(self, 'device_statuses/device_statuses.json')
