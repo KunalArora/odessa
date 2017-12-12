@@ -15,14 +15,19 @@ class DeviceEmailLog(Base):
 
     def get_latest_log_in_interval(
             self, db_query_params, original_feature_list):
+        expression_attribute_names = {"#ts": "timestamp"}
+        projection_expression = ['#ts']
+        for i, feature in enumerate(original_feature_list):
+            expression_attribute_names[f"#{i}"] = feature
+            projection_expression.append(f"#{i}")
         db_res = self.table.query(
             KeyConditionExpression=Key('serial_number').eq(
                 db_query_params['serial_number']) &
             Key('timestamp').between(
                 db_query_params['from_time'], db_query_params['to_time']
             ),
-            ProjectionExpression=f"#ts, {', '.join(original_feature_list)}",
-            ExpressionAttributeNames={"#ts": "timestamp"},
+            ProjectionExpression=', '.join(projection_expression),
+            ExpressionAttributeNames=expression_attribute_names,
             ScanIndexForward=False, Limit=1
         )
         if db_res['Items']:
@@ -30,13 +35,18 @@ class DeviceEmailLog(Base):
 
     def get_all_logs_in_interval(
             self, db_query_params, original_feature_list):
+        expression_attribute_names = {"#ts": "timestamp"}
+        projection_expression = ['#ts']
+        for i, feature in enumerate(original_feature_list):
+            expression_attribute_names[f"#{i}"] = feature
+            projection_expression.append(f"#{i}")
         response = self.table.query(
             KeyConditionExpression=Key('serial_number').eq(
                 db_query_params['serial_number']) &
             Key('timestamp').between(
                 db_query_params['from_time'], db_query_params['to_time']),
-            ProjectionExpression=f"#ts, {', '.join(original_feature_list)}",
-            ExpressionAttributeNames={"#ts": "timestamp"}
+            ProjectionExpression=', '.join(projection_expression),
+            ExpressionAttributeNames=expression_attribute_names
         )
         result = []
 

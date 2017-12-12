@@ -464,6 +464,7 @@ def seed_ddb_history_logs(self):
             drum_count = email_log["Drum_Count"]
             tonerink_black = email_log["TonerInk_Black"]
             tonerink_cyan = email_log["TonerInk_Cyan"]
+            location = email_log["Location"]
             batch.put_item(
                 Item={
                     'serial_number': serial_number,
@@ -471,7 +472,8 @@ def seed_ddb_history_logs(self):
                     'Total_Page_Count': total_page_count,
                     'Drum_Count': drum_count,
                     'TonerInk_Black': tonerink_black,
-                    'TonerInk_Cyan': tonerink_cyan
+                    'TonerInk_Cyan': tonerink_cyan,
+                    'Location': location
                 }
             )
 

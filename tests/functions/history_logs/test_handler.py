@@ -382,7 +382,7 @@ class TestGetHistoryLogs(unittest.TestCase):
         output = json.loads(output['body'])
         self.assertEqual(output['code'], 200)
         self.assertEqual(output['message'], 'Success')
-        self.assertTrue(output['data'])
+        self.assertEqual(len(output['data']), 2)
         for time in output['data'][0]['updated']:
             self.assertTrue(time_functions.parse_time_with_tz(time))
         self.assertTrue('device_id' in output and output['device_id'])
@@ -394,7 +394,19 @@ class TestGetHistoryLogs(unittest.TestCase):
         output = json.loads(output['body'])
         self.assertEqual(output['code'], 200)
         self.assertEqual(output['message'], 'Success')
-        self.assertTrue(output['data'])
+        self.assertEqual(len(output['data']), 2)
+        for time in output['data'][0]['updated']:
+            self.assertTrue(time_functions.parse_time_with_tz(time))
+        self.assertTrue('device_id' not in output)
+        self.assertTrue('reporting_id' in output and output['reporting_id'])
+
+        input_reporting_id = json.dumps(input[2])
+        output = handler.get_history_logs(
+            {'body': input_reporting_id}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 200)
+        self.assertEqual(output['message'], 'Success')
+        self.assertEqual(len(output['data']), 2)
         for time in output['data'][0]['updated']:
             self.assertTrue(time_functions.parse_time_with_tz(time))
         self.assertTrue('device_id' not in output)

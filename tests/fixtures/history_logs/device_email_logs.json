@@ -5,7 +5,8 @@
     "Total_Page_Count" : "100",
     "Drum_Count": "2",
     "TonerInk_Black": "40",
-    "TonerInk_Cyan": "50"
+    "TonerInk_Cyan": "50",
+    "Location": "Brother"
   },
   {
     "serial_number" : "U63480C3A489940",
@@ -13,7 +14,8 @@
     "Total_Page_Count" : "90",
     "Drum_Count": "2",
     "TonerInk_Black": "30",
-    "TonerInk_Cyan": "50"
+    "TonerInk_Cyan": "50",
+    "Location": "Brother"
   },
   {
     "serial_number" : "U63480C3A489940",
@@ -21,7 +23,8 @@
     "Total_Page_Count" : "80",
     "Drum_Count": "2",
     "TonerInk_Black": "40",
-    "TonerInk_Cyan": "30"
+    "TonerInk_Cyan": "30",
+    "Location": "Brother"
   },
   {
     "serial_number" : "U63480C3A489940",
@@ -29,7 +32,8 @@
     "Total_Page_Count" : "100",
     "Drum_Count": "2",
     "TonerInk_Black": "40",
-    "TonerInk_Cyan": "50"
+    "TonerInk_Cyan": "50",
+    "Location": "Brother"
   },
   {
     "serial_number" : "U63480C3A489940",
@@ -37,7 +41,8 @@
     "Total_Page_Count" : "87",
     "Drum_Count": "2",
     "TonerInk_Black": "34",
-    "TonerInk_Cyan": "50"
+    "TonerInk_Cyan": "50",
+    "Location": "Brother"
   },
   {
     "serial_number" : "U63480C3A489940",
@@ -45,7 +50,8 @@
     "Total_Page_Count" : "78",
     "Drum_Count": "2",
     "TonerInk_Black": "40",
-    "TonerInk_Cyan": "32"
+    "TonerInk_Cyan": "32",
+    "Location": "Brother"
   },
   {
     "serial_number" : "U63480C3A489940",
@@ -53,7 +59,8 @@
     "Total_Page_Count" : "100",
     "Drum_Count": "2",
     "TonerInk_Black": "40",
-    "TonerInk_Cyan": "50"
+    "TonerInk_Cyan": "50",
+    "Location": "Brother"
   },
   {
     "serial_number" : "U63480C3A489940",
@@ -61,7 +68,8 @@
     "Total_Page_Count" : "93",
     "Drum_Count": "2",
     "TonerInk_Black": "23",
-    "TonerInk_Cyan": "50"
+    "TonerInk_Cyan": "50",
+    "Location": "Brother"
   },
   {
     "serial_number" : "U63480C3A489940",
@@ -69,7 +77,8 @@
     "Total_Page_Count" : "84",
     "Drum_Count": "2",
     "TonerInk_Black": "40",
-    "TonerInk_Cyan": "40"
+    "TonerInk_Cyan": "40",
+    "Location": "Brother"
   },
   {
     "serial_number" : "U63480C3A489940",
@@ -77,7 +86,8 @@
     "Total_Page_Count" : "89",
     "Drum_Count": "2",
     "TonerInk_Black": "40",
-    "TonerInk_Cyan": "43"
+    "TonerInk_Cyan": "43",
+    "Location": "Brother"
   },
   {
     "serial_number" : "U63480C3A489940",
@@ -85,7 +95,8 @@
     "Total_Page_Count" : "84",
     "Drum_Count": "2",
     "TonerInk_Black": "40",
-    "TonerInk_Cyan": "50"
+    "TonerInk_Cyan": "50",
+    "Location": "Brother"
   },
   {
     "serial_number" : "U63480C3A489940",
@@ -93,6 +104,7 @@
     "Total_Page_Count" : "80",
     "Drum_Count": "2",
     "TonerInk_Black": "30",
-    "TonerInk_Cyan": "30"
+    "TonerInk_Cyan": "30",
+    "Location": "Brother"
   }
 ]
