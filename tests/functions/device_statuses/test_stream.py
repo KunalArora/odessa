@@ -135,7 +135,6 @@ class StreamTestCase(unittest.TestCase):
                     self.assertEqual(device_status['timestamp'], timestamp)
                     self.assertEqual(data['timestamp'], timestamp)
                     self.assertEqual(data['value'], input['Records'][0]['dynamodb']['NewImage'][feature]['S'])
-
         mock.assert_called_with('invoking lambda function:send_push_notification with payload: {"reporting_id": "eeeeeeee-eeee-eeee-eeee-eeeeeeee0006", "object_id": "1.3.6.1.4.1.2435.2.3.9.4.2.1.5.5.8.0", "timestamp": "2017-02-05T12:23:01", "data": [{"feature_name": "Drum_Count", "value": "2"}, {"feature_name": "TonerInk_Black", "value": "40"}, {"feature_name": "TonerInk_Cyan", "value": "50"}], "notify_url": "http://dummy.com"}')
 
     @patch('logging.info')
@@ -144,7 +143,6 @@ class StreamTestCase(unittest.TestCase):
                 f'{self.path}/../../data/device_statuses/stream/email/unchanged_status.json'
                 ) as data_file:
             input = json.load(data_file)
-        timestamp = (input['Records'][0]['dynamodb']['NewImage']['timestamp']['S'])
         serial_number = input['Records'][0]['dynamodb']['Keys']['serial_number']['S']
         before = get_email_device_status(self, serial_number)
         self.assertTrue(before)
@@ -159,7 +157,6 @@ class StreamTestCase(unittest.TestCase):
                 f'{self.path}/../../data/device_statuses/stream/email/outdated_status.json'
                 ) as data_file:
             input = json.load(data_file)
-        timestamp = (input['Records'][0]['dynamodb']['NewImage']['timestamp']['S'])
         serial_number = input['Records'][0]['dynamodb']['Keys']['serial_number']['S']
         before = get_email_device_status(self, serial_number)
         self.assertTrue(before)
@@ -168,12 +165,11 @@ class StreamTestCase(unittest.TestCase):
         self.assertEqual(before, after)
         mock.assert_not_called()
 
-    def test_unknown_features(self):
+    def test_email_unknown_features(self):
         with open(
                 f'{self.path}/../../data/device_statuses/stream/email/unknown_features.json'
                 ) as data_file:
             input = json.load(data_file)
-        timestamp = (input['Records'][0]['dynamodb']['NewImage']['timestamp']['S'])
         serial_number = input['Records'][0]['dynamodb']['Keys']['serial_number']['S']
         before = get_email_device_status(self, serial_number)
         self.assertTrue(before)
@@ -192,6 +188,71 @@ class StreamTestCase(unittest.TestCase):
         stream.save_email_device_status(input, 'dummy')
         after = get_email_device_status(self, serial_number)
         self.assertEqual(before, after)
+
+    def test_full_email_device_log(self):
+        with open(
+                f'{self.path}/../../data/device_statuses/stream/email/full_new_status.json'
+                ) as data_file:
+                input = json.load(data_file)
+        timestamp = (input['Records'][0]['dynamodb']['NewImage']['timestamp']['S'])
+        serial_number = input['Records'][0]['dynamodb']['Keys']['serial_number']['S']
+        self.assertIsNone(get_email_device_status(self, serial_number))
+        stream.save_email_device_status(input, 'dummy')
+        device_statuses = get_email_device_status(self, serial_number)
+        self.assertEqual(len(device_statuses), 9)
+        for device_status in device_statuses:
+            self.assertEqual(device_status['timestamp'], timestamp)
+            for feature, data in device_status['data'].items():
+                self.assertTrue('value' in data)
+                self.assertTrue('timestamp' in data)
+                self.assertEqual(data['timestamp'], timestamp)
+                self.assertEqual(data['value'], input['Records'][0]['dynamodb']['NewImage'][feature]['S'])
+
+    @patch('logging.info')
+    def test_new_email_count_type_status(self, mock):
+        with open(
+                f'{self.path}/../../data/device_statuses/stream/email/count_type_new_status.json'
+                ) as data_file:
+                input = json.load(data_file)
+        timestamp = (input['Records'][0]['dynamodb']['NewImage']['timestamp']['S'])
+        serial_number = input['Records'][0]['dynamodb']['Keys']['serial_number']['S']
+        self.assertIsNone(get_email_device_status(self, serial_number))
+        stream.save_email_device_status(input, 'dummy')
+        device_statuses = get_email_device_status(self, serial_number)
+        print(device_statuses)
+        self.assertEqual(len(device_statuses), 8)
+        for device_status in device_statuses:
+            self.assertEqual(device_status['timestamp'], timestamp)
+            for feature, data in device_status['data'].items():
+                self.assertTrue('value' in data)
+                self.assertTrue('timestamp' in data)
+                self.assertEqual(data['timestamp'], timestamp)
+        self.assertEqual(mock.call_count, 4)
+        mock.assert_called_with('invoking lambda function:send_push_notification with payload: {"reporting_id": "eeeeeeee-eeee-eeee-eeee-eeeeeeee0005", "object_id": "1.3.6.1.4.1.2435.2.3.9.4.2.1.5.5.52.3.1.3.17", "timestamp": "2017-02-01T12:23:01", "data": {"feature_name": "counter_value", "value": "2"}, "notify_url": "http://dummy.com"}')
+
+    @patch('logging.info')
+    def test_updated_email_count_type_status(self, mock):
+        with open(
+                f'{self.path}/../../data/device_statuses/stream/email/count_type_updated_status.json'
+                ) as data_file:
+            input = json.load(data_file)
+        timestamp = (input['Records'][0]['dynamodb']['NewImage']['timestamp']['S'])
+        serial_number = input['Records'][0]['dynamodb']['Keys']['serial_number']['S']
+        before = get_email_device_status(self, serial_number)
+        self.assertEqual(len(before), 8)
+        stream.save_email_device_status(input, 'dummy')
+        device_statuses = get_email_device_status(self, serial_number)
+        self.assertEqual(len(device_statuses), 8)
+        updated_count = 0
+        for device_status in device_statuses:
+            if 'counter_value' in device_status['data'] and device_status['data']['counter_value']['value'] == 'updated':
+                self.assertEqual(device_status['data']['counter_value']['timestamp'], timestamp)
+                updated_count += 1
+            else:
+                self.assertTrue(device_status in before)
+        self.assertEqual(updated_count, 2)
+        self.assertEqual(mock.call_count, 1)
+        mock.assert_called_with('invoking lambda function:send_push_notification with payload: {"reporting_id": "eeeeeeee-eeee-eeee-eeee-eeeeeeee0007", "object_id": "1.3.6.1.4.1.2435.2.3.9.4.2.1.5.5.52.3.1.3.1", "timestamp": "2017-02-02T12:23:01", "data": {"feature_name": "counter_value", "value": "updated"}, "notify_url": "http://dummy.com"}')
 
 
 def get_cloud_device_status(self, device_id, object_id):

@@ -1,0 +1,38 @@
+{
+  "Records": [
+    {
+      "eventID":"new_status",
+      "eventName":"INSERT",
+      "eventVersion":"1.1",
+      "eventSourceARN": "dummy",
+      "eventSource":"aws:dynamodb",
+      "awsRegion":"us-east-1",
+      "dynamodb":{
+        "ApproximateCreationDateTime":123,
+        "Keys":{
+          "serial_number":{
+            "S":"U63480C3A489942"
+          }
+        },
+        "NewImage":{
+          "timestamp": {
+            "S": "2017-02-02T12:23:01"
+          },
+          "Print_Page_Sx_Count_A3LedgerMono": {
+            "S": "updated"
+          },
+          "Print_Page_Sx_Count_4x6Postcard": {
+            "S": "2"
+          },
+          "Print_Mono_Page_SxDx_Count_A3Ledger": {
+            "S": "updated"
+          },
+          "Print_Page_SxDx_Count_LegalB4": {
+            "S": "4"
+          }
+        },
+        "StreamViewType":"NEW_IMAGE"
+      }
+    }
+  ]
+}

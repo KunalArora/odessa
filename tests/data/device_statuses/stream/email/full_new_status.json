@@ -1,0 +1,182 @@
+{
+  "Records":
+  [
+    {
+      "eventID": "8ade9bc9d33246fc4238a24e71954f0d",
+      "eventName": "INSERT",
+      "eventVersion": "1.1",
+      "eventSource": "aws:dynamodb",
+      "awsRegion": "eu-central-1",
+      "dynamodb":
+      {
+        "ApproximateCreationDateTime": 1.513056E9,
+        "Keys":
+        {
+          "serial_number":
+          {
+            "S": "U63480C3A489940"
+          },
+          "timestamp":
+          {
+            "S": "2017-12-12T05:13:07"
+          }
+        },
+        "NewImage":
+        {
+          "Paper_Feeding_Kit_MP_Remaining_Life":
+          {
+            "S": "50000"
+          },
+          "Print_Page_Count_B5Executive":
+          {
+            "S": "0"
+          },
+          "Jam_Total":
+          {
+            "S": "0"
+          },
+          "Jam_Inside":
+          {
+            "S": "0"
+          },
+          "Jam_ADF_2sided":
+          {
+            "S": "0"
+          },
+          "Total_Pages_Scanned_ADF_2sided":
+          {
+            "S": "0"
+          },
+          "Jam_Rear":
+          {
+            "S": "0"
+          },
+          "Laser_Unit_Replace_Count":
+          {
+            "S": "0"
+          },
+          "Print_Page_Count_A5":
+          {
+            "S": "0"
+          },
+          "Drum_Count":
+          {
+            "S": "101"
+          },
+          "Total_Pages_Printed_PC_Print":
+          {
+            "S": "125"
+          },
+          "Laser_Unit_Remaining_Life":
+          {
+            "S": "199871"
+          },
+          "Total_Pages_Scanned_Flatbed":
+          {
+            "S": "138"
+          },
+          "Drum_Unit_Remaining_Life":
+          {
+            "S": "49384"
+          },
+          "Paper_Feeding_Kit_1_Replace_Count":
+          {
+            "S": "0"
+          },
+          "Total_Page_Count":
+          {
+            "S": "129"
+          },
+          "timestamp":
+          {
+            "S": "2017-12-12T05:13:07"
+          },
+          "Black_TonerInk_Replace_Count":
+          {
+            "S": "0"
+          },
+          "Jam_MP_Tray":
+          {
+            "S": "0"
+          },
+          "Print_Page_Count_Envelopes":
+          {
+            "S": "0"
+          },
+          "Device_Type":
+          {
+            "S": "Brother MFC-L6900DW series"
+          },
+          "Paper_Feeding_Kit_1_Remaining_Life":
+          {
+            "S": "199871"
+          },
+          "Print_Page_Count_A4Letter":
+          {
+            "S": "96"
+          },
+          "serial_number":
+          {
+            "S": "U62499D5A306408"
+          },
+          "Total_Pages_Scanned_ADF_1sided":
+          {
+            "S": "3"
+          },
+          "Fuser_Unit_Replace_Count":
+          {
+            "S": "0"
+          },
+          "Date":
+          {
+            "S": "12/11/2017 00:05"
+          },
+          "Contact":
+          {
+            "S": "Toby"
+          },
+          "Mac_Address":
+          {
+            "S": "30:05:5c:77:6c:73"
+          },
+          "Drum_Unit_Replace_Count":
+          {
+            "S": "3"
+          },
+          "Paper_Feeding_Kit_MP_Replace_Count":
+          {
+            "S": "0"
+          },
+          "Jam_2sided":
+          {
+            "S": "0"
+          },
+          "Jam_Tray_1":
+          {
+            "S": "0"
+          },
+          "Total_Pages_Printed_Copy":
+          {
+            "S": "1"
+          },
+          "Jam_ADF_1sided":
+          {
+            "S": "0"
+          },
+          "Fuser_Unit_Remaining_Life":
+          {
+            "S": "199871"
+          },
+          "Location":
+          {
+            "S": "Brother"
+          }
+        },
+        "SequenceNumber": "394633000000000003734899515",
+        "SizeBytes": 943,
+        "StreamViewType": "NEW_IMAGE"
+      },
+      "eventSourceARN": "arn:aws:dynamodb:eu-central-1:217259084697:table/device_email_logs/stream/2017-12-08T04:07:28.860"
+    }
+  ]
+}

@@ -47,5 +47,12 @@
     "communication_type": "email",
     "serial_number": "U63480C3A489941",
     "timestamp": "2017-01-01T00:00:00"
+  },
+  {
+    "reporting_id": "eeeeeeee-eeee-eeee-eeee-eeeeeeee0007",
+    "log_service_id": "0",
+    "communication_type": "email",
+    "serial_number": "U63480C3A489942",
+    "timestamp": "2017-01-01T00:00:00"
   }
 ]
