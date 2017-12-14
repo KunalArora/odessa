@@ -21,15 +21,15 @@ def get_device_statuses(event, context):
     logger.info(event)
     data = json.loads(event['body'])
 
-    if ('reporting_ids' not in data
-            or not (isinstance(data['reporting_ids'], list)
-                    or isinstance(data['reporting_ids'], str))
-            or not len(data['reporting_ids']) > 0):
+    if ('reporting_id' not in data
+            or not (isinstance(data['reporting_id'], list)
+                    or isinstance(data['reporting_id'], str))
+            or not len(data['reporting_id']) > 0):
         logger.warning('BadRequest on get_device_statuses')
-        return device_statuses_response(BAD_REQUEST, [], "Parameter 'reporting_ids' has incorrect value")
-    if isinstance(data['reporting_ids'], str):
-        data['reporting_ids'] = [data['reporting_ids']]
-    data['reporting_ids'] = list(OrderedDict.fromkeys(data['reporting_ids']))
+        return device_statuses_response(BAD_REQUEST, [], "Parameter 'reporting_id' has incorrect value")
+    if isinstance(data['reporting_id'], str):
+        data['reporting_id'] = [data['reporting_id']]
+    data['reporting_id'] = list(OrderedDict.fromkeys(data['reporting_id']))
 
     if ('features' not in data
             or not (isinstance(data['features'], list)
@@ -60,7 +60,7 @@ def get_device_statuses(event, context):
         return device_statuses_response(BAD_REQUEST, [], '"features" values are invalid')
 
     response_data = []
-    for reporting_id in data['reporting_ids']:
+    for reporting_id in data['reporting_id']:
         try:
             if not ReportingRegistration().read(reporting_id, log_service_id):
                 response_data.append(create_device_result(reporting_id, [], DEVICE_NOT_FOUND))

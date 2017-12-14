@@ -1,5 +1,5 @@
 {
-  "reporting_ids": "eeeeeeee-eeee-eeee-eeee-eeeeeeee0001",
+  "reporting_id": "eeeeeeee-eeee-eeee-eeee-eeeeeeee0001",
   "features": ["Drum_Unit", "Drum_Count", "TonerInk_Black", "Total_Page_Count"],
   "from": "2015-01-01T12:23:01+00:00"
 }

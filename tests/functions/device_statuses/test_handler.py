@@ -30,7 +30,7 @@ class GetDeviceStatusesTestCase(unittest.TestCase):
         output = handler.get_device_statuses(
             {'body': json.dumps(
                 {'from': '2016-06-30T12:00:00',
-                 'reporting_ids': 'eeeeeeee-eeee-eeee-eeee-eeeeeeee0001',
+                 'reporting_id': 'eeeeeeee-eeee-eeee-eeee-eeeeeeee0001',
                  'features': ['Drum_Unit', 'TonerInk_Black']})},
             'dummy')
         self.assertEqual(json.loads(output['body'])["code"], 400)
@@ -38,25 +38,25 @@ class GetDeviceStatusesTestCase(unittest.TestCase):
             {'body': json.dumps(
                 {'features': 'unknown_feature',
                  'from': 'bad_date',
-                 'reporting_ids': 'eeeeeeee-eeee-eeee-eeee-eeeeeeee0001'})},
+                 'reporting_id': 'eeeeeeee-eeee-eeee-eeee-eeeeeeee0001'})},
             'dummy')
         self.assertEqual(json.loads(output['body'])["code"], 400)
         output = handler.get_device_statuses(
             {'body': json.dumps(
                 {'features': 'Drum_Unit',
-                 'reporting_ids': []})},
+                 'reporting_id': []})},
             'dummy')
         self.assertEqual(json.loads(output['body'])["code"], 400)
         output = handler.get_device_statuses(
             {'body': json.dumps(
                 {'features': [],
-                 'reporting_ids': ['eeeeeeee-eeee-eeee-eeee-eeeeeeee0001']})},
+                 'reporting_id': ['eeeeeeee-eeee-eeee-eeee-eeeeeeee0001']})},
             'dummy')
         self.assertEqual(json.loads(output['body'])["code"], 400)
         output = handler.get_device_statuses(
             {'body': json.dumps(
                 {'features': ['unknown1', 'unknown2', 'unknown3'],
-                 'reporting_ids': ['eeeeeeee-eeee-eeee-eeee-eeeeeeee0001']})},
+                 'reporting_id': ['eeeeeeee-eeee-eeee-eeee-eeeeeeee0001']})},
             'dummy')
         self.assertEqual(json.loads(output['body'])["code"], 400)
 
