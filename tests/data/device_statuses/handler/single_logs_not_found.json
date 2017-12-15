@@ -1,4 +1,4 @@
 {
   "reporting_id": "eeeeeeee-eeee-eeee-eeee-eeeeeeee0001",
-  "features": ["Drum_Unit", "Drum_Count", "TonerInk_Black", "Total_Page_Count"]
+  "features": ["Drum_Unit", "Drum_Count", "TonerInk_Black", "Total_Page_Count", "Print_Mono_Page_SxDx_Count_LegalB4"]
 }

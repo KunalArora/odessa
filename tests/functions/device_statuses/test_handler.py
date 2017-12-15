@@ -135,6 +135,19 @@ class GetDeviceStatusesTestCase(unittest.TestCase):
         self.assertEqual(output["devices"][0]['data'][0]['error_code'], 404)
         self.assertEqual(output["devices"][0]['error_code'], 207)
 
+    def test_single_status_count_type_feature(self):
+        with open(
+                f'{self.path}/../../data/device_statuses/handler/single_status_count_type_feature.json'
+                ) as data_file:
+            input = json.dumps(json.load(data_file))
+        output = handler.get_device_statuses({'body': input}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 200)
+        self.assertEqual(len(output["devices"]), 1)
+        self.assertEqual(len(output["devices"][0]['data']), 1)
+        self.assertEqual(output["devices"][0]['data'][0]['error_code'], 200)
+        self.assertEqual(output["devices"][0]['error_code'], 200)
+
     def test_multi_status_success(self):
         with open(
                 f'{self.path}/../../data/device_statuses/handler/multi_success.json'
@@ -144,7 +157,7 @@ class GetDeviceStatusesTestCase(unittest.TestCase):
         output = json.loads(output['body'])
         self.assertEqual(output['code'], 200)
         self.assertEqual(len(output["devices"]), 2)
-        self.assertEqual(len(output["devices"][0]['data']), 3)
+        self.assertEqual(len(output["devices"][0]['data']), 5)
         self.assertEqual(output["devices"][0]['error_code'], 200)
         self.assertEqual(len(output["devices"][1]['data']), 4)
         self.assertEqual(output["devices"][1]['error_code'], 200)

@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 from constants.odessa_response_codes import *
 from constants.feature_response_codes import *
 from pymib.mib import MIB
+from pymib.oid import OID
 
 logger = logging.getLogger('device_statuses')
 logger.setLevel(logging.INFO)
@@ -67,17 +68,32 @@ def get_device_statuses(event, context):
                 continue
 
             feature_results = []
+            processed_count_type_features = []
             for missing_feature in missings:
                 feature_results.append(create_feature_result(missing_feature, None, FEATURE_NOT_FOUND))
             for object_id, feature_names in oids.items():
+                oid = OID(object_id)
+                if oid.type in ['count_type', 'counter']:
+                    feature_names = list(set(feature_names) - set(processed_count_type_features))
+                    if not feature_names:
+                        continue
+
                 device_status = DeviceStatus()
                 device_status.read(reporting_id, object_id)
                 if(device_status.is_existing() and
                    timestamp_newer_than(device_status.timestamp, status_from)):
                     for feature_name in feature_names:
                         oid_data = device_status.data
-                        if(feature_name in oid_data and
-                           timestamp_newer_than(oid_data[feature_name]['timestamp'], status_from)):
+                        if(oid.type == 'count_type' and
+                           oid.parse(oid_data['count_type_id']['value']) == feature_name):
+                            processed_count_type_features.append(feature_name)
+                            pair_oid_status = DeviceStatus()
+                            pair_oid_status.read(reporting_id, oid.pair_oid)
+                            if(pair_oid_status.is_existing() and
+                               timestamp_newer_than(pair_oid_status.data['counter_value']['timestamp'], status_from)):
+                                feature_results.append(create_feature_result(feature_name, pair_oid_status.data['counter_value'], SUCCESS))
+                        elif(feature_name in oid_data and
+                             timestamp_newer_than(oid_data[feature_name]['timestamp'], status_from)):
                             feature_results.append(create_feature_result(feature_name, oid_data[feature_name], SUCCESS))
             if feature_results:
                 response_data.append(create_device_result(reporting_id, feature_results))

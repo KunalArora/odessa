@@ -1,5 +1,5 @@
 {
   "reporting_id": "eeeeeeee-eeee-eeee-eeee-eeeeeeee0001",
-  "features": ["Drum_Unit", "Drum_Count", "TonerInk_Black", "Total_Page_Count"],
+  "features": ["Drum_Unit", "Drum_Count", "TonerInk_Black", "Total_Page_Count", "Print_Page_SxDx_Count_A3Ledger"],
   "from": "2017-02-02T18:23:01+00:00"
 }
