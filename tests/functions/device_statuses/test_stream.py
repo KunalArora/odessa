@@ -96,6 +96,44 @@ class StreamTestCase(unittest.TestCase):
         mock.assert_not_called()
 
     @patch('logging.info')
+    def test_count_type_cloud_device(self, mock):
+        with open(
+                f'{self.path}/../../data/device_statuses/stream/cloud/count_type_new_status.json'
+                ) as data_file:
+            input = json.load(data_file)
+        id = input['Records'][0]['dynamodb']['Keys']['id']['S'].split('#')
+        self.assertIsNone(get_cloud_device_status(self, id[0], id[1]))
+        stream.save_cloud_device_status(input, 'dummy')
+        device_status = get_cloud_device_status(self, id[0], id[1])
+        self.assertTrue(device_status)
+        self.assertEqual(len(device_status['data']), 1)
+        self.assertEqual(device_status['timestamp'], input['Records'][0]['dynamodb']['NewImage']['timestamp']['S'])
+        for feature, data in device_status['data'].items():
+            self.assertEqual(feature, 'count_type_id')
+            self.assertTrue('value' in data)
+            self.assertTrue('timestamp' in data)
+            self.assertEqual(data['timestamp'], input['Records'][0]['dynamodb']['NewImage']['timestamp']['S'])
+
+        with open(
+                f'{self.path}/../../data/device_statuses/stream/cloud/counter_new_status.json'
+                ) as data_file:
+            input = json.load(data_file)
+        id = input['Records'][0]['dynamodb']['Keys']['id']['S'].split('#')
+        self.assertIsNone(get_cloud_device_status(self, id[0], id[1]))
+        stream.save_cloud_device_status(input, 'dummy')
+        device_status = get_cloud_device_status(self, id[0], id[1])
+        self.assertTrue(device_status)
+        self.assertEqual(len(device_status['data']), 1)
+        self.assertEqual(device_status['timestamp'], input['Records'][0]['dynamodb']['NewImage']['timestamp']['S'])
+        for feature, data in device_status['data'].items():
+            self.assertEqual(feature, 'counter_value')
+            self.assertTrue('value' in data)
+            self.assertTrue('timestamp' in data)
+            self.assertEqual(data['timestamp'], input['Records'][0]['dynamodb']['NewImage']['timestamp']['S'])
+
+        mock.assert_not_called()
+
+    @patch('logging.info')
     def test_newly_subscribed_email_device(self, mock):
         with open(
                 f'{self.path}/../../data/device_statuses/stream/email/new_status.json'

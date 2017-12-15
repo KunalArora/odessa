@@ -28,7 +28,14 @@ def save_cloud_device_status(event, context):
                 timestamp = record['dynamodb']['NewImage']['timestamp']['S']
                 device_id = device_log_id[0]
                 object_id = device_log_id[1]
-                data = OID(object_id).parse(record['dynamodb']['NewImage']['value']['S'])
+                oid = OID(object_id)
+                data = oid.parse(record['dynamodb']['NewImage']['value']['S'])
+
+                if oid.type == 'count_type':
+                    data = {'count_type_id': record['dynamodb']['NewImage']['value']['S']}
+                elif oid.type == 'counter':
+                    data = {'counter_value': data}
+
                 cloud_device.read(device_id)
                 if not cloud_device.is_existing():
                     logger.warning(f'device_id {device_id} not subscribed to reporting')
