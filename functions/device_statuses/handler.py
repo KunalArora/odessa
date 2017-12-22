@@ -5,6 +5,7 @@ from botocore.exceptions import ClientError
 from botocore.exceptions import ConnectionError
 from collections import OrderedDict
 from models.device_status import DeviceStatus
+from models.device_log import DeviceLog
 from models.reporting_registration import ReportingRegistration
 from functions import helper
 from helpers import time_functions
@@ -63,7 +64,8 @@ def get_device_statuses(event, context):
     response_data = []
     for reporting_id in data['reporting_id']:
         try:
-            if not ReportingRegistration().read(reporting_id, log_service_id):
+            reporting_registration = ReportingRegistration().read(reporting_id, log_service_id)
+            if not reporting_registration:
                 response_data.append(create_device_result(reporting_id, [], DEVICE_NOT_FOUND))
                 continue
 
@@ -83,15 +85,11 @@ def get_device_statuses(event, context):
                 if(device_status.is_existing() and
                    timestamp_newer_than(device_status.timestamp, status_from)):
                     for feature_name in feature_names:
+                        device_id = reporting_registration[0]['device_id']
                         oid_data = device_status.data
-                        if(oid.type == 'count_type' and
-                           oid.parse(oid_data['count_type_id']['value']) == feature_name):
+                        if(oid.type == 'counter' and oid_feature_is_matching(device_id, device_status, feature_name, status_from)):
                             processed_count_type_features.append(feature_name)
-                            pair_oid_status = DeviceStatus()
-                            pair_oid_status.read(reporting_id, oid.pair_oid)
-                            if(pair_oid_status.is_existing() and
-                               timestamp_newer_than(pair_oid_status.data['counter_value']['timestamp'], status_from)):
-                                feature_results.append(create_feature_result(feature_name, pair_oid_status.data['counter_value'], SUCCESS))
+                            feature_results.append(create_feature_result(feature_name, oid_data['counter_value'], SUCCESS))
                         elif(feature_name in oid_data and
                              timestamp_newer_than(oid_data[feature_name]['timestamp'], status_from)):
                             feature_results.append(create_feature_result(feature_name, oid_data[feature_name], SUCCESS))
@@ -158,3 +156,20 @@ def create_device_result(reporting_id, device_data, error_code=None):
 
 def device_statuses_response(error_code, data, message=None):
     return helper.create_odessa_response(error_code, {'devices': data}, message)
+
+
+def oid_feature_is_matching(device_id, device_status, feature_name, status_from):
+    pair_oid = OID(device_status.object_id).pair_oid
+    pair_oid_status = DeviceStatus()
+    pair_oid_status.read(device_status.reporting_id, pair_oid)
+    if (pair_oid_status.is_existing() and
+       OID(pair_oid).parse(pair_oid_status.data['count_type_id']['value']) == feature_name and
+       timestamp_newer_than(device_status.data['counter_value']['timestamp'], status_from)):
+        return True
+    else:
+        log_record = DeviceLog().get_log({'oid': pair_oid}, device_id)
+        if (log_record and log_record['Items'] and
+           OID(pair_oid).parse(log_record['Items'][0]['value']) == feature_name and
+           timestamp_newer_than(device_status.data['counter_value']['timestamp'], status_from)):
+            return True
+    return False
