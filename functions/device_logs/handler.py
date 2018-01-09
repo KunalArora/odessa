@@ -90,7 +90,7 @@ def get_latest_logs(event, context):
                     logger.warning(
                         "handler:device_logs No records found for device {}".format(device_id)
                     )
-                parsed_res = device_log.parse_log_data(log_res)
+                parsed_res = device_log.parse_log_data(log_res, ['Not_Error'])
                 if network_res:
                     parsed_res.append(
                         helper.create_feature_format(SUCCESS, 'Online_Offline',

@@ -130,7 +130,9 @@ class DeviceLog(Base):
         if res['Items']:
             return(res['Items'][0])
 
-    def parse_log_data(self, data):
+    def parse_log_data(self, data, ignore_features=None):
+        if ignore_features is None:
+            ignore_features = []
         parse_data = {}
         response = []
         for item in data['Items']:
@@ -150,10 +152,11 @@ class DeviceLog(Base):
                 response.append(res)
             else:
                 for feat, feat_data in val['value'].items():
-                    res = helper.create_feature_format(
-                        SUCCESS, feat, feat_data, val['timestamp']
-                    )
-                    response.append(res)
+                    if feat not in ignore_features:
+                        res = helper.create_feature_format(
+                            SUCCESS, feat, feat_data, val['timestamp']
+                        )
+                        response.append(res)
         return(response)
 
     # Retrieve latest value for a particular device_id and object_id
