@@ -49,21 +49,21 @@ provider:
             - 'arn:aws:dynamodb'
             - Ref: 'AWS::Region'
             - Ref: 'AWS::AccountId'
-            - 'table/device_logs'
+            - 'table/device_logs/stream/*'
         - 'Fn::Join':
           - ':'
           -
             - 'arn:aws:dynamodb'
             - Ref: 'AWS::Region'
             - Ref: 'AWS::AccountId'
-            - 'table/device_email_logs'
+            - 'table/device_email_logs/stream/*'
         - 'Fn::Join':
           - ':'
           -
             - 'arn:aws:dynamodb'
             - Ref: 'AWS::Region'
             - Ref: 'AWS::AccountId'
-            - 'table/device_network_statuses'
+            - 'table/device_network_statuses/stream/*'
     - Effect: Allow
       Action:
         - lambda:InvokeFunction
@@ -359,6 +359,8 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 50
           WriteCapacityUnits: 5
+        StreamSpecification:
+          StreamViewType: NEW_IMAGE
     ReportingRegistrations:
       Type: 'AWS::DynamoDB::Table'
       Properties:
@@ -426,6 +428,8 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 10
           WriteCapacityUnits: 1
+        StreamSpecification:
+          StreamViewType: NEW_IMAGE
     DeviceStatuses:
       Type: 'AWS::DynamoDB::Table'
       Properties:
