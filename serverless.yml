@@ -288,7 +288,7 @@ functions:
 
   send_push_notification:
     name: send_push_notification
-    handler: functions/push_notification/async.send_push_notification
+    handler: functions/push_notifications/async.send_push_notification
 
   get_device_statuses:
     handler: functions/device_statuses/handler.get_device_statuses
