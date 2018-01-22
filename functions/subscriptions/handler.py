@@ -313,10 +313,6 @@ def subscription_info(event, context):
                 error_code = device_info.get_status()
                 message = device_info.get_message()
                 if device_info.is_offline():
-                    oids = device_info.get_subscribed_oids()
-                    oid_dict = []
-                    for oid in oids:
-                        oid_dict.append({'object_id': oid})
                     helper.invoke_run_get_notify_result(
                         device_id,
                         device_info.get_log_service_id())
