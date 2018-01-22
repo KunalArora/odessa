@@ -590,6 +590,145 @@ class AsyncUnsubscribeTestCase(unittest.TestCase):
         self.assertEqual(int(after['Items'][0]['status']), 2210)
 
 
+class AsyncNotifyResultTestCase(unittest.TestCase):
+    def setUp(self):
+        test_helper.set_env_var(self)
+        self.path = path.dirname(__file__)
+        test_helper.seed_ddb_subscriptions(self)
+        test_helper.seed_ec_subscriptions(self)
+        logging.getLogger('subscriptions:async').setLevel(100)
+
+    def tearDown(self):
+        test_helper.clear_db(self)
+        test_helper.clear_cache(self)
+        test_helper.create_table(self)
+
+    def test_bad_request(self):
+        async.run_get_notify_result({}, 'dummy')
+        with self.assertLogs('subscriptions:async', level='WARNING') as log:
+            logging.getLogger('subscriptions:async').warning(
+                'BadRequest on handler:run_get_notify_result')
+            self.assertEqual(
+                log.output[0],
+                'WARNING:subscriptions:async:BadRequest on handler:run_get_notify_result')
+        async.run_get_notify_result(
+            {"log_service_id": "1"}, 'dummy')
+        with self.assertLogs('subscriptions:async', level='WARNING') as log:
+            logging.getLogger('subscriptions:async').warning(
+                'BadRequest on handler:run_get_notify_result')
+            self.assertEqual(
+                log.output[0],
+                'WARNING:subscriptions:async:BadRequest on handler:run_get_notify_result')
+        async.run_get_notify_result(
+            {"device_id": "ffffffff-ffff-ffff-ffff-ffffff000012"},
+            'dummy')
+        with self.assertLogs('subscriptions:async', level='WARNING') as log:
+            logging.getLogger('subscriptions:async').warning(
+                'BadRequest on handler:run_get_notify_result')
+            self.assertEqual(
+                log.output[0],
+                'WARNING:subscriptions:async:BadRequest on handler:run_get_notify_result')
+
+    @patch('boc.base.Base.post_content')
+    def test_notify_online(self, mock):
+        mock.return_value = {
+            'success': True,
+            'message': 'Success.',
+            'code': 200,
+            'notifications':
+                [{'error_code': '200',
+                  'object_id': '1.3.6.1.2.1.1.4.0',
+                  'status': '70726F78792E62726F746865722E636F2E6A70',
+                  'user_id': '184878',
+                  'timestamp': '2017-06-30 07:09:00'},
+                 {'error_code': '200',
+                  'object_id': '1.3.6.1.2.1.1.6.0',
+                  'status': '70726F78792E62726F746865722E636F2E6A70',
+                  'user_id': '184878',
+                  'timestamp': '2017-06-30 07:09:00'},
+                 {'error_code': '524',
+                  'object_id': '1.3.6.1.2.1.2.2.1.6.1',
+                  'status': '',
+                  'user_id': '184878',
+                  'timestamp': '0'},
+                 {'error_code': '200',
+                  'object_id': '1.3.6.1.2.1.25.3.2.1.3.1',
+                  'status': '70726F78792E62726F746865722E636F2E6A70',
+                  'user_id': '184878',
+                  'timestamp': '2017-06-30 07:09:00'}]}
+        before = test_helper.get_device(
+            self, 'ffffffff-ffff-ffff-ffff-ffffff000014#0')
+        self.assertEqual(len(before['Items'][0]['oids']), 4)
+        self.assertEqual(int(before['Items'][0]['status']), 1201)
+        async.run_get_notify_result({
+            "device_id": "ffffffff-ffff-ffff-ffff-ffffff000014",
+            "log_service_id": "0"}, 'dummy')
+        mock.assert_called()
+        after = test_helper.get_device(
+            self, 'ffffffff-ffff-ffff-ffff-ffffff000014#0')
+        self.assertEqual(len(after['Items'][0]['oids']), 3)
+        self.assertEqual(int(after['Items'][0]['status']), 1200)
+
+    @patch('boc.base.Base.post_content')
+    def test_notify_offline(self, mock):
+        mock.return_value = {
+            'success': True,
+            'message': 'Success.',
+            'code': 200,
+            'notifications':
+                [{'error_code': '404',
+                  'object_id': '1.3.6.1.2.1.1.4.0',
+                  'status': '0',
+                  'user_id': '184878',
+                  'timestamp': '2017-06-30 07:09:00'},
+                 {'error_code': '404',
+                  'object_id': '1.3.6.1.2.1.1.6.0',
+                  'status': '0',
+                  'user_id': '184878',
+                  'timestamp': '2017-06-30 07:09:00'},
+                 {'error_code': '404',
+                  'object_id': '1.3.6.1.2.1.2.2.1.6.1',
+                  'status': '0',
+                  'user_id': '184878',
+                  'timestamp': '2017-06-30 07:09:00'},
+                 {'error_code': '404',
+                  'object_id': '1.3.6.1.2.1.25.3.2.1.3.1',
+                  'status': '0',
+                  'user_id': '184878',
+                  'timestamp': '2017-06-30 07:09:00'}]}
+        before = test_helper.get_device(
+            self, 'ffffffff-ffff-ffff-ffff-ffffff000014#0')
+        self.assertEqual(len(before['Items'][0]['oids']), 4)
+        self.assertEqual(int(before['Items'][0]['status']), 1201)
+        async.run_get_notify_result({
+            "device_id": "ffffffff-ffff-ffff-ffff-ffffff000014",
+            "log_service_id": "0"}, 'dummy')
+        mock.assert_called()
+        after = test_helper.get_device(
+            self, 'ffffffff-ffff-ffff-ffff-ffffff000014#0')
+        self.assertEqual(len(after['Items'][0]['oids']), 4)
+        self.assertEqual(int(after['Items'][0]['status']), 1201)
+
+    @patch('boc.base.Base.post_content')
+    def test_notify_error(self, mock):
+        mock.return_value = {
+            'success': False,
+            'message': 'Unknown Error',
+            'code': 999}
+        before = test_helper.get_device(
+            self, 'ffffffff-ffff-ffff-ffff-ffffff000014#0')
+        self.assertEqual(len(before['Items'][0]['oids']), 4)
+        self.assertEqual(int(before['Items'][0]['status']), 1201)
+        async.run_get_notify_result({
+            "device_id": "ffffffff-ffff-ffff-ffff-ffffff000014",
+            "log_service_id": "0"}, 'dummy')
+        mock.assert_called()
+        after = test_helper.get_device(
+            self, 'ffffffff-ffff-ffff-ffff-ffffff000014#0')
+        self.assertEqual(len(after['Items'][0]['oids']), 4)
+        self.assertEqual(int(after['Items'][0]['status']), 1201)
+
+
 def main():
     unittest.main()
 

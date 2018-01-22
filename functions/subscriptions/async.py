@@ -138,3 +138,48 @@ def run_unsubscribe(event, context):
     except:  # pragma: no cover
         logger.error(sys.exc_info())
         device_info.update(UNSUBSCRIBE_BOC_RESPONSE_ERROR)
+
+
+def run_get_notify_result(event, context):
+    logger.info(f'async:run_get_notify_result, request: {json.dumps(event)}')
+
+    if('device_id' not in event or not isinstance(event['device_id'], str) or
+            'log_service_id' not in event):
+        logger.warning('BadRequest on async:run_get_notify_result')
+        return
+
+    try:
+        oid_info = ServiceOid().read(event['log_service_id'])
+        if not oid_info:
+            logger.warning(
+                f'BadRequest on async:run_get_notify_result (log_service_id "{event["log_service_id"]}" does not exist.)')
+            return
+
+        device_info = DeviceSubscription()
+        device_info.read(
+            event['device_id'], event['log_service_id'])
+
+        if not device_info.is_existing():
+            logger.error(
+                f'Error getting notify results for device {event["device_id"]}#event["log_service_id"]: device does not exist in Odessa')
+            return
+        subscription_api = helper.subscription_api_client(
+            oid_info['boc_service_id'])
+        oids = device_info.get_subscribed_oids()
+        oid_dict = []
+        for oid in oids:
+            oid_dict.append({'object_id': oid})
+
+        boc_response = subscription_api.get_notify_result(event['device_id'], oid_dict)
+        error_code = helper.process_get_subscription_response(
+            boc_response, device_info)
+        if error_code == SUBSCRIBED:
+            device_info.delete_offline_unsupported_oids(boc_response)
+            device_info.update(error_code)
+
+    except (ClientError, ConnectionError) as e:  # pragma: no cover
+        logger.error(e)
+        raise
+    except:  # pragma: no cover
+        logger.error(sys.exc_info())
+        device_info.update(UNSUBSCRIBE_BOC_RESPONSE_ERROR)
