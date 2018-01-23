@@ -260,8 +260,7 @@ class TestDeviceLogs(unittest.TestCase):
         res_json = json.loads(res['body'])
         self.assertEqual({"code": 400, "devices": [], "message": "Bad Request"}, res_json)
 
-
-    def test_subscribe_device_offline(self):
+    def test_subscribe_device_offline_with_logs(self):
         res = run_func(
             event = { "body" : "{\"device_id\": \"ffffffff-ffff-ffff-ffff-ffffffff0009\", \"log_service_id\": \"0\"}"
             },
@@ -270,4 +269,17 @@ class TestDeviceLogs(unittest.TestCase):
         res_json = json.loads(res['body'])
         self.assertEqual(1, len(res_json['devices']))
         self.assertEqual("ffffffff-ffff-ffff-ffff-ffffffff0009", res_json['devices'][0]['device_id'])
+        self.assertEqual('Online_Offline', res_json['devices'][0]['data'][4]['feature'])
+        self.assertEqual('0', res_json['devices'][0]['data'][4]['value'])
+
+    def test_subscribe_device_offline_without_logs(self):
+        res = run_func(
+            event = { "body" : "{\"device_id\": \"ffffffff-ffff-ffff-ffff-ffffffff0010\", \"log_service_id\": \"0\"}"
+            },
+            context = []
+        )
+        res_json = json.loads(res['body'])
+        self.assertEqual(1, len(res_json['devices']))
+        self.assertEqual("ffffffff-ffff-ffff-ffff-ffffffff0010", res_json['devices'][0]['device_id'])
         self.assertEqual('Online_Offline', res_json['devices'][0]['data'][0]['feature'])
+        self.assertEqual('0', res_json['devices'][0]['data'][0]['value'])

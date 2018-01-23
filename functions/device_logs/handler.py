@@ -3,6 +3,7 @@ import logging
 from botocore.exceptions import ClientError
 from botocore.exceptions import ConnectionError
 from constants.odessa_response_codes import *
+from constants.device_response_codes import *
 from functions import helper
 from models.device_log import DeviceLog
 from models.device_network_status import DeviceNetworkStatus
@@ -54,10 +55,6 @@ def get_latest_logs(event, context):
             #   device_id and service_id from DeviceSubscription table.
             status_res = device_subscription.get_device_status(
                 device_id, service_id)
-            subscribed_offline = False
-            if (status_res and status_res[0]['status'] == 1201):
-                subscribed_offline = True
-                subscribed_offline_timestamp = status_res[0]['updated_at']
 
             #   Retrieve Online_Offline feature value from
             #   DeviceNetworkStatus table
@@ -77,12 +74,6 @@ def get_latest_logs(event, context):
             if not status_res and not network_res:
                 devices.append(
                     helper.create_devices_layer([], device_id, code=DEVICE_NOT_FOUND))
-            elif subscribed_offline:
-                feature = helper.create_feature_format(SUCCESS, 'Online_Offline',
-                                                       'offline', subscribed_offline_timestamp)
-                features = helper.create_features_layer([feature])
-                devices.append(
-                    helper.create_devices_layer(features, device_id))
             else:
                 #   Retrieve latest logs from either ElastiCache or Dynamodb
                 log_res = device_log.get_latest_logs(status_res)
@@ -95,12 +86,17 @@ def get_latest_logs(event, context):
                     parsed_res.append(
                         helper.create_feature_format(SUCCESS, 'Online_Offline',
                                                     network_res['status'],
-                                                    network_res['timestamp'])
-                        )
-                elif not network_res and status_res and status_res[0]['status'] == 1200:
-                    parsed_res.append(
-                        helper.create_feature_format(SUCCESS, 'Online_Offline',
-                                                    'online', status_res[0]['updated_at']))
+                                                    network_res['timestamp']))
+                elif not network_res and status_res:
+                    if status_res[0]['status'] == SUBSCRIBED:
+                        parsed_res.append(helper.create_feature_format(
+                            SUCCESS, 'Online_Offline', 'online',
+                            status_res[0]['updated_at']))
+                    elif status_res[0]['status'] == SUBSCRIBED_OFFLINE:
+                        parsed_res.append(helper.create_feature_format(
+                            SUCCESS, 'Online_Offline', 'offline',
+                            status_res[0]['updated_at']))
+
                 features = helper.create_features_layer(parsed_res)
                 devices.append(
                     helper.create_devices_layer(features, device_id))
