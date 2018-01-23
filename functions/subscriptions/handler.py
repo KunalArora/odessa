@@ -309,36 +309,13 @@ def subscription_info(event, context):
             if not device_info.is_existing():
                 error_code = NOT_SUBSCRIBED
                 message = device_error_message(error_code)
-            elif device_info.is_subscribed() or device_info.is_offline():
-                oid_info = ServiceOid().read(
-                    device_info.get_log_service_id())
-                subscription_client = helper.subscription_api_client(
-                    oid_info['boc_service_id'])
-                oids = device_info.get_subscribed_oids()
-                oid_dict = []
-                for oid in oids:
-                    oid_dict.append({'object_id': oid})
-
-                boc_response = subscription_client.get_notify_result(
-                    device_id, oid_dict)
-                error_code = helper.process_get_subscription_response(
-                    boc_response, device_info)
-                if error_code == NOT_SUBSCRIBED:
-                    message = device_error_message(error_code)
-                    device_info.delete()
-                elif error_code == SUBSCRIBED:
-                    message = device_error_message(error_code)
-                    if device_info.get_status() == SUBSCRIBED_OFFLINE:
-                        device_info.delete_offline_unsupported_oids(boc_response)
-                        device_info.update(error_code)
-                elif error_code == SUBSCRIBED_OFFLINE:
-                    message = device_error_message(error_code)
-                else:
-                    error_code = boc_response['code']
-                    message = boc_response['message']
             else:
                 error_code = device_info.get_status()
                 message = device_info.get_message()
+                if device_info.is_offline():
+                    helper.invoke_run_get_notify_result(
+                        device_id,
+                        device_info.get_log_service_id())
             device_list.append({
                 'error_code': error_code, 'device_id': device_id,
                 'message': message})

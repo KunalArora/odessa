@@ -436,46 +436,22 @@ class SubscriptionInfoTestCase(unittest.TestCase):
                  "log_service_id": 2})}, 'dummy')
         self.assertEqual(json.loads(output['body'])["code"], 400)
 
-    @patch('boc.base.Base.post_content')
+    @patch('functions.helper.invoke_async')
     def test_get_subscription(self, mock):
-        mock.return_value = {
-            'success': True,
-            'message': 'Success.',
-            'code': 200,
-            'notifications':
-                [{'error_code': '200',
-                  'object_id': '1.3.6.1.2.1.1.4.0',
-                  'status': '70726F78792E62726F746865722E636F2E6A70',
-                  'user_id': '184878',
-                  'timestamp': '2017-06-30 07:09:00'},
-                 {'error_code': '200',
-                  'object_id': '1.3.6.1.2.1.1.6.0',
-                  'status': '70726F78792E62726F746865722E636F2E6A70',
-                  'user_id': '184878',
-                  'timestamp': '2017-06-30 07:09:00'},
-                 {'error_code': '200',
-                  'object_id': '1.3.6.1.2.1.2.2.1.6.1',
-                  'status': '70726F78792E62726F746865722E636F2E6A70',
-                  'user_id': '184878',
-                  'timestamp': '2017-06-30 07:09:00'},
-                 {'error_code': '200',
-                  'object_id': '1.3.6.1.2.1.25.3.2.1.3.1',
-                  'status': '70726F78792E62726F746865722E636F2E6A70',
-                  'user_id': '184878',
-                  'timestamp': '2017-06-30 07:09:00'}]}
-
         with open(
                 f'{self.path}/../../data/subscription_info/subscription_info.json'
                 ) as data_file:
             input = json.dumps(json.load(data_file))
         output = handler.subscription_info({'body': input}, 'dummy')
         output = json.loads(output['body'])
-        mock.assert_called()
+        mock.assert_called_with(
+            'run_get_notify_result',
+            '{"device_id": "ffffffff-ffff-ffff-ffff-ffffff000002", "log_service_id": "0"}')
         self.assertEqual(len(output["devices"]), 11)
         self.assertEqual(output["devices"][0]["error_code"], 200)
         self.assertEqual(output["devices"][1]["error_code"], 1200)
         self.assertEqual(output["devices"][2]["error_code"], 2603)
-        self.assertEqual(output["devices"][3]["error_code"], 1200)
+        self.assertEqual(output["devices"][3]["error_code"], 1201)
         self.assertEqual(output["devices"][4]["error_code"], 1505)
         self.assertEqual(output["devices"][5]["error_code"], 1602)
         self.assertEqual(output["devices"][6]["error_code"], 2202)
@@ -486,39 +462,31 @@ class SubscriptionInfoTestCase(unittest.TestCase):
         self.assertEqual(output["code"], 200)
         self.assertEqual(output["message"], "Success")
 
-    @patch('boc.base.Base.post_content')
-    def test_get_boc_unsubscribed_device(self, mock):
-        mock.return_value = {
-            'success': False,
-            'message': 'Unrecognised device_id',
-            'code': 505}
+    def test_get_odessa_unsubscribed_device(self):
         with open(
                 f'{self.path}/../../data/subscription_info/boc_unsubscribed_device.json'
                 ) as data_file:
             input = json.dumps(json.load(data_file))
         output = handler.subscription_info({'body': input}, 'dummy')
         output = json.loads(output['body'])
-        mock.assert_called()
         self.assertEqual(len(output["devices"]), 1)
-        self.assertEqual(output["devices"][0]["error_code"], 200)
+        self.assertEqual(output["devices"][0]["error_code"], 1200)
         self.assertEqual(output["code"], 200)
         self.assertEqual(output["message"], "Success")
 
-    @patch('boc.base.Base.post_content')
-    def test_get_odessa_unsubscribed_device(self, mock):
-        mock.return_value = {
-            'success': False,
-            'message': 'Object subscription not found',
-            'code': 524}
+    @patch('functions.helper.invoke_async')
+    def test_get_offline_device(self, mock):
         with open(
-                f'{self.path}/../../data/subscription_info/boc_unsubscribed_device.json'
+                f'{self.path}/../../data/subscription_info/offline_turned_online_device.json'
                 ) as data_file:
             input = json.dumps(json.load(data_file))
         output = handler.subscription_info({'body': input}, 'dummy')
         output = json.loads(output['body'])
-        mock.assert_called()
+        mock.assert_called_with(
+            'run_get_notify_result',
+            '{"device_id": "ffffffff-ffff-ffff-ffff-ffffff000014", "log_service_id": "0"}')
         self.assertEqual(len(output["devices"]), 1)
-        self.assertEqual(output["devices"][0]["error_code"], 200)
+        self.assertEqual(output["devices"][0]["error_code"], 1201)
         self.assertEqual(output["code"], 200)
         self.assertEqual(output["message"], "Success")
 
@@ -533,120 +501,6 @@ class SubscriptionInfoTestCase(unittest.TestCase):
         self.assertEqual(output["devices"][0]["error_code"], 200)
         self.assertEqual(output["code"], 200)
         self.assertEqual(output["message"], "Success")
-
-    @patch('boc.base.Base.post_content')
-    def test_unknown_error(self, mock):
-        mock.return_value = {
-            'success': False,
-            'message': 'Unknown Error',
-            'code': 999}
-        with open(
-                f'{self.path}/../../data/subscription_info/boc_unsubscribed_device.json'
-                ) as data_file:
-            input = json.dumps(json.load(data_file))
-        output = handler.subscription_info({'body': input}, 'dummy')
-        output = json.loads(output['body'])
-        mock.assert_called()
-        self.assertEqual(len(output["devices"]), 1)
-        self.assertEqual(output["devices"][0]["error_code"], 999)
-        self.assertEqual(output["code"], 200)
-        self.assertEqual(output["message"], "Success")
-        # params: single device id string
-        output = handler.subscription_info({'body': json.dumps(
-            {"device_id": "ffffffff-ffff-ffff-ffff-ffffff000000"})}, 'dummy')
-        output = json.loads(output['body'])
-        mock.assert_called()
-        self.assertEqual(len(output["devices"]), 1)
-        self.assertEqual(output["devices"][0]["error_code"], 999)
-        self.assertEqual(output["code"], 200)
-        self.assertEqual(output["message"], "Success")
-
-    @patch('boc.base.Base.post_content')
-    def test_get_offline_device(self, mock):
-        mock.return_value = {
-            'success': True,
-            'message': 'Success.',
-            'code': 200,
-            'notifications':
-                [{'error_code': '404',
-                  'object_id': '1.3.6.1.2.1.1.6.0',
-                  'status': '0',
-                  'user_id': '184878',
-                  'timestamp': '0'}]}
-        with open(
-                f'{self.path}/../../data/subscription_info/boc_unsubscribed_device.json'
-                ) as data_file:
-            input = json.dumps(json.load(data_file))
-        output = handler.subscription_info({'body': input}, 'dummy')
-        output = json.loads(output['body'])
-        mock.assert_called_with(
-            'https://dev-connections.mysora.net/svc_api/devices/notify_result',
-            {'service_id': '2',
-             'device_id': 'ffffffff-ffff-ffff-ffff-ffffff000000',
-             'object_id[0]': '1.3.6.1.2.1.1.6.0'},
-            300)
-        self.assertEqual(len(output["devices"]), 1)
-        self.assertEqual(output["devices"][0]["error_code"], 1201)
-        self.assertEqual(output["code"], 200)
-        self.assertEqual(output["message"], "Success")
-
-    @patch('boc.base.Base.post_content')
-    def test_get_offline_turned_online_device(self, mock):
-        mock.return_value = {
-            'success': True,
-            'message': 'Success.',
-            'code': 200,
-            'notifications':
-                [{'error_code': '200',
-                  'object_id': '1.3.6.1.2.1.1.6.0',
-                  'status': '0',
-                  'user_id': '184878',
-                  'timestamp': '0'},
-                 {'error_code': '404',
-                  'object_id': '1.3.6.1.2.1.1.4.0',
-                  'status': '0',
-                  'user_id': '184878',
-                  'timestamp': '0'},
-                 {'error_code': '524',
-                  'object_id': '1.3.6.1.2.1.2.2.1.6.1',
-                  'status': '0',
-                  'user_id': '184878',
-                  'timestamp': '0'},
-                 {'error_code': '200',
-                  'object_id': '1.3.6.1.2.1.25.3.2.1.3.1',
-                  'status': '0',
-                  'user_id': '184878',
-                  'timestamp': '0'}
-                 ]}
-        with open(
-                f'{self.path}/../../data/subscription_info/offline_turned_online_device.json'
-                ) as data_file:
-            input = json.dumps(json.load(data_file))
-
-        before = test_helper.get_device(
-            self, 'ffffffff-ffff-ffff-ffff-ffffff000014#0')
-        self.assertEqual(len(before['Items'][0]['oids']), 4)
-        self.assertEqual(int(before['Items'][0]['status']), 1201)
-
-        output = handler.subscription_info({'body': input}, 'dummy')
-        output = json.loads(output['body'])
-        mock.assert_called_with(
-            'https://dev-connections.mysora.net/svc_api/devices/notify_result',
-            {'service_id': '2',
-             'device_id': 'ffffffff-ffff-ffff-ffff-ffffff000014',
-             'object_id[0]': '1.3.6.1.2.1.1.6.0',
-             'object_id[1]': '1.3.6.1.2.1.1.4.0',
-             'object_id[2]': '1.3.6.1.2.1.2.2.1.6.1',
-             'object_id[3]': '1.3.6.1.2.1.25.3.2.1.3.1'},
-            300)
-        self.assertEqual(len(output["devices"]), 1)
-        self.assertEqual(output["devices"][0]["error_code"], 1200)
-        self.assertEqual(output["code"], 200)
-        self.assertEqual(output["message"], "Success")
-        after = test_helper.get_device(
-            self, 'ffffffff-ffff-ffff-ffff-ffffff000014#0')
-        self.assertEqual(len(after['Items'][0]["oids"]), 3)
-        self.assertEqual(int(after['Items'][0]['status']), 1200)
 
 
 def main():

@@ -197,6 +197,10 @@ functions:
     name: run_unsubscribe
     handler: functions/subscriptions/async.run_unsubscribe
 
+  run_get_notify_result:
+    name: run_get_notify_result
+    handler: functions/subscriptions/async.run_get_notify_result
+
   handle_device_events:
     handler: functions/device_events/handler.handle_device_events
 

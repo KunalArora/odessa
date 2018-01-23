@@ -13,6 +13,7 @@ from helpers import time_functions
 
 RUN_SUBSCRIBE_ASYNC = 'run_subscribe'
 RUN_UNSUBSCRIBE_ASYNC = 'run_unsubscribe'
+RUN_GET_NOTIFY_RESULT_ASYNC = 'run_get_notify_result'
 
 FEATURE_ADJUSTING_LIST = (
     ["TonerInk_LifeBlack", "TonerInk_LifeCyan",
@@ -173,6 +174,13 @@ def invoke_run_unsubscribe(device_id, log_service_id):
         'device_id': device_id,
         'log_service_id': log_service_id}
     invoke_async(RUN_UNSUBSCRIBE_ASYNC, json.dumps(payload))
+
+
+def invoke_run_get_notify_result(device_id, log_service_id):
+    payload = {
+        'device_id': device_id,
+        'log_service_id': log_service_id}
+    invoke_async(RUN_GET_NOTIFY_RESULT_ASYNC, json.dumps(payload))
 
 
 def invoke_async(function_name, payload):
