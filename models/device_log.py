@@ -32,7 +32,7 @@ class DeviceLog(Base):
         #   Retrieve latest logs from either ElastiCache or DynamoDb.
         table = self.dynamodb.Table('device_logs')
         db_res = []
-        if subscribed_data:
+        if subscribed_data and 'oids' in subscribed_data[0]:
             device_id = (subscribed_data[0]['id'].split('#')[0])
             if(self.elasticache):
                 redis_res = []
