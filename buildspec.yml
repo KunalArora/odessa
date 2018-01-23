@@ -1,0 +1,28 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - sed -i -e 's/us.archive.ubuntu.com/archive.ubuntu.com/g' /etc/apt/sources.list
+      - apt-get -qq update -y
+      - apt-get -qq install -y curl jq
+      - curl -sL https://deb.nodesource.com/setup_6.x | bash
+      - apt-get -qq install -y nodejs
+      - npm install -q -g serverless@1.24.1
+      - npm install -q --save serverless-dynamodb-local
+  pre_build:
+    commands:
+      - git config --global credential.helper "!aws codecommit credential-helper $@"
+      - git config --global credential.UseHttpPath true
+      - pip install -q
+        redis
+        git+https://git-codecommit.eu-central-1.amazonaws.com/v1/repos/boc-sdk-python
+        git+https://git-codecommit.eu-central-1.amazonaws.com/v1/repos/pymib -t .
+      - curl -qL -o aws_credentials.json http://169.254.170.2/$AWS_CONTAINER_CREDENTIALS_RELATIVE_URI > aws_credentials.json
+      - aws configure set region $AWS_REGION
+      - aws configure set aws_access_key_id `jq -r '.AccessKeyId' aws_credentials.json`
+      - aws configure set aws_secret_access_key `jq -r '.SecretAccessKey' aws_credentials.json`
+      - aws configure set aws_session_token `jq -r '.Token' aws_credentials.json`
+  build:
+    commands:
+      - serverless deploy --stage $STAGE --region $REGION
