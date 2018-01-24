@@ -1,12 +1,14 @@
 from boto3.dynamodb.conditions import Key
 import concurrent.futures
 from constants.odessa_response_codes import *
+from constants.device_response_codes import *
 from constants.oids import CHARSET_OID
 from datetime import timedelta
 from functions import helper
 from helpers import time_functions
 import logging
 from models.base import Base
+from models.service_oid import ServiceOid
 from os import environ
 from pymib.parse import parse
 
@@ -32,8 +34,15 @@ class DeviceLog(Base):
         #   Retrieve latest logs from either ElastiCache or DynamoDb.
         table = self.dynamodb.Table('device_logs')
         db_res = []
-        if subscribed_data and 'oids' in subscribed_data[0]:
-            device_id = (subscribed_data[0]['id'].split('#')[0])
+        if subscribed_data:
+            device_id, log_service_id = subscribed_data[0]['id'].split('#')
+
+            if('oids' not in subscribed_data[0] and
+               subscribed_data[0]['status'] == SUBSCRIBED_OFFLINE):
+                subscribed_data[0]['oids'] = []
+                for oid in ServiceOid().read(log_service_id)['oids']:
+                    subscribed_data[0]['oids'].append({'oid': oid})
+
             if(self.elasticache):
                 redis_res = []
                 for data in subscribed_data[0]['oids']:
