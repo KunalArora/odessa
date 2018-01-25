@@ -301,6 +301,13 @@ functions:
           path: ${self:custom.httpPath}/devices/status
           method: post
 
+  get_one_time_token:
+    handler: functions/tokens/handler.get_one_time_token
+    events:
+      - http:
+          path: ${self:custom.httpPath}/onetime
+          method: get
+
 resources:
   Resources:
     DeviceSubscriptions:
