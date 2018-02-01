@@ -1,6 +1,6 @@
 import unittest
-from unittest.mock import patch
-from os import path
+from unittest.mock import patch, MagicMock
+from os import path, environ
 import logging
 from functions.subscriptions import async
 from tests.functions import test_helper
@@ -12,6 +12,8 @@ class AsyncSubscribeTestCase(unittest.TestCase):
         self.path = path.dirname(__file__)
         test_helper.seed_ddb_subscriptions(self)
         test_helper.seed_ec_subscriptions(self)
+        self.mock_context = MagicMock()
+        self.mock_context.aws_request_id = 'mock_aws_request_id'
         logging.getLogger('subscriptions:async').setLevel(100)
 
     def tearDown(self):
@@ -20,14 +22,14 @@ class AsyncSubscribeTestCase(unittest.TestCase):
         test_helper.create_table(self)
 
     def test_bad_request(self):
-        async.run_subscribe({}, 'dummy')
+        async.run_subscribe({}, self.mock_context)
         with self.assertLogs('subscriptions:async', level='WARNING') as log:
             logging.getLogger('subscriptions:async').warning(
                 'BadRequest on handler:subscribe')
             self.assertEqual(
                 log.output[0],
                 'WARNING:subscriptions:async:BadRequest on handler:subscribe')
-        async.run_subscribe({"time_period": 30}, 'dummy')
+        async.run_subscribe({"time_period": 30}, self.mock_context)
         with self.assertLogs('subscriptions:async', level='WARNING') as log:
             logging.getLogger('subscriptions:async').warning(
                 'BadRequest on handler:subscribe')
@@ -37,7 +39,7 @@ class AsyncSubscribeTestCase(unittest.TestCase):
         async.run_subscribe(
             {"time_period": 30,
              "device_id": "ffffffff-ffff-ffff-ffff-ffffff0wrong"},
-            'dummy')
+            self.mock_context)
         with self.assertLogs('subscriptions:async', level='WARNING') as log:
             logging.getLogger('subscriptions:async').warning(
                 'BadRequest on handler:subscribe')
@@ -45,14 +47,14 @@ class AsyncSubscribeTestCase(unittest.TestCase):
                 log.output[0],
                 'WARNING:subscriptions:async:BadRequest on handler:subscribe')
         async.run_subscribe(
-            {"time_period": 30, "device_id": []}, 'dummy')
+            {"time_period": 30, "device_id": []}, self.mock_context)
         with self.assertLogs('subscriptions:async', level='WARNING') as log:
             logging.getLogger('subscriptions:async').warning(
                 'BadRequest on handler:subscribe')
             self.assertEqual(
                 log.output[0],
                 'WARNING:subscriptions:async:BadRequest on handler:subscribe')
-        async.run_subscribe({"device_id": []}, 'dummy')
+        async.run_subscribe({"device_id": []}, self.mock_context)
         with self.assertLogs('subscriptions:async', level='WARNING') as log:
             logging.getLogger('subscriptions:async').warning(
                 'BadRequest on handler:subscribe')
@@ -88,7 +90,7 @@ class AsyncSubscribeTestCase(unittest.TestCase):
         self.assertEqual(int(before['Items'][0]['status']), 1202)
         async.run_subscribe({
             "device_id": "ffffffff-ffff-ffff-ffff-ffffff000011",
-            "log_service_id": "0", "time_period": -1}, 'dummy')
+            "log_service_id": "0", "time_period": -1}, self.mock_context)
         mock.assert_called_with(
             'https://dev-connections.mysora.net/svc_api/devices/subscribe',
             {'service_id': '2',
@@ -115,7 +117,7 @@ class AsyncSubscribeTestCase(unittest.TestCase):
         self.assertEqual(len(before['Items']), 0)
         async.run_subscribe({
             "device_id": "ffffffff-ffff-ffff-ffff-ffffff0wrong",
-            "log_service_id": "0", "time_period": 1}, 'dummy')
+            "log_service_id": "0", "time_period": 1}, self.mock_context)
         mock.assert_not_called()
         after = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff0wrong#0')
@@ -128,7 +130,7 @@ class AsyncSubscribeTestCase(unittest.TestCase):
         self.assertEqual(len(before['Items']), 0)
         async.run_subscribe({
             "device_id": "ffffffff-ffff-ffff-ffff-ffffff000011",
-            "log_service_id": "1", "time_period": 1}, 'dummy')
+            "log_service_id": "1", "time_period": 1}, self.mock_context)
         mock.assert_not_called()
         after = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000011#1')
@@ -163,7 +165,7 @@ class AsyncSubscribeTestCase(unittest.TestCase):
         self.assertEqual(int(before['Items'][0]['status']), 1202)
         async.run_subscribe({
             "device_id": "ffffffff-ffff-ffff-ffff-ffffff000011",
-            "log_service_id": "0", "time_period": 1000}, 'dummy')
+            "log_service_id": "0", "time_period": 1000}, self.mock_context)
         mock.assert_called_with(
             'https://dev-connections.mysora.net/svc_api/devices/subscribe',
             {'service_id': '2',
@@ -212,7 +214,7 @@ class AsyncSubscribeTestCase(unittest.TestCase):
         self.assertEqual(int(before['Items'][0]['status']), 1202)
         async.run_subscribe({
             "device_id": "ffffffff-ffff-ffff-ffff-ffffff000011",
-            "log_service_id": "0", "time_period": "45"}, 'dummy')
+            "log_service_id": "0", "time_period": "45"}, self.mock_context)
         mock.assert_called_with(
             'https://dev-connections.mysora.net/svc_api/devices/subscribe',
             {'service_id': '2',
@@ -261,7 +263,7 @@ class AsyncSubscribeTestCase(unittest.TestCase):
         self.assertEqual(int(before['Items'][0]['status']), 1202)
         async.run_subscribe({
             "device_id": "ffffffff-ffff-ffff-ffff-ffffff000011",
-            "log_service_id": "0", "time_period": 45}, 'dummy')
+            "log_service_id": "0", "time_period": 45}, self.mock_context)
         mock.assert_called()
         after = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000011#0')
@@ -297,7 +299,7 @@ class AsyncSubscribeTestCase(unittest.TestCase):
         self.assertEqual(int(before['Items'][0]['status']), 1202)
         async.run_subscribe({
             "device_id": "ffffffff-ffff-ffff-ffff-ffffff000011",
-            "log_service_id": "0", "time_period": 45}, 'dummy')
+            "log_service_id": "0", "time_period": 45}, self.mock_context)
         mock.assert_called_with(
             'https://dev-connections.mysora.net/svc_api/devices/subscribe',
             {'service_id': '2',
@@ -329,7 +331,7 @@ class AsyncSubscribeTestCase(unittest.TestCase):
         self.assertEqual(int(before['Items'][0]['status']), 1202)
         async.run_subscribe({
             "device_id": "ffffffff-ffff-ffff-ffff-ffffff000011",
-            "log_service_id": "0", "time_period": 45}, 'dummy')
+            "log_service_id": "0", "time_period": 45}, self.mock_context)
         mock.assert_called()
         after = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000011#0')
@@ -348,7 +350,7 @@ class AsyncSubscribeTestCase(unittest.TestCase):
         self.assertEqual(int(before['Items'][0]['status']), 1202)
         async.run_subscribe({
             "device_id": "ffffffff-ffff-ffff-ffff-ffffff000011",
-            "log_service_id": "0", "time_period": 45}, 'dummy')
+            "log_service_id": "0", "time_period": 45}, self.mock_context)
         mock.assert_called()
         after = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000011#0')
@@ -367,12 +369,82 @@ class AsyncSubscribeTestCase(unittest.TestCase):
         self.assertEqual(int(before['Items'][0]['status']), 1202)
         async.run_subscribe({
             "device_id": "ffffffff-ffff-ffff-ffff-ffffff000011",
-            "log_service_id": "0", "time_period": 45}, 'dummy')
+            "log_service_id": "0", "time_period": 45}, self.mock_context)
         mock.assert_called()
         after = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000011#0')
         self.assertEqual(len(after['Items'][0]['oids']), 4)
         self.assertEqual(int(after['Items'][0]['status']), 404)
+
+    @patch('boc.base.Base.post_content')
+    def test_subscribe_duplicate_request(self, mock):
+        environ['REDIS_ENDPOINT_URL'] = ''
+        mock.return_value = {
+            'success': True,
+            'code': 200,
+            'message': 'Success.',
+            'subscribe': [
+                {'error_code': '200',
+                 'object_id': '1.3.6.1.2.1.25.3.2.1.3.1',
+                 'message': 'No error.'}
+            ]
+        }
+
+        before = test_helper.get_device(
+            self, 'ffffffff-ffff-ffff-ffff-ffffff000011#0')
+        self.assertTrue('latest_async_id' not in before['Items'][0])
+        async.run_subscribe({
+            "device_id": "ffffffff-ffff-ffff-ffff-ffffff000011",
+            "log_service_id": "0", "time_period": 60}, self.mock_context)
+        mock.assert_called()
+        mock.reset_mock()
+        after = test_helper.get_device(
+            self, 'ffffffff-ffff-ffff-ffff-ffffff000011#0')
+        self.assertEqual(int(after['Items'][0]['status']), 1200)
+        self.assertTrue('latest_async_id' in after['Items'][0])
+        async.run_subscribe({
+            "device_id": "ffffffff-ffff-ffff-ffff-ffffff000011",
+            "log_service_id": "0", "time_period": 60}, self.mock_context)
+        mock.assert_not_called()
+
+    @patch('boc.base.Base.post_content')
+    def test_subscribe_duplicate_request_with_error(self, mock):
+        environ['REDIS_ENDPOINT_URL'] = ''
+        mock.return_value = {
+            'success': False,
+            'code': 999,
+            'message': 'Unknown.',
+        }
+
+        before = test_helper.get_device(
+            self, 'ffffffff-ffff-ffff-ffff-ffffff000011#0')
+        self.assertTrue('latest_async_id' not in before['Items'][0])
+        async.run_subscribe({
+            "device_id": "ffffffff-ffff-ffff-ffff-ffffff000011",
+            "log_service_id": "0", "time_period": 60}, self.mock_context)
+        mock.assert_called()
+        mock.reset_mock()
+        after = test_helper.get_device(
+            self, 'ffffffff-ffff-ffff-ffff-ffffff000011#0')
+        self.assertEqual(int(after['Items'][0]['status']), 1999)
+        self.assertTrue('latest_async_id' not in after['Items'][0])
+        mock.return_value = {
+            'success': True,
+            'code': 200,
+            'message': 'Success.',
+            'subscribe': [
+                {'error_code': '200',
+                 'object_id': '1.3.6.1.2.1.25.3.2.1.3.1',
+                 'message': 'No error.'}
+            ]
+        }
+        async.run_subscribe({
+            "device_id": "ffffffff-ffff-ffff-ffff-ffffff000011",
+            "log_service_id": "0", "time_period": 60}, self.mock_context)
+        mock.assert_called()
+        after = test_helper.get_device(
+            self, 'ffffffff-ffff-ffff-ffff-ffffff000011#0')
+        self.assertTrue('latest_async_id' in after['Items'][0])
 
 
 class AsyncUnsubscribeTestCase(unittest.TestCase):

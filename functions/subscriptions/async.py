@@ -47,6 +47,12 @@ def run_subscribe(event, context):
                 f'Error subscribing device {event["device_id"]}#event["log_service_id"]: device does not exist in Odessa')
             return
 
+        if(device_info.is_subscribed() and
+           hasattr(device_info, 'latest_async_id') and
+           device_info.latest_async_id == context.aws_request_id):
+            logger.warning('Device already subscribed with current request ID')
+            return
+
         subscription_api = helper.subscription_api_client(
             oid_info['boc_service_id'])
         boc_response = subscription_api.subscribe(
@@ -54,14 +60,14 @@ def run_subscribe(event, context):
 
         if(boc_response['code'] == NO_ERROR or
                 boc_response['code'] == ALREADY_SUBSCRIBED_ON_SUBSCRIBE):
-            boc_response = device_info.delete_unsupported_oids(boc_response)
+            boc_response = device_info.delete_unsupported_oids(boc_response, context.aws_request_id)
         elif boc_response['code'] == SUCCESS_BUT_DEVICE_OFFLINE:
             device_info.update(SUBSCRIBED_OFFLINE)
         elif boc_response['code'] == DEVICE_NOT_RECOGNIZED:
             device_info.update(DEVICE_NOT_FOUND)
         elif(boc_response['code'] == PARTIAL_SUCCESS or
                 boc_response['code'] == INTERNAL_ERROR):
-            boc_response = device_info.delete_unsupported_oids(boc_response)
+            boc_response = device_info.delete_unsupported_oids(boc_response, context.aws_request_id)
             if not ('subscribe' in boc_response and not
                len(boc_response['subscribe']) == 0 and
                helper.has_acceptable_sub_errors_only(boc_response)):

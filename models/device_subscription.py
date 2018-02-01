@@ -34,6 +34,9 @@ class DeviceSubscription(Base):
         self.status = int(subscription['status'])
         self.message = subscription['message']
 
+        if 'latest_async_id' in subscription:
+            self.latest_async_id = subscription['latest_async_id']
+
         return self
 
     def get_record(self, device_id, log_service_id):
@@ -52,6 +55,8 @@ class DeviceSubscription(Base):
                     'message': sub['message'],
                     'created_at': sub['created_at'],
                     'updated_at': sub['updated_at']}
+                if 'latest_async_id' in sub:
+                    subscription['latest_async_id'] = sub['latest_async_id']
 
         if not subscription:
             table = self.dynamodb.Table('device_subscriptions')
@@ -67,6 +72,8 @@ class DeviceSubscription(Base):
                         'message': ddb_res['Item']['message'],
                         'created_at': ddb_res['Item']['created_at'],
                         'updated_at': ddb_res['Item']['updated_at']}
+                    if 'latest_async_id' in ddb_res['Item']:
+                        subscription['latest_async_id'] = ddb_res['Item']['latest_async_id']
             else:
                 return None
 
@@ -146,7 +153,7 @@ class DeviceSubscription(Base):
         self.update(UNSUBSCRIBED)
 
     # Processed when an online device is subscribed
-    def delete_unsupported_oids(self, boc_response):
+    def delete_unsupported_oids(self, boc_response, async_id):
         updated_res = []
         oids = []
 
@@ -165,12 +172,13 @@ class DeviceSubscription(Base):
             table.update_item(
                 Key={'id': f'{self.device_id}#{self.log_service_id}'},
                 ExpressionAttributeNames={'#s': 'status'},
-                UpdateExpression="set oids = :o, #s = :s, message = :m, updated_at = :u",
+                UpdateExpression="set oids = :o, #s = :s, message = :m, updated_at = :u, latest_async_id = :r",
                 ExpressionAttributeValues={
                     ':o': oids,
                     ':s': SUBSCRIBED,
                     ':m': device_error_message(SUBSCRIBED),
-                    ':u': datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+                    ':u': datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S'),
+                    ':r': async_id
                     })
 
             boc_response['subscribe'] = updated_res
