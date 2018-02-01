@@ -76,6 +76,11 @@ provider:
             - 'arn:aws:s3:::dev-odessa-eu-email/*'
             - 'arn:aws:s3:::qas-odessa-eu-email/*'
             - 'arn:aws:s3:::odessa-eu-email/*'
+    - Effect: Allow
+      Action:
+        - sts:AssumeRole
+      Resource:
+        - '*'
 package:
   exclude:
     - .env/**
@@ -307,6 +312,14 @@ functions:
       - http:
           path: ${self:custom.httpPath}/onetime
           method: get
+    environment:
+      LAMBDA_ROLE_ARN:
+        'Fn::Join':
+          - ''
+          -
+            - 'arn:aws:iam::'
+            - Ref: 'AWS::AccountId'
+            - ':role/odessa-${self:provider.stage}-${self:provider.region}-lambdaRole'
 
 resources:
   Resources:
