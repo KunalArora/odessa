@@ -169,6 +169,13 @@ def run_get_notify_result(event, context):
             logger.error(
                 f'Error getting notify results for device {event["device_id"]}#event["log_service_id"]: device does not exist in Odessa')
             return
+
+        if(device_info.is_subscribed() and
+           hasattr(device_info, 'latest_async_id') and
+           device_info.latest_async_id == context.aws_request_id):
+            logger.warning('Device already subscribed with current request ID')
+            return
+
         subscription_api = helper.subscription_api_client(
             oid_info['boc_service_id'])
         oids = device_info.get_subscribed_oids()
@@ -180,7 +187,7 @@ def run_get_notify_result(event, context):
         error_code = helper.process_get_subscription_response(
             boc_response, device_info)
         if error_code == SUBSCRIBED:
-            device_info.delete_offline_unsupported_oids(boc_response)
+            device_info.delete_offline_unsupported_oids(boc_response, context.aws_request_id)
             device_info.update(error_code)
 
     except (ClientError, ConnectionError) as e:  # pragma: no cover

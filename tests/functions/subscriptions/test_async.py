@@ -413,7 +413,7 @@ class AsyncSubscribeTestCase(unittest.TestCase):
         mock.return_value = {
             'success': False,
             'code': 999,
-            'message': 'Unknown.',
+            'message': 'Unknown.'
         }
 
         before = test_helper.get_device(
@@ -668,6 +668,8 @@ class AsyncNotifyResultTestCase(unittest.TestCase):
         self.path = path.dirname(__file__)
         test_helper.seed_ddb_subscriptions(self)
         test_helper.seed_ec_subscriptions(self)
+        self.mock_context = MagicMock()
+        self.mock_context.aws_request_id = 'mock_aws_request_id'
         logging.getLogger('subscriptions:async').setLevel(100)
 
     def tearDown(self):
@@ -676,7 +678,7 @@ class AsyncNotifyResultTestCase(unittest.TestCase):
         test_helper.create_table(self)
 
     def test_bad_request(self):
-        async.run_get_notify_result({}, 'dummy')
+        async.run_get_notify_result({}, self.mock_context)
         with self.assertLogs('subscriptions:async', level='WARNING') as log:
             logging.getLogger('subscriptions:async').warning(
                 'BadRequest on handler:run_get_notify_result')
@@ -684,7 +686,7 @@ class AsyncNotifyResultTestCase(unittest.TestCase):
                 log.output[0],
                 'WARNING:subscriptions:async:BadRequest on handler:run_get_notify_result')
         async.run_get_notify_result(
-            {"log_service_id": "1"}, 'dummy')
+            {"log_service_id": "1"}, self.mock_context)
         with self.assertLogs('subscriptions:async', level='WARNING') as log:
             logging.getLogger('subscriptions:async').warning(
                 'BadRequest on handler:run_get_notify_result')
@@ -693,7 +695,7 @@ class AsyncNotifyResultTestCase(unittest.TestCase):
                 'WARNING:subscriptions:async:BadRequest on handler:run_get_notify_result')
         async.run_get_notify_result(
             {"device_id": "ffffffff-ffff-ffff-ffff-ffffff000012"},
-            'dummy')
+            self.mock_context)
         with self.assertLogs('subscriptions:async', level='WARNING') as log:
             logging.getLogger('subscriptions:async').warning(
                 'BadRequest on handler:run_get_notify_result')
@@ -734,7 +736,7 @@ class AsyncNotifyResultTestCase(unittest.TestCase):
         self.assertEqual(int(before['Items'][0]['status']), 1201)
         async.run_get_notify_result({
             "device_id": "ffffffff-ffff-ffff-ffff-ffffff000014",
-            "log_service_id": "0"}, 'dummy')
+            "log_service_id": "0"}, self.mock_context)
         mock.assert_called()
         after = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000014#0')
@@ -774,7 +776,7 @@ class AsyncNotifyResultTestCase(unittest.TestCase):
         self.assertEqual(int(before['Items'][0]['status']), 1201)
         async.run_get_notify_result({
             "device_id": "ffffffff-ffff-ffff-ffff-ffffff000014",
-            "log_service_id": "0"}, 'dummy')
+            "log_service_id": "0"}, self.mock_context)
         mock.assert_called()
         after = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000014#0')
@@ -793,12 +795,87 @@ class AsyncNotifyResultTestCase(unittest.TestCase):
         self.assertEqual(int(before['Items'][0]['status']), 1201)
         async.run_get_notify_result({
             "device_id": "ffffffff-ffff-ffff-ffff-ffffff000014",
-            "log_service_id": "0"}, 'dummy')
+            "log_service_id": "0"}, self.mock_context)
         mock.assert_called()
         after = test_helper.get_device(
             self, 'ffffffff-ffff-ffff-ffff-ffffff000014#0')
         self.assertEqual(len(after['Items'][0]['oids']), 4)
         self.assertEqual(int(after['Items'][0]['status']), 1201)
+
+    @patch('boc.base.Base.post_content')
+    def test_notify_duplicate_request(self, mock):
+        environ['REDIS_ENDPOINT_URL'] = ''
+        mock.return_value = {
+            'success': True,
+            'message': 'Success.',
+            'code': 200,
+            'notifications':
+                [{'error_code': '200',
+                  'object_id': '1.3.6.1.2.1.1.4.0',
+                  'status': '70726F78792E62726F746865722E636F2E6A70',
+                  'user_id': '184878',
+                  'timestamp': '2017-06-30 07:09:00'}]}
+        before = test_helper.get_device(
+            self, 'ffffffff-ffff-ffff-ffff-ffffff000014#0')
+        self.assertEqual(int(before['Items'][0]['status']), 1201)
+        async.run_get_notify_result({
+            "device_id": "ffffffff-ffff-ffff-ffff-ffffff000014",
+            "log_service_id": "0"}, self.mock_context)
+        mock.assert_called()
+        mock.reset_mock()
+        after = test_helper.get_device(
+            self, 'ffffffff-ffff-ffff-ffff-ffffff000014#0')
+        self.assertEqual(int(after['Items'][0]['status']), 1200)
+        self.assertNotEqual(before['Items'][0]['updated_at'], after['Items'][0]['updated_at'])
+        self.assertNotEqual(before['Items'][0]['latest_async_id'], after['Items'][0]['latest_async_id'])
+        async.run_get_notify_result({
+            "device_id": "ffffffff-ffff-ffff-ffff-ffffff000014",
+            "log_service_id": "0"}, self.mock_context)
+        mock.assert_not_called()
+        duplicate = test_helper.get_device(
+            self, 'ffffffff-ffff-ffff-ffff-ffffff000014#0')
+        self.assertEqual(after['Items'][0]['updated_at'], duplicate['Items'][0]['updated_at'])
+        self.assertEqual(after['Items'][0]['latest_async_id'], duplicate['Items'][0]['latest_async_id'])
+
+    @patch('boc.base.Base.post_content')
+    def test_notify_duplicate_request_with_error(self, mock):
+        environ['REDIS_ENDPOINT_URL'] = ''
+        mock.return_value = {
+            'success': False,
+            'message': 'Unknown.',
+            'code': 999
+            }
+        before = test_helper.get_device(
+            self, 'ffffffff-ffff-ffff-ffff-ffffff000014#0')
+        self.assertEqual(int(before['Items'][0]['status']), 1201)
+        async.run_get_notify_result({
+            "device_id": "ffffffff-ffff-ffff-ffff-ffffff000014",
+            "log_service_id": "0"}, self.mock_context)
+        mock.assert_called()
+        mock.reset_mock()
+        error = test_helper.get_device(
+            self, 'ffffffff-ffff-ffff-ffff-ffffff000014#0')
+        self.assertEqual(int(before['Items'][0]['status']), int(error['Items'][0]['status']))
+        self.assertEqual(before['Items'][0]['latest_async_id'], error['Items'][0]['latest_async_id'])
+        mock.return_value = {
+            'success': True,
+            'message': 'Success.',
+            'code': 200,
+            'notifications':
+                [{'error_code': '200',
+                  'object_id': '1.3.6.1.2.1.1.4.0',
+                  'status': '70726F78792E62726F746865722E636F2E6A70',
+                  'user_id': '184878',
+                  'timestamp': '2017-06-30 07:09:00'}]}
+        async.run_get_notify_result({
+            "device_id": "ffffffff-ffff-ffff-ffff-ffffff000014",
+            "log_service_id": "0"}, self.mock_context)
+        mock.assert_called()
+        after = test_helper.get_device(
+            self, 'ffffffff-ffff-ffff-ffff-ffffff000014#0')
+        self.assertEqual(int(after['Items'][0]['status']), 1200)
+        self.assertNotEqual(before['Items'][0]['updated_at'], after['Items'][0]['updated_at'])
+        self.assertNotEqual(before['Items'][0]['latest_async_id'], after['Items'][0]['latest_async_id'])
 
 
 def main():

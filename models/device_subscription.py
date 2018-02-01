@@ -185,7 +185,7 @@ class DeviceSubscription(Base):
         return boc_response
 
     # Processed when an offline device is subscribed and becomes online
-    def delete_offline_unsupported_oids(self, boc_response):
+    def delete_offline_unsupported_oids(self, boc_response, async_id):
         updated_res = []
         oids = []
 
@@ -202,12 +202,13 @@ class DeviceSubscription(Base):
             table.update_item(
                 Key={'id': f'{self.device_id}#{self.log_service_id}'},
                 ExpressionAttributeNames={'#s': 'status'},
-                UpdateExpression="set oids = :o, #s = :s, message = :m, updated_at = :u",
+                UpdateExpression="set oids = :o, #s = :s, message = :m, updated_at = :u, latest_async_id = :r",
                 ExpressionAttributeValues={
                     ':o': oids,
                     ':s': SUBSCRIBED,
                     ':m': device_error_message(SUBSCRIBED),
-                    ':u': datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+                    ':u': datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S'),
+                    ':r': async_id
                     })
 
             boc_response['notifications'] = updated_res

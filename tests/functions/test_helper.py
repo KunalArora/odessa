@@ -29,16 +29,17 @@ def seed_ec_subscriptions(self):
             device_subscriptions = json.load(data_file)
 
         for device in device_subscriptions:
+            fields = {'status': device['status'],
+                      'message': device['message'],
+                      'created_at': device['created_at'],
+                      'updated_at': device['updated_at']
+                      }
             if 'oids' in device:
-                oids = device["oids"]
+                fields['oids'] = device['oids']
+            if 'latest_async_id' in device:
+                fields['latest_async_id'] = device['latest_async_id']
             self.elasticache.hmset(
-                f'device_subscriptions:{device["id"]}',
-                {"oids": oids,
-                 "status": device["status"],
-                 "message": device["message"],
-                 "created_at": device["created_at"],
-                 "updated_at": device["updated_at"]
-                 }
+                f'device_subscriptions:{device["id"]}', fields
             )
 
 
@@ -269,36 +270,18 @@ def seed_device_subscriptions_table(self, fixtures_path):
         device_subscriptions = json.load(json_file)
     with table.batch_writer() as batch:
         for subscription in device_subscriptions:
-            id = subscription["id"]
+            fields = {'id': subscription['id'],
+                      'status': subscription['status'],
+                      'message': subscription['message'],
+                      'created_at': subscription['created_at'],
+                      'updated_at': subscription['updated_at']
+                      }
             if 'oids' in subscription:
-                oids = subscription["oids"]
-            else:
-                oids = None
-            status = int(subscription["status"])
-            message = subscription["message"]
-            created_at = subscription["created_at"]
-            updated_at = subscription["updated_at"]
-            if oids:
-                batch.put_item(
-                    Item={
-                        'id': id,
-                        'oids': oids,
-                        'status': status,
-                        'message': message,
-                        'created_at': created_at,
-                        'updated_at': updated_at
-                    }
-                )
-            else:
-                batch.put_item(
-                    Item={
-                        'id': id,
-                        'status': status,
-                        'message': message,
-                        'created_at': created_at,
-                        'updated_at': updated_at
-                    }
-                )
+                fields['oids'] = subscription['oids']
+            if 'latest_async_id' in subscription:
+                fields['latest_async_id'] = subscription['latest_async_id']
+
+            batch.put_item(Item=fields)
 
 
 def seed_device_logs_table(self, fixtures_path):
