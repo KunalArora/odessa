@@ -14,7 +14,8 @@ def get_one_time_token(event, context):
     try:
         response = client.assume_role(
             RoleArn=environ['LAMBDA_ROLE_ARN'],
-            RoleSessionName='CMPS'
+            RoleSessionName='CMPS',
+            Policy='{"Version":"2012-10-17","Statement":[{"Sid":"AssumedRole","Effect":"Allow","Action":"execute-api:Invoke","Resource":"*"}]}'
             )['Credentials']
 
         token = {
