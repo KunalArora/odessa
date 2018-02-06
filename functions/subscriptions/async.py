@@ -58,6 +58,8 @@ def run_subscribe(event, context):
         boc_response = subscription_api.subscribe(
             event['device_id'], oid_map, oid_info['callback_url'], 'true')
 
+        logger.info(f'BOC Subscribe API called with the following response:\n{boc_response}')
+
         if(boc_response['code'] == NO_ERROR or
                 boc_response['code'] == ALREADY_SUBSCRIBED_ON_SUBSCRIBE):
             boc_response = device_info.delete_unsupported_oids(boc_response, context.aws_request_id)
@@ -119,6 +121,8 @@ def run_unsubscribe(event, context):
             oid_info['boc_service_id'])
         boc_response = subscription_api.unsubscribe(
             event['device_id'], oid_map)
+
+        logger.info(f'BOC Unsubscribe API called with the following response:\n{boc_response}')
 
         if(boc_response['code'] == NO_ERROR or
             boc_response['code'] == NOT_SUBSCRIBED_FROM_SERVICE_ON_UNSUBSCRIBE
@@ -184,6 +188,8 @@ def run_get_notify_result(event, context):
             oid_dict.append({'object_id': oid})
 
         boc_response = subscription_api.get_notify_result(event['device_id'], oid_dict)
+        logger.info(f'BOC Get Notify Result API called with the following response:\n{boc_response}')
+
         error_code = helper.process_get_subscription_response(
             boc_response, device_info)
         if error_code == SUBSCRIBED:
