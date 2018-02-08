@@ -6,6 +6,7 @@ from models.device_network_status import DeviceNetworkStatus
 from botocore.exceptions import ClientError
 from botocore.exceptions import ConnectionError
 from redis import RedisError
+from datetime import datetime
 from constants.odessa_response_codes import *
 
 logger = logging.getLogger('device_notifications')
@@ -92,6 +93,7 @@ def save_notify_status_db(event, context):
     logger.info('Request parameter {}'.format(event))
     try:
         request = json.loads(event["Records"][0]['Sns']['Message'])
+        event_timestamp = datetime.strptime(event["Records"][0]['Sns']['Timestamp'], "%Y-%m-%dT%H:%M:%S.%fZ")
         if not request:
             logger.warning(
                 f'handler:device_notifications:notify_status Message request '
@@ -116,10 +118,10 @@ def save_notify_status_db(event, context):
                     )
                 raise helper.EventParameterError(data)
 
-        cache_res = device_network_status.is_exists_cache(request)
-        db_res = device_network_status.is_exists_db(cache_res)
+        cache_res = device_network_status.is_exists_cache(request, event_timestamp)
+        db_res = device_network_status.is_exists_db(cache_res, event_timestamp)
         if db_res:
-            device_network_status.put_status(db_res)
+            device_network_status.put_status(db_res, event_timestamp)
     except (helper.DeviceIdParameterError, helper.EventParameterError,
             helper.NotificationError) as e:
         logger.warning(

@@ -68,7 +68,8 @@ def seed_ec_device_notifications(self):
         self.elasticache.flushall()
         self.elasticache.hmset("device_network_status:ffffffff-ffff-ffff-ffff-ffffffff0001", {"id": "ffffffff-ffff-ffff-ffff-ffffffff0001",
                                                                                               "timestamp": "2017-01-12T12:45:06",
-                                                                                              "status": "online"
+                                                                                              "status": "online",
+                                                                                              "event_timestamp": "2017-01-12T12:45:07"
                                                                                               })
 
 
@@ -315,11 +316,13 @@ def seed_device_network_statuses_table(self, fixtures_path):
             id = device_status["id"]
             timestamp = device_status["timestamp"]
             status = device_status["status"]
+            event_timestamp = device_status["event_timestamp"]
             batch.put_item(
                 Item={
                     'id': id,
                     'timestamp': timestamp,
-                    'status': status
+                    'status': status,
+                    'event_timestamp': event_timestamp
                 }
             )
 

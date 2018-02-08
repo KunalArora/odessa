@@ -9,6 +9,7 @@ from unittest.mock import patch
 from models.device_log import DeviceLog
 from models.device_network_status import DeviceNetworkStatus
 from botocore.exceptions import ConnectionError
+from boto3.dynamodb.conditions import Key
 
 def run_logs_func(**keyword_args):
     return handler.save_notify_logs_db(
@@ -256,6 +257,62 @@ class TestDeviceNotificationsHandler(unittest.TestCase):
         after = self.dynamodb.Table('device_network_statuses').scan()
         self.assertNotEqual(before, after)
         self.assertEqual((len(after['Items'])-len(before['Items'])), 2)
+
+    def test_save_multiple_notify_status_db_single_device_overwrite(self):
+        # Notification timestamp chronological
+        before = self.dynamodb.Table('device_network_statuses').scan()
+        run_status_func(
+            event={"Records": [{"Sns": {"Timestamp": "2018-06-30T11:30:"
+            "23.345Z","Message": "[{\"device_id\":"
+            "\"babeface-f548-4a64-8266-f08d2acb416c\",\"service_name\":\"BAS\","
+            "\"event\":\"online_hook\",\"timestamp\":\"1498731372\"}]"}}]
+            },
+            context=[]
+        )
+        run_status_func(
+            event={"Records": [{"Sns": {"Timestamp": "2018-06-30T12:30:"
+            "23.345Z","Message": "[{\"device_id\":"
+            "\"babeface-f548-4a64-8266-f08d2acb416c\",\"service_name\":\"BAS\","
+            "\"event\":\"offline_hook\",\"timestamp\":\"1498731372\"}]"}}]
+            },
+            context=[]
+        )
+        after = self.dynamodb.Table('device_network_statuses').scan()
+        item = self.dynamodb.Table('device_network_statuses').query(
+            KeyConditionExpression=Key('id').eq('babeface-f548-4a64-8266-f08d2acb416c')
+        )['Items'][0]
+
+        self.assertNotEqual(before, after)
+        self.assertEqual((len(after['Items'])-len(before['Items'])), 1)
+        self.assertEqual(item['status'], 'offline')
+
+    def test_save_multiple_notify_status_db_single_device_ignore(self):
+        # Notification timestamp not chronological
+        before = self.dynamodb.Table('device_network_statuses').scan()
+        run_status_func(
+            event={"Records": [{"Sns": {"Timestamp": "2018-06-30T11:30:"
+            "23.345Z","Message": "[{\"device_id\":"
+            "\"babeface-f548-4a64-8266-f08d2acb416c\",\"service_name\":\"BAS\","
+            "\"event\":\"online_hook\",\"timestamp\":\"1498731372\"}]"}}]
+            },
+            context=[]
+        )
+        run_status_func(
+            event={"Records": [{"Sns": {"Timestamp": "2018-06-30T10:30:"
+            "23.345Z","Message": "[{\"device_id\":"
+            "\"babeface-f548-4a64-8266-f08d2acb416c\",\"service_name\":\"BAS\","
+            "\"event\":\"offline_hook\",\"timestamp\":\"1498731372\"}]"}}]
+            },
+            context=[]
+        )
+        after = self.dynamodb.Table('device_network_statuses').scan()
+        item = self.dynamodb.Table('device_network_statuses').query(
+            KeyConditionExpression=Key('id').eq('babeface-f548-4a64-8266-f08d2acb416c')
+        )['Items'][0]
+
+        self.assertNotEqual(before, after)
+        self.assertEqual((len(after['Items'])-len(before['Items'])), 1)
+        self.assertEqual(item['status'], 'online')
 
     def test_save_notify_status_db_ec_present_device(self):
         before = self.dynamodb.Table('device_network_statuses').scan()

@@ -23,7 +23,7 @@ class DeviceNetworkStatus(Base):
             )['Items']
             return (db_res)
 
-    def is_exists_cache(self, notify_data):
+    def is_exists_cache(self, notify_data, event_timestamp):
         #   Verify if the notified data is already stored in ElastiCache or not.
         response = []
         response.extend(notify_data)
@@ -34,11 +34,16 @@ class DeviceNetworkStatus(Base):
                 res = super().convert(res)
                 status = (data['event'].split('_')[0])
                 time = time_functions.time_convert(data['timestamp'])
-                if res and res['timestamp'] == time and res['status'] == status:
-                    response.remove(data)
+                if res and res['timestamp'] == time:
+                    if res['status'] == status:
+                        response.remove(data)
+                    elif('event_timestamp' not in res[0] or
+                         ('event_timestamp' in res[0] and
+                         time_functions.parse_time(res[0]['event_timestamp']) > event_timestamp)):
+                        response.remove(data)
         return response
 
-    def is_exists_db(self, notify_data):
+    def is_exists_db(self, notify_data, event_timestamp):
         #   Verify if the notified data is already stored in Dynamodb or not.
         table = self.dynamodb.Table('device_network_statuses')
         response = []
@@ -49,12 +54,18 @@ class DeviceNetworkStatus(Base):
                 KeyConditionExpression=Key('id').eq(
                     data['device_id']) & Key('timestamp').eq(iso_time)
             )['Items']
+
             status = (data['event'].split('_')[0])
-            if res and res[0]['status'] == status:
-                response.remove(data)
+            if res:
+                if res[0]['status'] == status:
+                    response.remove(data)
+                elif('event_timestamp' not in res[0] or
+                     ('event_timestamp' in res[0] and
+                     time_functions.parse_time(res[0]['event_timestamp']) > event_timestamp)):
+                    response.remove(data)
         return response
 
-    def put_status(self, notify_data):
+    def put_status(self, notify_data, event_timestamp):
         #   Save the network status in the DynamoDb database for a particular device.
         table = self.dynamodb.Table('device_network_statuses')
         with table.batch_writer(overwrite_by_pkeys=['id', 'timestamp']) as batch:
@@ -65,6 +76,7 @@ class DeviceNetworkStatus(Base):
                         'id': (data['device_id']),
                         'timestamp': time_functions.time_convert(data['timestamp']),
                         'status': status,
+                        'event_timestamp': time_functions.unparse_time(event_timestamp)
                     }
                 )
 
