@@ -71,6 +71,7 @@ class DeviceEmailLog(Base):
 
     def get_log_history(self, params, original_feature_list):
         feature_response = []
+        db_res_pre = {}
         serial_number = params['serial_number']
 
         from_time = params['from_time_unit']
@@ -129,6 +130,26 @@ class DeviceEmailLog(Base):
                     db_query_params, original_feature_list)
                 if db_res:
                     feature_response.append(db_res)
+
+        # Optional functionality
+        # Get the latest log before from_time
+        if 'log_pre_from' in params:
+            if not feature_response or feature_response[0]['timestamp'] != from_time:
+                expression_attribute_names = {"#ts": "timestamp"}
+                projection_expression = ['#ts']
+                for i, feature in enumerate(original_feature_list):
+                    expression_attribute_names[f"#{i}"] = feature
+                    projection_expression.append(f"#{i}")
+                    db_res_pre = self.table.query(
+                    KeyConditionExpression=Key('serial_number').eq(serial_number) &
+                        Key('timestamp').lte(from_time),
+                    ProjectionExpression=', '.join(projection_expression),
+                    ExpressionAttributeNames=expression_attribute_names,
+                    ScanIndexForward=False, Limit=1
+                    )
+                if db_res_pre['Items']:
+                    db_res_pre['Items'][0]['timestamp'] = from_time
+                    feature_response.insert(0, db_res_pre['Items'][0])
 
         final_response = []
         for item in feature_response:

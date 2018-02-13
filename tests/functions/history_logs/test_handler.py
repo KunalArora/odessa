@@ -870,3 +870,149 @@ class TestGetHistoryLogs(unittest.TestCase):
         output = handler.get_history_logs({'body': input_device_id}, 'dummy')
         self.assertTrue(output['headers'])
         self.assertEqual(output['headers']['Access-Control-Allow-Origin'], "null")
+
+    def test_latest_logs_before_fromtime_for_cloud_device_id_on_get_history_logs(self):
+        with open(
+                f'{self.path}/../../data/history_logs/success/get_history_logs_latest_logs_before_fromtime_for_cloud_device_id.json'
+        ) as data_file:
+            input = json.load(data_file)
+        input_1 = json.dumps(input[0])
+        output = handler.get_history_logs({'body': input_1}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['data'][0]['updated'][0], '2018-01-01T10:10:00+00:00')
+        self.assertEqual(output['data'][0]['value'][0], '1239551')
+        self.assertEqual(len(output['data'][0]['value']), 2)
+
+        input_2 = json.dumps(input[1])
+        output = handler.get_history_logs({'body': input_2}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['data'][0]['updated'][0], '2018-01-01T10:15:00+00:00')
+        self.assertEqual(output['data'][0]['value'][0], '268440297')
+        self.assertEqual(len(output['data'][0]['value']), 2)
+
+        input_3 = json.dumps(input[2])
+        output = handler.get_history_logs({'body': input_3}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['data'][0]['updated'][0], '2018-01-01T11:00:00+00:00')
+        self.assertEqual(output['data'][0]['value'][0], '4841')
+        self.assertEqual(len(output['data'][0]['value']), 1)
+
+        input_4 = json.dumps(input[3])
+        output = handler.get_history_logs({'body': input_4}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['data'][0]['updated'][0], '2018-01-01T10:05:00+00:00')
+        self.assertEqual(output['data'][0]['value'][0], '1239551')
+        self.assertEqual(len(output['data'][0]['value']), 1)
+
+        input_5 = json.dumps(input[4])
+        output = handler.get_history_logs({'body': input_5}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['data'][0]['updated'][0], '2018-01-01T10:45:00+00:00')
+        self.assertEqual(output['data'][0]['value'][0], '4841')
+        self.assertEqual(len(output['data'][0]['value']), 1)
+
+        input_6 = json.dumps(input[5])
+        output = handler.get_history_logs({'body': input_6}, 'dummy')
+        output = json.loads(output['body'])
+        for idx, val in enumerate(['2018-01-01T10:15:00+00:00', '2018-01-01T10:15:00+00:00']):
+            self.assertEqual(output['data'][idx]['updated'][0], val)
+        for idx, val in enumerate(['268440297', '110']):
+            self.assertEqual(output['data'][idx]['value'][0], val)
+        self.assertEqual(len(output['data']), 2)
+
+    def test_latest_logs_before_fromtime_for_cloud_reporting_id_on_get_history_logs(self):
+        with open(
+                f'{self.path}/../../data/history_logs/success/get_history_logs_latest_logs_before_fromtime_for_cloud_reporting_id.json'
+        ) as data_file:
+            input = json.load(data_file)
+        input_1 = json.dumps(input[0])
+        output = handler.get_history_logs({'body': input_1}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['data'][0]['updated'][0], '2018-01-01T10:10:00+00:00')
+        self.assertEqual(output['data'][0]['value'][0], '1239551')
+        self.assertEqual(len(output['data'][0]['value']), 2)
+
+        input_2 = json.dumps(input[1])
+        output = handler.get_history_logs({'body': input_2}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['data'][0]['updated'][0], '2018-01-01T10:15:00+00:00')
+        self.assertEqual(output['data'][0]['value'][0], '268440297')
+        self.assertEqual(len(output['data'][0]['value']), 2)
+
+        input_3 = json.dumps(input[2])
+        output = handler.get_history_logs({'body': input_3}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['data'][0]['updated'][0], '2018-01-01T11:00:00+00:00')
+        self.assertEqual(output['data'][0]['value'][0], '4841')
+        self.assertEqual(len(output['data'][0]['value']), 1)
+
+        input_4 = json.dumps(input[3])
+        output = handler.get_history_logs({'body': input_4}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['data'][0]['updated'][0], '2018-01-01T10:05:00+00:00')
+        self.assertEqual(output['data'][0]['value'][0], '1239551')
+        self.assertEqual(len(output['data'][0]['value']), 1)
+
+        input_5 = json.dumps(input[4])
+        output = handler.get_history_logs({'body': input_5}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['data'][0]['updated'][0], '2018-01-01T10:45:00+00:00')
+        self.assertEqual(output['data'][0]['value'][0], '4841')
+        self.assertEqual(len(output['data'][0]['value']), 1)
+
+    def test_latest_logs_before_fromtime_for_count_type_feature_on_get_history_logs(self):
+        with open(
+                f'{self.path}/../../data/history_logs/success/get_history_logs_lates_logs_before_fromtime_for_count_type_feature.json'
+        ) as data_file:
+            input = json.dumps(json.load(data_file))
+        output = handler.get_history_logs({'body': input}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['data'][0]['updated'][0], '2018-01-01T10:20:00+00:00')
+        self.assertEqual(output['data'][0]['value'][0], '110')
+        self.assertEqual(len(output['data'][0]['value']), 1)
+
+    def test_latest_logs_before_fromtime_for_email_device_on_get_history_logs(self):
+        with open(
+                f'{self.path}/../../data/history_logs/success/get_history_logs_latest_logs_before_fromtime_for_email_device.json'
+        ) as data_file:
+            input = json.load(data_file)
+        input_1 = json.dumps(input[0])
+        output = handler.get_history_logs({'body': input_1}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['data'][0]['updated'][0], '2018-01-01T10:10:00+00:00')
+        for idx, val in enumerate(['80', '2', '30', '30', 'Brother']):
+            self.assertEqual(output['data'][idx]['value'][0], val)
+        self.assertEqual(len(output['data'][0]['value']), 2)
+
+        input_2 = json.dumps(input[1])
+        output = handler.get_history_logs({'body': input_2}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['data'][0]['updated'][0], '2018-01-01T10:15:00+00:00')
+        for idx, val in enumerate(['90', '3', '20', '20', 'Brother']):
+                self.assertEqual(output['data'][idx]['value'][0], val)
+        self.assertEqual(len(output['data'][0]['value']), 2)
+
+        input_3 = json.dumps(input[2])
+        output = handler.get_history_logs({'body': input_3}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['data'][0]['updated'][0], '2018-01-01T11:00:00+00:00')
+        for idx, val in enumerate(['100', '4', '10', '10', 'Brother']):
+                self.assertEqual(output['data'][idx]['value'][0], val)
+
+        self.assertEqual(len(output['data'][0]['value']), 1)
+
+        input_4 = json.dumps(input[3])
+        output = handler.get_history_logs({'body': input_4}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['data'][0]['updated'][0], '2018-01-01T10:00:00+00:00')
+        for idx, val in enumerate(['80', '2', '30', '30', 'Brother']):
+                self.assertEqual(output['data'][idx]['value'][0], val)
+        self.assertEqual(len(output['data'][0]['value']), 1)
+
+        input_5 = json.dumps(input[4])
+        output = handler.get_history_logs({'body': input_5}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['data'][0]['updated'][0], '2018-01-01T10:45:00+00:00')
+        for idx, val in enumerate(['100', '4', '10', '10', 'Brother']):
+                self.assertEqual(output['data'][idx]['value'][0], val)
+        self.assertEqual(len(output['data'][0]['value']), 1)

@@ -204,6 +204,8 @@ class DeviceLog(Base):
 
     def get_log_history(self, params, object_id_list, original_feature_list):
         feature_response = []
+        res_pre_from = {}
+        db_res_pre = {}
 
         device_id = params['device_id']
         from_time = params['from_time_unit']
@@ -295,6 +297,31 @@ class DeviceLog(Base):
                     feature_response.extend(
                         self.parse_oid_value_for_history(
                             object_id_list, original_feature_list, db_res))
+
+        # Optional functionality
+        # Get the latest log before from_time
+        if 'log_pre_from' in params:
+            object_id_list_from = []
+            for res in feature_response:
+                if res['timestamp'] == from_time:
+                    object_id_list_from.append(res['id'].split('#')[1])
+            object_id_list_except_from = list(set(object_id_list.keys()) - set(object_id_list_from))
+            for object_id in object_id_list_except_from:
+                res_pre_from = self.table.query(
+                    KeyConditionExpression=Key('id').eq(device_id + '#' + object_id) &
+                    Key('timestamp').lte(from_time),
+                    ScanIndexForward=False,
+                    Limit=1
+                    )
+                if res_pre_from['Items']:
+                    res_pre_from['Items'][0]['timestamp'] = from_time
+                    db_res_pre.update({object_id: res_pre_from['Items'][0]})
+            if db_res_pre:
+                if charset:
+                    db_res.update({CHARSET_OID: charset})
+                feature_response_pre = self.parse_oid_value_for_history(
+                    object_id_list, original_feature_list, db_res_pre)
+                feature_response = feature_response_pre + feature_response
 
         return feature_response
 

@@ -358,5 +358,30 @@
     "id" : "ffffffff-ffff-ffff-ffff-ffffffff0001#1.3.6.1.4.1.2435.2.3.9.4.2.1.5.5.8.0",
     "timestamp" : "2016-12-01T19:56:45",
     "value" : " "
+  },
+  {
+    "id" : "yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyy0001#1.3.6.1.4.1.2435.2.3.9.4.2.1.5.5.52.2.1.2.5",
+    "timestamp" : "2018-01-01T10:10:06",
+    "value" : "704"
+  },
+  {
+    "id" : "yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyy0001#1.3.6.1.4.1.2435.2.3.9.4.2.1.5.5.52.2.1.3.5",
+    "timestamp" : "2018-01-01T10:10:06",
+    "value" : "110"
+  },
+  {
+    "id" : "yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyy0001#1.3.6.1.4.1.2435.2.3.9.4.2.1.5.5.10.0",
+    "timestamp" : "2018-01-01T10:05:00",
+    "value" : "000105000012E9FF"
+  },
+  {
+    "id" : "yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyy0001#1.3.6.1.4.1.2435.2.3.9.4.2.1.5.5.10.0",
+    "timestamp" : "2018-01-01T10:15:00",
+    "value" : "000104100012E9FF"
+  },
+  {
+    "id" : "yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyy0001#1.3.6.1.4.1.2435.2.3.9.4.2.1.5.5.10.0",
+    "timestamp" : "2018-01-01T10:45:00",
+    "value" : "000104000012E9FF"
   }
 ]

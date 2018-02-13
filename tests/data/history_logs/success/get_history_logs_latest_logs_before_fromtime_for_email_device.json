@@ -1,0 +1,46 @@
+[
+  {
+      "log_service_id": "0",
+      "reporting_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxx0002",
+      "features": ["Total_Page_Count", "Drum_Count", "TonerInk_Black", "TonerInk_Cyan", "Location"],
+      "from": "2018-01-01T10:10:00+00:00",
+      "to": "2018-01-01T11:10:00+00:00",
+      "time_unit": "Hourly",
+      "log_pre_from": "True"
+  },
+  {
+      "log_service_id": "0",
+      "reporting_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxx0002",
+      "features": ["Total_Page_Count", "Drum_Count", "TonerInk_Black", "TonerInk_Cyan", "Location"],
+      "from": "2018-01-01T10:15:00+00:00",
+      "to": "2018-01-01T11:15:00+00:00",
+      "time_unit": "Hourly",
+      "log_pre_from": "True"
+  },
+  {
+      "log_service_id": "0",
+      "reporting_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxx0002",
+      "features": ["Total_Page_Count", "Drum_Count", "TonerInk_Black", "TonerInk_Cyan", "Location"],
+      "from": "2018-01-01T11:00:00+00:00",
+      "to": "2018-01-01T12:00:00+00:00",
+      "time_unit": "Hourly",
+      "log_pre_from": "True"
+  },
+  {
+      "log_service_id": "0",
+      "reporting_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxx0002",
+      "features": ["Total_Page_Count", "Drum_Count", "TonerInk_Black", "TonerInk_Cyan", "Location"],
+      "from": "2018-01-01T09:00:00+00:00",
+      "to": "2018-01-01T10:10:00+00:00",
+      "time_unit": "Hourly",
+      "log_pre_from": "True"
+  },
+  {
+      "log_service_id": "0",
+      "reporting_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxx0002",
+      "features": ["Total_Page_Count", "Drum_Count", "TonerInk_Black", "TonerInk_Cyan", "Location"],
+      "from": "2018-01-01T10:10:00+00:00",
+      "to": "2018-01-01T11:10:00+00:00",
+      "time_unit": "Hourly"
+  }
+]

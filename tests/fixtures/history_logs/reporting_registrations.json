@@ -19,5 +19,19 @@
     "communication_type": "cloud",
     "device_id": "ffffffff-ffff-ffff-ffff-ffffffff0001",
     "timestamp": "2017-07-01T00:00:00"
+  },
+  {
+    "reporting_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxx0001",
+    "log_service_id": "0",
+    "communication_type": "cloud",
+    "device_id": "yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyy0001",
+    "timestamp": "2018-01-01T00:00:00"
+  },
+  {
+    "reporting_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxx0002",
+    "log_service_id": "0",
+    "communication_type": "email",
+    "serial_number": "D31670Y2H813791",
+    "timestamp": "2018-01-01T00:00:00"
   }
 ]

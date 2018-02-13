@@ -42,6 +42,7 @@ def get_history_logs(event, context):
     device_id = None
     reporting_id = None
     client_origin = None
+    log_pre_from = None
 
     if 'headers' in event:
         request_headers = event['headers']
@@ -112,6 +113,8 @@ def get_history_logs(event, context):
     from_time = request_body['from']
     to_time = request_body['to']
     time_unit = request_body['time_unit']
+    if 'log_pre_from' in request_body:
+        log_pre_from = request_body['log_pre_from']
 
     try:
         # Test for incorrect format of parameters 'from' and 'to' or if value
@@ -256,6 +259,9 @@ def get_history_logs(event, context):
                 'to_time_unit': to_time,
                 'time_unit': time_unit
             }
+            if log_pre_from:
+                params.update({'log_pre_from': log_pre_from})
+
             result = device_log.get_log_history(
                 params, object_id_list, original_feature_list)
             if result:
@@ -311,6 +317,9 @@ def get_history_logs(event, context):
                             OrderedDict.fromkeys(unsubscribed_features)))
 
                     record['time_unit'] = time_unit
+                    if log_pre_from:
+                        record['log_pre_from'] = log_pre_from
+
                     result = device_log.get_log_history(
                         record, object_id_list, original_feature_list)
                     if result:
@@ -320,6 +329,8 @@ def get_history_logs(event, context):
                         and record['communication_type'] == 'email'
                             and 'serial_number' in record):
                     record['time_unit'] = time_unit
+                    if log_pre_from:
+                        record['log_pre_from'] = log_pre_from
                     result = device_email_log.get_log_history(
                         record, original_feature_list)
                     if result:
