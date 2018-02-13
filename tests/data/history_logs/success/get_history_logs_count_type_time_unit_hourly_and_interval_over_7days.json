@@ -1,0 +1,8 @@
+{
+      "log_service_id": "0",
+      "device_id": "dddddddd-dddd-dddd-dddd-dddddddd0001",
+      "features": ["Print_Mono_Page_SxDx_Count_A4Letter"],
+      "from": "2018-01-01T13:00:00+00:00",
+      "to": "2018-01-09T14:00:00+00:00",
+      "time_unit": "Hourly"
+}

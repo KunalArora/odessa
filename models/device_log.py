@@ -235,14 +235,14 @@ class DeviceLog(Base):
                     futures = {
                         executor.submit(
                             self.get_all_logs_in_interval, device_id + '#' + key, db_query_params): key for key in object_id_list.keys()}
-                    for future in concurrent.futures.as_completed(futures):
-                        if future.result():
-                            records = future.result()
-                            start_unit = period['start_time']
-                            end_unit = start_unit + timedelta(hours=1)
-                            child_list = []
-                            while (start_unit <= period['end_time']):
-                                db_res = {}
+                    start_unit = period['start_time']
+                    end_unit = start_unit + timedelta(hours=1)
+                    while (start_unit <= period['end_time']):
+                        db_res = {}
+                        for future in concurrent.futures.as_completed(futures):
+                            if future.result():
+                                records = future.result()
+                                child_list = []
                                 for item in records:
                                     if start_unit <= time_functions.parse_time(
                                             item['timestamp']) < end_unit:
@@ -254,19 +254,18 @@ class DeviceLog(Base):
                                     object_id = required_item['id'].split('#')[
                                         1]
                                     db_res.update({object_id: required_item})
+                        # Parse the retrieved data
+                        if db_res:
+                            if charset:
+                                db_res.update(
+                                    {CHARSET_OID: charset})
+                            feature_response.extend(
+                                self.parse_oid_value_for_history(
+                                    object_id_list, original_feature_list, db_res))
 
-                                start_unit = end_unit
-                                end_unit = start_unit + timedelta(hours=1)
-
-                                # Parse the retrieved data
-                                if db_res:
-                                    if charset:
-                                        db_res.update(
-                                            {CHARSET_OID: charset})
-                                    feature_response.extend(
-                                        self.parse_oid_value_for_history(
-                                            object_id_list, original_feature_list, db_res))
-
+                        start_unit = end_unit
+                        end_unit = start_unit + timedelta(hours=1)
+                        
         else:  # Normal Approach for BOC devices
             # Break the time period into smaller periods
             time_periods = time_functions.break_time_period(

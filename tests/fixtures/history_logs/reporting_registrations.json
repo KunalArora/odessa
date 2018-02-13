@@ -33,5 +33,12 @@
     "communication_type": "email",
     "serial_number": "D31670Y2H813791",
     "timestamp": "2018-01-01T00:00:00"
+  },
+  {
+    "reporting_id": "cccccccc-cccc-cccc-cccc-cccccccc0001",
+    "log_service_id": "0",
+    "communication_type": "cloud",
+    "device_id": "dddddddd-dddd-dddd-dddd-dddddddd0001",
+    "timestamp": "2018-01-01T00:00:00"
   }
 ]

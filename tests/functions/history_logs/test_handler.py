@@ -9,6 +9,7 @@ from os import path
 from tests.functions import test_helper
 import unittest
 from unittest.mock import patch
+import datetime
 
 
 class TestGetHistoryLogs(unittest.TestCase):
@@ -871,6 +872,19 @@ class TestGetHistoryLogs(unittest.TestCase):
         self.assertTrue(output['headers'])
         self.assertEqual(output['headers']['Access-Control-Allow-Origin'], "null")
 
+    def test_feature_count_type_when_time_unit_hourly_and_interval_over_7days_on_get_history_logs(self):
+        with open(
+                f'{self.path}/../../data/history_logs/success/get_history_logs_count_type_time_unit_hourly_and_interval_over_7days.json'
+        ) as data_file:
+            input = json.dumps(json.load(data_file))
+        output = handler.get_history_logs({'body': input}, 'dummy')
+        output = json.loads(output['body'])
+        time_expected = datetime.datetime(2018, 1, 1, 13, 30)
+        for time in output['data'][0]['updated']:
+            time = time_functions.parse_time_with_tz(time)
+            self.assertEqual(time, time_expected)
+            time_expected = time_expected + datetime.timedelta(hours=1)
+            
     def test_latest_logs_before_fromtime_for_cloud_device_id_on_get_history_logs(self):
         with open(
                 f'{self.path}/../../data/history_logs/success/get_history_logs_latest_logs_before_fromtime_for_cloud_device_id.json'
