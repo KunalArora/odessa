@@ -1,0 +1,26 @@
+[
+  {
+    "reporting_id": "eeeeeeee-eeee-eeee-eeee-eeeeeeee0002",
+    "features": ["Total_Page_Count", "Location"],
+    "from": "2017-01-01T00:00:00+00:00",
+    "to": "2017-03-01T00:00:00+00:00",
+    "time_unit": "Daily",
+    "log_pre_from": "False"
+  },
+  {
+    "device_id": "ffffffff-ffff-ffff-ffff-ffffffff0002",
+    "features": ["Total_Page_Count", "Location"],
+    "from": "2017-01-01T00:00:00+00:00",
+    "to": "2017-03-01T00:00:00+00:00",
+    "time_unit": "Daily",
+    "log_pre_from": "False"
+  },
+  {
+    "device_id": "ffffffff-ffff-ffff-ffff-ffffffff0002",
+    "features": ["Total_Page_Count", "Location"],
+    "from": "2017-01-01T00:00:00+00:00",
+    "to": "2017-03-01T00:00:00+00:00",
+    "time_unit": "Daily",
+    "log_pre_from": 1
+  }
+]

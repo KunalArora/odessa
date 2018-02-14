@@ -346,6 +346,36 @@ class TestGetHistoryLogs(unittest.TestCase):
         self.assertTrue('device_id' not in output)
         self.assertTrue('reporting_id' in output and output['reporting_id'])
 
+    def test_bad_request_log_pre_from_invalid_value_on_get_history_logs(self):
+        with open(
+                f'{self.path}/../../data/history_logs/bad_requests/get_history_logs_log_pre_invalid_value.json'
+        ) as data_file:
+            input = json.load(data_file)
+        input_1 = json.dumps(input[0])
+        output = handler.get_history_logs({'body': input_1}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 400)
+        self.assertEqual(output['message'], f"Parameter 'log_pre_from' has incorrect value: '{json.loads(input_1)['log_pre_from']}'")
+        self.assertFalse(output['data'])
+        self.assertTrue('device_id' not in output)
+        self.assertTrue('reporting_id' in output and output['reporting_id'])
+
+        input_2 = json.dumps(input[1])
+        output = handler.get_history_logs({'body': input_2}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 400)
+        self.assertEqual(output['message'], f"Parameter 'log_pre_from' has incorrect value: '{json.loads(input_2)['log_pre_from']}'")
+        self.assertFalse(output['data'])
+        self.assertTrue('reporting_id' not in output)
+        self.assertTrue('device_id' in output and output['device_id'])
+
+        input_3 = json.dumps(input[2])
+        output = handler.get_history_logs({'body': input_3}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 400)
+        self.assertEqual(output['message'], f"Parameter 'log_pre_from' has incorrect value: '{json.loads(input_3)['log_pre_from']}'")
+        self.assertFalse(output['data'])
+
     def test_device_not_found_on_get_history_logs(self):
         with open(
                 f'{self.path}/../../data/history_logs/bad_requests/get_history_logs_device_not_found.json'
@@ -884,7 +914,7 @@ class TestGetHistoryLogs(unittest.TestCase):
             time = time_functions.parse_time_with_tz(time)
             self.assertEqual(time, time_expected)
             time_expected = time_expected + datetime.timedelta(hours=1)
-            
+
     def test_latest_logs_before_fromtime_for_cloud_device_id_on_get_history_logs(self):
         with open(
                 f'{self.path}/../../data/history_logs/success/get_history_logs_latest_logs_before_fromtime_for_cloud_device_id.json'

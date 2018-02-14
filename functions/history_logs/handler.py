@@ -116,6 +116,16 @@ def get_history_logs(event, context):
     if 'log_pre_from' in request_body:
         log_pre_from = request_body['log_pre_from']
 
+    if log_pre_from is not None:
+        if not isinstance(log_pre_from, str) or not log_pre_from.lower() == 'true':
+             logger.warning(
+                 f"BadRequest on handler:get_history_logs, "
+                 f"Reason: Parameter 'log_pre_from' has incorrect value")
+             return history_logs_response(
+                 odessa_response_codes.BAD_REQUEST, reporting_id, device_id, message=f"Parameter "
+                 f"'log_pre_from' has incorrect value: '{log_pre_from}'",
+                 client_origin=client_origin)
+
     try:
         # Test for incorrect format of parameters 'from' and 'to' or if value
         # of 'from' is greater than value of 'to'
