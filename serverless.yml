@@ -283,7 +283,7 @@ functions:
       - http:
           path: ${self:custom.httpPath}/ext/devices/log/history
           method: post
-          authorizer: aws_iam
+          authorizer: auth_one_time_token
 
   save_reporting_registration:
     handler: functions/reporting_registrations/handler.save_reporting_registration
@@ -330,14 +330,9 @@ functions:
       - http:
           path: ${self:custom.httpPath}/onetime
           method: get
-    environment:
-      LAMBDA_ROLE_ARN:
-        'Fn::Join':
-          - ''
-          -
-            - 'arn:aws:iam::'
-            - Ref: 'AWS::AccountId'
-            - ':role/odessa-${self:provider.stage}-${self:provider.region}-lambdaRole'
+
+  auth_one_time_token:
+    handler: functions/tokens/handler.auth
 
 resources:
   Resources:

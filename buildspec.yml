@@ -15,6 +15,7 @@ phases:
       - git config --global credential.helper "!aws codecommit credential-helper $@"
       - git config --global credential.UseHttpPath true
       - pip install -q
+        pyjwt
         redis
         git+https://git-codecommit.eu-central-1.amazonaws.com/v1/repos/boc-sdk-python
         git+https://git-codecommit.eu-central-1.amazonaws.com/v1/repos/pymib -t .

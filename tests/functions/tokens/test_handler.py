@@ -1,38 +1,42 @@
+import freezegun
 import unittest
 import json
-import datetime
+import logging
+import os
 from functions.tokens import handler
-from unittest.mock import patch
-from botocore.exceptions import ClientError
-from os import environ
 
 
 class TestOneTimeTokens(unittest.TestCase):
     def setUp(self):
-        environ['LAMBDA_ROLE_ARN'] = ''
+        os.environ['ONETIME_SECRET'] = 'secret'
+        logging.getLogger('tokens').setLevel(100)
 
-    @patch('boto3.client')
-    def test_get_token_success(self, mock):
-        mock().assume_role.return_value = {
-            'Credentials': {
-                'SessionToken': 'session_token',
-                'SecretAccessKey': 'secret_access_key',
-                'AccessKeyId': 'access_key_id',
-                'Expiration': datetime.datetime.now()
-            }
-        }
-        res = json.loads(handler.get_one_time_token('', '')['body'])
-        self.assertTrue('session_token' in res)
-        self.assertTrue('secret_access_key' in res)
-        self.assertTrue('access_key_id' in res)
-        self.assertTrue('expiration' in res)
+    def test_onetime_token_success(self):
+        token = json.loads(handler.get_one_time_token('', '')['body'])
+        policy = handler.auth({
+            'authorizationToken': f'Bearer {token["session_token"]}',
+            'methodArn': '/foo/bar'}, {})
+        self.assertEqual(policy['policyDocument']['Statement'][0], {
+            'Action': 'execute-api:Invoke',
+            'Effect': 'Allow',
+            'Resource': '/foo/bar'})
 
-    @patch('boto3.client')
-    def test_get_token_client_error(self, mock):
-        mock().assume_role.side_effect = ClientError(
-            {'Error': {'Code': '403', 'Message': 'Unauthorized'}}, 'AssumeRole'
-        )
-        res = handler.get_one_time_token('', '')
+    def test_onetime_token_expired(self):
+        with freezegun.freeze_time('2018-01-01 00:00:00'):
+            token = json.loads(handler.get_one_time_token('', '')['body'])
+        policy = handler.auth({
+            'authorizationToken': f'Bearer {token["session_token"]}',
+            'methodArn': '/foo/bar'}, {})
+        self.assertEqual(policy['policyDocument']['Statement'][0], {
+            'Action': 'execute-api:Invoke',
+            'Effect': 'Deny',
+            'Resource': '/foo/bar'})
 
-        self.assertTrue('statusCode' in res)
-        self.assertTrue(res['statusCode'], 403)
+    def test_onetime_token_invalid(self):
+        policy = handler.auth({
+            'authorizationToken': 'Bearer x.x.x',
+            'methodArn': '/foo/bar'}, {})
+        self.assertEqual(policy['policyDocument']['Statement'][0], {
+           'Action': 'execute-api:Invoke',
+           'Effect': 'Deny',
+           'Resource': '/foo/bar'})
