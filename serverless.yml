@@ -284,6 +284,7 @@ functions:
           path: ${self:custom.httpPath}/ext/devices/log/history
           method: post
           authorizer: auth_one_time_token
+          cors: true
 
   save_reporting_registration:
     handler: functions/reporting_registrations/handler.save_reporting_registration
