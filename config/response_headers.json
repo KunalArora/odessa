@@ -1,6 +1,6 @@
 {
-  "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,x-requested-with",
-  "Access-Control-Allow-Origin": "null",
+  "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,x-requested-with,X-odessa-Token",
+  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST",
   "Access-Control-Allow-Credentials": "true"
 }

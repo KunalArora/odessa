@@ -283,8 +283,22 @@ functions:
       - http:
           path: ${self:custom.httpPath}/ext/devices/log/history
           method: post
-          authorizer: auth_one_time_token
-          cors: true
+          authorizer:
+            name: auth_one_time_token
+            resultTtlInSeconds: 0
+            identitySource: method.request.header.x-odessa-token
+            type: token
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+              - X-odessa-Token
+            allowCredentials: true
 
   save_reporting_registration:
     handler: functions/reporting_registrations/handler.save_reporting_registration

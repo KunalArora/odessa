@@ -96,14 +96,6 @@ def create_odessa_response(
 
         headers = input
 
-        authorized_origins = [
-            o.strip() for o in environ['AUTHORIZED_ORIGINS'].split(',')]
-
-        if client_origin:
-            if (client_origin in authorized_origins
-                or 'http://localhost:' in client_origin):
-                headers['Access-Control-Allow-Origin'] = client_origin
-
         return {
             'statusCode': 200,
             'headers': headers,
