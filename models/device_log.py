@@ -265,7 +265,7 @@ class DeviceLog(Base):
 
                         start_unit = end_unit
                         end_unit = start_unit + timedelta(hours=1)
-                        
+
         else:  # Normal Approach for BOC devices
             # Break the time period into smaller periods
             time_periods = time_functions.break_time_period(
@@ -298,29 +298,44 @@ class DeviceLog(Base):
                             object_id_list, original_feature_list, db_res))
 
         # Optional functionality
-        # Get the latest log before from_time
+        # Get the latest log before from_time only in the following 2 cases:
+        # 1. History Logs API called for device_id
+        # 2. History Logs API is called for reporting_id & the following condition is satisfied:
+        #       rid_activation_timestamp           from_time          to_time
+        # -----------------|---------------------------|------------------|----------> time coordinate
+        rid_activation_timestamp = None
+        if 'rid_activation_timestamp' in params:
+            rid_activation_timestamp = params['rid_activation_timestamp']
+
         if 'log_pre_from' in params:
-            object_id_list_from = []
-            for res in feature_response:
-                if res['timestamp'] == from_time:
-                    object_id_list_from.append(res['id'].split('#')[1])
-            object_id_list_except_from = list(set(object_id_list.keys()) - set(object_id_list_from))
-            for object_id in object_id_list_except_from:
-                res_pre_from = self.table.query(
-                    KeyConditionExpression=Key('id').eq(device_id + '#' + object_id) &
-                    Key('timestamp').lte(from_time),
-                    ScanIndexForward=False,
-                    Limit=1
-                    )
-                if res_pre_from['Items']:
-                    res_pre_from['Items'][0]['timestamp'] = from_time
-                    db_res_pre.update({object_id: res_pre_from['Items'][0]})
-            if db_res_pre:
-                if charset:
-                    db_res.update({CHARSET_OID: charset})
-                feature_response_pre = self.parse_oid_value_for_history(
-                    object_id_list, original_feature_list, db_res_pre)
-                feature_response = feature_response_pre + feature_response
+            if (not 'rid_activation_timestamp' in params) or (rid_activation_timestamp < from_time):
+
+                object_id_list_from = []
+                for res in feature_response:
+                    if res['timestamp'] == from_time:
+                        object_id_list_from.append(res['id'].split('#')[1])
+                object_id_list_except_from = list(set(object_id_list.keys()) - set(object_id_list_from))
+                for object_id in object_id_list_except_from:
+                    res_pre_from = self.table.query(
+                        KeyConditionExpression=Key('id').eq(device_id + '#' + object_id) &
+                        Key('timestamp').lte(from_time),
+                        ScanIndexForward=False,
+                        Limit=1
+                        )
+                    if res_pre_from['Items']:
+                        # Note: Do not return the latest log before from_time if its timestamp is less than the reporting_id activation timestamp, i.e., the following case
+                        #    log_pre_from       rid_activation_timestamp           from_time          to_time
+                        # ----------|---------------------|---------------------------|------------------|----------> time coordinate
+                        if not rid_activation_timestamp or (rid_activation_timestamp and res_pre_from['Items'][0]['timestamp'] >= rid_activation_timestamp):
+                            res_pre_from['Items'][0]['timestamp'] = from_time
+                            db_res_pre.update({object_id: res_pre_from['Items'][0]})
+
+                if db_res_pre:
+                    if charset:
+                        db_res.update({CHARSET_OID: charset})
+                    feature_response_pre = self.parse_oid_value_for_history(
+                        object_id_list, original_feature_list, db_res_pre)
+                    feature_response = feature_response_pre + feature_response
 
         return feature_response
 

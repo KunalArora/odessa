@@ -133,5 +133,32 @@
     "TonerInk_Black": "10",
     "TonerInk_Cyan": "10",
     "Location": "Brother"
+  },
+  {
+    "serial_number" : "D31670Y2H813792",
+    "timestamp" : "2018-02-20T10:45:00",
+    "Total_Page_Count" : "100",
+    "Drum_Count": "4",
+    "TonerInk_Black": "10",
+    "TonerInk_Cyan": "10",
+    "Location": "Brother"
+  },
+  {
+    "serial_number" : "D31670Y2H813792",
+    "timestamp" : "2018-03-10T10:45:00",
+    "Total_Page_Count" : "100",
+    "Drum_Count": "4",
+    "TonerInk_Black": "10",
+    "TonerInk_Cyan": "10",
+    "Location": "Brother"
+  },
+  {
+    "serial_number" : "D31670Y2H813792",
+    "timestamp" : "2018-03-25T10:45:00",
+    "Total_Page_Count" : "100",
+    "Drum_Count": "4",
+    "TonerInk_Black": "10",
+    "TonerInk_Cyan": "10",
+    "Location": "Brother"
   }
 ]

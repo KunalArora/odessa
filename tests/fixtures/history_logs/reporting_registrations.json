@@ -40,5 +40,19 @@
     "communication_type": "cloud",
     "device_id": "dddddddd-dddd-dddd-dddd-dddddddd0001",
     "timestamp": "2018-01-01T00:00:00"
+  },
+  {
+    "reporting_id": "eeeeeeee-eeee-eeee-eeee-eeeeeeee0003",
+    "log_service_id": "0",
+    "communication_type": "cloud",
+    "device_id": "zzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzz0001",
+    "timestamp": "2017-11-01T00:00:00"
+  },
+  {
+    "reporting_id": "eeeeeeee-eeee-eeee-eeee-eeeeeeee0004",
+    "log_service_id": "0",
+    "communication_type": "email",
+    "serial_number": "D31670Y2H813792",
+    "timestamp": "2018-03-01T00:00:00"
   }
 ]

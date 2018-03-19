@@ -132,24 +132,35 @@ class DeviceEmailLog(Base):
                     feature_response.append(db_res)
 
         # Optional functionality
-        # Get the latest log before from_time
+        # Get the latest log before from_time only in the following case:
+        # History Logs API is called for reporting_id (offcourse because its email logs) & the following condition is satisfied:
+        #       rid_activation_timestamp           from_time          to_time
+        # -----------------|---------------------------|------------------|----------> time coordinate
+        if 'rid_activation_timestamp' in params:
+            rid_activation_timestamp = params['rid_activation_timestamp']
+
         if 'log_pre_from' in params:
-            if not feature_response or feature_response[0]['timestamp'] != from_time:
-                expression_attribute_names = {"#ts": "timestamp"}
-                projection_expression = ['#ts']
-                for i, feature in enumerate(original_feature_list):
-                    expression_attribute_names[f"#{i}"] = feature
-                    projection_expression.append(f"#{i}")
-                    db_res_pre = self.table.query(
-                    KeyConditionExpression=Key('serial_number').eq(serial_number) &
-                        Key('timestamp').lte(from_time),
-                    ProjectionExpression=', '.join(projection_expression),
-                    ExpressionAttributeNames=expression_attribute_names,
-                    ScanIndexForward=False, Limit=1
-                    )
-                if db_res_pre['Items']:
-                    db_res_pre['Items'][0]['timestamp'] = from_time
-                    feature_response.insert(0, db_res_pre['Items'][0])
+            if (not 'rid_activation_timestamp' in params) or (rid_activation_timestamp < from_time):
+                if not feature_response or feature_response[0]['timestamp'] != from_time:
+                    expression_attribute_names = {"#ts": "timestamp"}
+                    projection_expression = ['#ts']
+                    for i, feature in enumerate(original_feature_list):
+                        expression_attribute_names[f"#{i}"] = feature
+                        projection_expression.append(f"#{i}")
+                        db_res_pre = self.table.query(
+                        KeyConditionExpression=Key('serial_number').eq(serial_number) &
+                            Key('timestamp').lte(from_time),
+                        ProjectionExpression=', '.join(projection_expression),
+                        ExpressionAttributeNames=expression_attribute_names,
+                        ScanIndexForward=False, Limit=1
+                        )
+                    if db_res_pre['Items']:
+                        # Note: Do not return the latest log before from_time if its timestamp is less than the reporting_id activation timestamp, i.e., the following case
+                        #    log_pre_from       rid_activation_timestamp           from_time          to_time
+                        # ----------|---------------------|---------------------------|------------------|----------> time coordinate
+                        if rid_activation_timestamp and db_res_pre['Items'][0]['timestamp'] >= rid_activation_timestamp:
+                            db_res_pre['Items'][0]['timestamp'] = from_time
+                            feature_response.insert(0, db_res_pre['Items'][0])
 
         final_response = []
         for item in feature_response:

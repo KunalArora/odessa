@@ -1,0 +1,38 @@
+[
+  {
+      "log_service_id": "0",
+      "reporting_id": "eeeeeeee-eeee-eeee-eeee-eeeeeeee0004",
+      "features": ["Total_Page_Count"],
+      "from": "2018-01-25T10:10:00+00:00",
+      "to": "2018-04-01T11:10:00+00:00",
+      "time_unit": "Daily",
+      "log_pre_from": "True"
+  },
+  {
+      "log_service_id": "0",
+      "reporting_id": "eeeeeeee-eeee-eeee-eeee-eeeeeeee0004",
+      "features": ["Total_Page_Count"],
+      "from": "2018-03-05T05:15:00+00:00",
+      "to": "2018-04-01T11:15:00+00:00",
+      "time_unit": "Daily",
+      "log_pre_from": "True"
+  },
+  {
+      "log_service_id": "0",
+      "reporting_id": "eeeeeeee-eeee-eeee-eeee-eeeeeeee0004",
+      "features": ["Total_Page_Count"],
+      "from": "2018-03-20T11:00:00+00:00",
+      "to": "2018-03-27T12:00:00+00:00",
+      "time_unit": "Hourly",
+      "log_pre_from": "True"
+  },
+  {
+      "log_service_id": "0",
+      "reporting_id": "eeeeeeee-eeee-eeee-eeee-eeeeeeee0004",
+      "features": ["Total_Page_Count"],
+      "from": "2018-01-02T11:00:00+00:00",
+      "to": "2018-01-12T12:00:00+00:00",
+      "time_unit": "Daily",
+      "log_pre_from": "True"
+  }
+]

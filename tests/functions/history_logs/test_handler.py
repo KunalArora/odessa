@@ -1060,3 +1060,125 @@ class TestGetHistoryLogs(unittest.TestCase):
         for idx, val in enumerate(['100', '4', '10', '10', 'Brother']):
                 self.assertEqual(output['data'][idx]['value'][0], val)
         self.assertEqual(len(output['data'][0]['value']), 1)
+
+    def test_latest_logs_before_fromtime_with_timestamp_before_reporting_id_activation_are_not_returned_for_cloud_device_on_get_history_logs(self):
+        with open(
+                f'{self.path}/../../data/history_logs/success/get_history_logs_latest_logs_before_fromtime_with_timestamp_before_reporting_id_activation_are_not_returned_for_cloud_device.json'
+        ) as data_file:
+            input = json.load(data_file)
+
+        input_1 = json.dumps(input[0])
+        output = handler.get_history_logs(
+            {'body': input_1}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 200)
+        self.assertEqual(output['message'], 'Success')
+        self.assertEqual(len(output['data'][0]['updated']), 2)
+        self.assertEqual(output['data'][0]['updated'][0], '2017-11-20T10:45:00+00:00')
+        for time in output['data'][0]['updated']:
+            self.assertTrue(time_functions.parse_time_with_tz(time))
+        self.assertTrue('device_id' not in output)
+        self.assertTrue('reporting_id' in output and output['reporting_id'])
+
+        input_2 = json.dumps(input[1])
+        output = handler.get_history_logs(
+            {'body': input_2}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 200)
+        self.assertEqual(output['message'], 'Success')
+        self.assertEqual(len(output['data'][0]['updated']), 2)
+        self.assertEqual(output['data'][0]['updated'][0], '2017-12-01T05:15:00+00:00')
+        self.assertTrue('device_id' not in output)
+        self.assertTrue('reporting_id' in output and output['reporting_id'])
+
+        input_3 = json.dumps(input[2])
+        output = handler.get_history_logs(
+            {'body': input_3}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 200)
+        self.assertEqual(output['message'], 'Success')
+        self.assertEqual(len(output['data'][0]['updated']), 1)
+        self.assertEqual(output['data'][0]['updated'][0], '2017-11-20T10:45:00+00:00')
+        self.assertTrue('device_id' not in output)
+        self.assertTrue('reporting_id' in output and output['reporting_id'])
+
+        input_4 = json.dumps(input[3])
+        output = handler.get_history_logs(
+            {'body': input_4}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 200)
+        self.assertEqual(len(output['data'][0]['updated']), 3)
+        self.assertEqual(output['data'][0]['updated'][0], '2017-10-25T10:45:00+00:00')
+        self.assertTrue('reporting_id' not in output)
+        self.assertTrue('device_id' in output and output['device_id'])
+
+        input_5 = json.dumps(input[4])
+        output = handler.get_history_logs(
+            {'body': input_5}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 200)
+        self.assertEqual(len(output['data'][0]['updated']), 2)
+        self.assertEqual(output['data'][0]['updated'][0], '2017-12-01T05:15:00+00:00')
+        self.assertTrue('reporting_id' not in output)
+        self.assertTrue('device_id' in output and output['device_id'])
+
+        input_6 = json.dumps(input[5])
+        output = handler.get_history_logs(
+            {'body': input_6}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 200)
+        self.assertEqual(len(output['data'][0]['updated']), 2)
+        self.assertEqual(output['data'][0]['updated'][0], '2017-11-15T11:00:00+00:00')
+        self.assertTrue('reporting_id' not in output)
+        self.assertTrue('device_id' in output and output['device_id'])
+
+    def test_latest_logs_before_fromtime_with_timestamp_before_reporting_id_activation_are_not_returned_for_email_device_on_get_history_logs(self):
+        with open(
+                f'{self.path}/../../data/history_logs/success/get_history_logs_latest_logs_before_fromtime_with_timestamp_before_reporting_id_activation_are_not_returned_for_email_device.json'
+        ) as data_file:
+            input = json.load(data_file)
+
+        input_1 = json.dumps(input[0])
+        output = handler.get_history_logs(
+            {'body': input_1}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 200)
+        self.assertEqual(len(output['data'][0]['updated']), 2)
+        self.assertEqual(output['data'][0]['updated'][0], '2018-03-10T10:45:00+00:00')
+        for time in output['data'][0]['updated']:
+            self.assertTrue(time_functions.parse_time_with_tz(time))
+        self.assertTrue('device_id' not in output)
+        self.assertTrue('reporting_id' in output and output['reporting_id'])
+
+        input_2 = json.dumps(input[1])
+        output = handler.get_history_logs(
+            {'body': input_2}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 200)
+        self.assertEqual(output['message'], 'Success')
+        self.assertEqual(len(output['data'][0]['updated']), 2)
+        self.assertEqual(output['data'][0]['updated'][0], '2018-03-10T10:45:00+00:00')
+        self.assertTrue('device_id' not in output)
+        self.assertTrue('reporting_id' in output and output['reporting_id'])
+
+        input_3 = json.dumps(input[2])
+        output = handler.get_history_logs(
+            {'body': input_3}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 200)
+        self.assertEqual(len(output['data'][0]['updated']), 2)
+        self.assertEqual(output['data'][0]['updated'][0], '2018-03-20T11:00:00+00:00')
+        self.assertTrue('device_id' not in output)
+        self.assertTrue('reporting_id' in output and output['reporting_id'])
+
+        input_4 = json.dumps(input[3])
+        output = handler.get_history_logs(
+            {'body': input_4}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 204)
+        for feature in output['data']:
+            self.assertEqual(feature['error_code'], 204)
+            self.assertFalse('value' in feature)
+            self.assertFalse('updated' in feature)
+        self.assertTrue('device_id' not in output)
+        self.assertTrue('reporting_id' in output and output['reporting_id'])

@@ -73,4 +73,6 @@ class ReportingRegistration(Base):
 
                     record['to_time_unit'] = to_time
 
+                record['rid_activation_timestamp'] = record.pop('timestamp') # Rename the timestamp to rid_activation_timestamp for convenience (rid = reporting_id)
+                
             return records
