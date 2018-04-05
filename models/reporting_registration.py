@@ -16,9 +16,9 @@ class ReportingRegistration(Base):
         store_data['communication_type'] = data['communication_type']
         store_data['log_service_id'] = data['log_service_id']
         if data['communication_type'] == 'cloud':
-            store_data['device_id'] = data['device_id']
+            store_data['device_id'] = data['device_id'].lower()
         else:
-            store_data['serial_number'] = data['serial_number']
+            store_data['serial_number'] = data['serial_number'].upper()
         self.table.put_item(
             Item=store_data)
 

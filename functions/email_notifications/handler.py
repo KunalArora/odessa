@@ -80,7 +80,11 @@ def save_mail_report(event, context):
                                               ] = xml_data[item + 1]
                 for k, v in xml_parsed_field_map_dict.items():
                     if k in PrintCountFieldMap.PrintCountFieldMapXML:
-                        mail_log_data[PrintCountFieldMap.PrintCountFieldMapXML[k]
+                        if PrintCountFieldMap.PrintCountFieldMapXML[k] == "serial_number":
+                            mail_log_data[PrintCountFieldMap.PrintCountFieldMapXML[k]
+                                      ] = v.upper() if v else ' '
+                        else:
+                            mail_log_data[PrintCountFieldMap.PrintCountFieldMapXML[k]
                                       ] = v if v else ' '
             elif extension == 'csv':
                 raw_data = io.StringIO(attach_data)
@@ -90,7 +94,11 @@ def save_mail_report(event, context):
                     csv_parsed_field_map_dict = dict(item)
                 for k, v in csv_parsed_field_map_dict.items():
                     if k in PrintCountFieldMap.PrintCountFieldMapCSV:
-                        mail_log_data[PrintCountFieldMap.PrintCountFieldMapCSV[k]
+                        if PrintCountFieldMap.PrintCountFieldMapCSV[k] == "serial_number":
+                            mail_log_data[PrintCountFieldMap.PrintCountFieldMapCSV[k]
+                                      ] = v.upper() if v else ' '
+                        else:
+                            mail_log_data[PrintCountFieldMap.PrintCountFieldMapCSV[k]
                                       ] = v if v else ' '
             else:
                 logger.warning(
