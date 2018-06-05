@@ -1,0 +1,34 @@
+{
+    "Table":
+    {
+      "TableName": "accumulated_device_logs",
+      "KeySchema":
+      [
+        {
+          "AttributeName": "id",
+          "KeyType": "HASH"
+        },
+        {
+          "AttributeName": "year_month",
+          "KeyType": "RANGE"
+        }
+      ],
+      "AttributeDefinitions":
+      [
+        {
+          "AttributeName": "id",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "year_month",
+          "AttributeType": "S"
+       }
+      ],
+      "ProvisionedThroughput":
+      {
+        "ReadCapacityUnits": 25,
+        "WriteCapacityUnits": 5
+     }
+    }
+  }
+ 

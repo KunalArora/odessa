@@ -19,6 +19,61 @@ class StreamTestCase(unittest.TestCase):
         test_helper.clear_db(self)
         test_helper.create_table(self)
 
+    def test_insert_accumulated_device_log(self):
+        with open(
+                f'{self.path}/../../data/device_statuses/stream/cloud/insert_accumulated_device_log.json'
+                ) as data_file:
+            input = json.load(data_file)
+        id = input['Records'][0]['dynamodb']['Keys']['id']['S']
+        timestamp = input['Records'][0]['dynamodb']['NewImage']['timestamp']['S']
+        self.assertIsNone(get_accumulated_device_log(self, id, timestamp))
+        stream.save_cloud_device_status(input, 'dummy')
+        accumulated_device_log = get_accumulated_device_log(self, id, timestamp)
+        self.assertTrue(accumulated_device_log)
+        self.assertEqual(len(accumulated_device_log['accumulated_log']), 1)
+        self.assertEqual(accumulated_device_log['id'], id)
+        self.assertEqual(accumulated_device_log['year_month'], timestamp[0:7])
+        self.assertTrue('value' in accumulated_device_log['accumulated_log'][0])
+        self.assertTrue('timestamp' in accumulated_device_log['accumulated_log'][0])
+        self.assertEqual(accumulated_device_log['accumulated_log'][0]['value'], input['Records'][0]['dynamodb']['NewImage']['value']['S'])
+        self.assertEqual(accumulated_device_log['accumulated_log'][0]['timestamp'], timestamp)
+    
+    def test_update_accumulated_device_log(self):    
+        with open(
+                f'{self.path}/../../data/device_statuses/stream/cloud/update_accumulated_device_log.json'
+                ) as data_file:
+            input = json.load(data_file)
+
+        # with the same date case
+        id = input[0]['Records'][0]['dynamodb']['Keys']['id']['S']
+        timestamp = input[0]['Records'][0]['dynamodb']['NewImage']['timestamp']['S']
+        self.assertTrue(get_accumulated_device_log(self, id, timestamp))
+        stream.save_cloud_device_status(input[0], 'dummy')
+        accumulated_device_log = get_accumulated_device_log(self, id, timestamp)
+        self.assertTrue(accumulated_device_log)
+        self.assertEqual(len(accumulated_device_log['accumulated_log']), 1)
+        self.assertEqual(accumulated_device_log['id'], id)
+        self.assertEqual(accumulated_device_log['year_month'], timestamp[0:7])
+        self.assertTrue('value' in accumulated_device_log['accumulated_log'][0])
+        self.assertTrue('timestamp' in accumulated_device_log['accumulated_log'][0])
+        self.assertEqual(accumulated_device_log['accumulated_log'][0]['value'], input[0]['Records'][0]['dynamodb']['NewImage']['value']['S'])
+        self.assertEqual(accumulated_device_log['accumulated_log'][0]['timestamp'], timestamp)
+
+        # with not the same date case
+        id = input[1]['Records'][0]['dynamodb']['Keys']['id']['S']
+        timestamp = input[1]['Records'][0]['dynamodb']['NewImage']['timestamp']['S']
+        self.assertTrue(get_accumulated_device_log(self, id, timestamp))
+        stream.save_cloud_device_status(input[1], 'dummy')
+        accumulated_device_log = get_accumulated_device_log(self, id, timestamp)
+        self.assertTrue(accumulated_device_log)
+        self.assertEqual(len(accumulated_device_log['accumulated_log']), 2)
+        self.assertEqual(accumulated_device_log['id'], id)
+        self.assertEqual(accumulated_device_log['year_month'], timestamp[0:7])
+        self.assertTrue('value' in accumulated_device_log['accumulated_log'][1])
+        self.assertTrue('timestamp' in accumulated_device_log['accumulated_log'][1])
+        self.assertEqual(accumulated_device_log['accumulated_log'][1]['value'], input[1]['Records'][0]['dynamodb']['NewImage']['value']['S'])
+        self.assertEqual(accumulated_device_log['accumulated_log'][1]['timestamp'], timestamp)
+
     @patch('logging.info')
     def test_newly_subscribed_cloud_device(self, mock):
         with open(
@@ -317,6 +372,15 @@ def get_email_device_status(self, serial_number):
     if 'Items' in result and result['Items']:
         return result['Items']
 
+def get_accumulated_device_log(self, id, timestamp):
+    result = self.dynamodb.Table('accumulated_device_logs').get_item(
+        Key={
+                'id': id,
+                'year_month': timestamp[0:7]
+                }
+    )
+    if 'Item' in result and result['Item']:
+        return result['Item']
 
 def main():
     unittest.main()

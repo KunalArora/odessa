@@ -6,6 +6,7 @@ from models.cloud_device import CloudDevice
 from models.email_device import EmailDevice
 from models.service_oid import ServiceOid
 from models.push_notification_subscription import PushNotificationSubscription
+from models.accumulated_device_log import AccumulatedDeviceLog
 from functions import helper
 from helpers.time_functions import parse_time
 from pymib.oid import OID
@@ -19,6 +20,7 @@ def save_cloud_device_status(event, context):
     logger.info(f'stream: device_logs, {event}')
     device_status = DeviceStatus()
     cloud_device = CloudDevice()
+    accumulated_device_log = AccumulatedDeviceLog()
 
     for record in event['Records']:
         try:
@@ -29,12 +31,26 @@ def save_cloud_device_status(event, context):
                 device_id = device_log_id[0]
                 object_id = device_log_id[1]
                 oid = OID(object_id)
-                data = oid.parse(record['dynamodb']['NewImage']['value']['S'])
+                rawdata = record['dynamodb']['NewImage']['value']['S']
+                data = oid.parse(rawdata)
 
                 if oid.type == 'count_type':
                     data = {'count_type_id': record['dynamodb']['NewImage']['value']['S']}
                 elif oid.type == 'counter':
                     data = {'counter_value': data}
+
+                accumulated_device_log.read(device_id, object_id, timestamp)
+                if not accumulated_device_log.is_existing():
+                    accumulated_device_log.insert(device_id, object_id, timestamp, rawdata)
+                else:
+                    accumulated_log = accumulated_device_log.accumulated_log
+                    latest_date = accumulated_log[-1]['timestamp'][0:10]
+                    if latest_date == timestamp[0:10]:
+                        accumulated_log[-1]['timestamp'] = timestamp
+                        accumulated_log[-1]['value'] = rawdata
+                    else:
+                        accumulated_log.append({'value' : rawdata, 'timestamp' : timestamp})
+                    accumulated_device_log.update(accumulated_log)
 
                 cloud_device.read(device_id)
                 if not cloud_device.is_existing():
