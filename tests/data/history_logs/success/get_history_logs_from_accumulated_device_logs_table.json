@@ -1,0 +1,18 @@
+[
+    {
+        "log_service_id": "0",
+        "device_id": "ffffffff-ffff-ffff-ffff-ffffffff0002",
+        "features": ["TonerInk_LifeBlack"],
+        "from": "2017-02-02T00:00:00+00:00",
+        "to": "2017-03-02T00:00:00+00:00",
+        "time_unit": "Daily"
+    },
+    {
+        "log_service_id": "0",
+        "reporting_id": "eeeeeeee-eeee-eeee-eeee-eeeeeeee0001",
+        "features": ["TonerInk_LifeBlack"],
+        "from": "2017-02-02T00:00:00+00:00",
+        "to": "2017-03-02T00:00:00+00:00",
+        "time_unit": "Daily"
+    }
+  ]

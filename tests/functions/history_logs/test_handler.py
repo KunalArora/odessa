@@ -1182,3 +1182,31 @@ class TestGetHistoryLogs(unittest.TestCase):
             self.assertFalse('updated' in feature)
         self.assertTrue('device_id' not in output)
         self.assertTrue('reporting_id' in output and output['reporting_id'])
+
+    def test_get_data_from_accumulated_device_logs_table_on_get_history_logs(self):
+        with open(
+                f'{self.path}/../../data/history_logs/success/get_history_logs_from_accumulated_device_logs_table.json'
+        ) as data_file:
+            input = json.load(data_file)
+
+        input_1 = json.dumps(input[0])
+        output = handler.get_history_logs(
+            {'body': input_1}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 200)
+        self.assertEqual(len(output['data']), 1)
+        self.assertEqual(output['data'][0]['feature'], 'TonerInk_LifeBlack')
+        self.assertEqual(output['data'][0]['error_code'], 200)
+        self.assertEqual(output['data'][0]['value'], ['81', '81', '81'])
+        self.assertEqual(output['data'][0]['updated'], ['2017-02-02T12:23:01+00:00', '2017-02-03T12:23:01+00:00', '2017-03-01T12:23:01+00:00'])
+
+        input_2 = json.dumps(input[1])
+        output = handler.get_history_logs(
+            {'body': input_2}, 'dummy')
+        output = json.loads(output['body'])
+        self.assertEqual(output['code'], 200)
+        self.assertEqual(len(output['data']), 1)
+        self.assertEqual(output['data'][0]['feature'], 'TonerInk_LifeBlack')
+        self.assertEqual(output['data'][0]['error_code'], 200)
+        self.assertEqual(output['data'][0]['value'], ['81', '81', '81'])
+        self.assertEqual(output['data'][0]['updated'], ['2017-02-02T12:23:01+00:00', '2017-02-03T12:23:01+00:00', '2017-03-01T12:23:01+00:00'])

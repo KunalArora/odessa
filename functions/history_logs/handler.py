@@ -4,6 +4,7 @@ from collections import OrderedDict
 from constants import feature_response_codes
 from constants import odessa_response_codes
 from constants.device_response_codes import *
+from constants.oids import BR_INFO_MAINTENANCE_OID
 from functions import helper
 from helpers import time_functions
 import json
@@ -13,6 +14,7 @@ from models.device_log import DeviceLog
 from models.device_subscription import DeviceSubscription
 from models.reporting_registration import ReportingRegistration
 from models.service_oid import ServiceOid
+from models.accumulated_device_log import AccumulatedDeviceLog
 from os import environ
 from pymib.mib import MIB
 import re
@@ -36,6 +38,7 @@ def get_history_logs(event, context):
     device_subscription = DeviceSubscription()
     device_email_log = DeviceEmailLog()
     reporting_registration = ReportingRegistration()
+    accumulated_device_log = AccumulatedDeviceLog()
 
     missing_params_list = []
 
@@ -271,9 +274,16 @@ def get_history_logs(event, context):
             }
             if log_pre_from:
                 params.update({'log_pre_from': log_pre_from})
-
-            result = device_log.get_log_history(
-                params, object_id_list, original_feature_list)
+            
+            object_ids = list(object_id_list.keys())
+            if time_unit == 'daily' and len(object_ids) == 1 and object_ids[0] == BR_INFO_MAINTENANCE_OID:
+                # get history logs from accumulated device logs table
+                result = accumulated_device_log.get_log_history(
+                    params, object_id_list, original_feature_list)
+            else:
+                # get history logs from device logs table
+                result = device_log.get_log_history(
+                    params, object_id_list, original_feature_list)
             if result:
                 feature_response.extend(result)
 
@@ -330,8 +340,16 @@ def get_history_logs(event, context):
                     if log_pre_from:
                         record['log_pre_from'] = log_pre_from
 
-                    result = device_log.get_log_history(
-                        record, object_id_list, original_feature_list)
+                    object_ids = list(object_id_list.keys())
+                    if time_unit == 'daily'and len(object_ids) == 1 and object_ids[0] == BR_INFO_MAINTENANCE_OID:
+                        # get history logs from accumulated device logs table
+                        result = accumulated_device_log.get_log_history(
+                            record, object_id_list, original_feature_list)
+                    else:
+                        # get history logs from device logs table
+                        result = device_log.get_log_history(
+                            record, object_id_list, original_feature_list)
+                
                     if result:
                         feature_response.extend(result)
                 elif (

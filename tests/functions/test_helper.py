@@ -498,6 +498,7 @@ def seed_ddb_history_logs(self):
                     'Location': location
                 }
             )
+    seed_accumulated_device_logs_talbe(self, 'history_logs/accumulated_device_logs.json')
 
 
 def seed_ddb_reporting_registrations(self):

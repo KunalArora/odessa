@@ -139,6 +139,8 @@ custom:
             sources: [./tests/fixtures/history_logs/device_email_logs.json]
           - table: reporting_registrations
             sources: [./tests/fixtures/history_logs/reporting_registrations.json]
+          - table: accumulated_device_logs
+            sources: [./tests/fixtures/history_logs/accumulated_device_logs.json]
       test_reporting_registrations:
         sources:
           - table: device_subscriptions
